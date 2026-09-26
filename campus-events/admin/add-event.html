@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="../assets/images/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <title>Add event – Campus Events Admin</title>
+</head>
+<body class="admin-body" data-root="../" data-page="event-form">
+  <header class="admin-header">
+    <div class="container admin-header-inner">
+      <a class="brand" href="dashboard.html">
+        <img src="../assets/images/logo.svg" alt="" width="34" height="34">
+        <span>Campus Events</span> <span class="admin-tag">Admin</span>
+      </a>
+      <div class="admin-actions">
+        <span class="admin-email" id="admin-email"></span>
+        <a class="btn btn-sm btn-ghost-light" href="../index.html">View site</a>
+        <button type="button" class="btn btn-sm btn-ghost-light" id="logout-btn">Log out</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="gate" id="gate"><p>Checking permissions…</p></div>
+
+  <main class="container admin-main narrow" id="admin-content" hidden>
+    <a class="back-link" href="dashboard.html">Back to dashboard</a>
+    <h1 id="form-heading">Add new event</h1>
+
+    <div id="form-error" role="alert" hidden></div>
+
+    <form id="event-form" class="card">
+      <div class="form-grid">
+        <div class="field full">
+          <label for="title">Event Name <span class="req">*</span></label>
+          <input id="title" type="text" maxlength="120" required>
+        </div>
+
+        <div class="field full">
+          <label for="poster">Event Poster</label>
+          <input id="poster" type="file" accept="image/jpeg,image/png,image/webp">
+          <span class="hint" id="poster-hint">JPG, PNG or WebP, up to 5 MB. Wide images (16:10) look best. Without a poster a placeholder is shown.</span>
+          <img class="poster-preview" id="poster-preview" alt="Poster preview" hidden>
+        </div>
+
+        <div class="field">
+          <label for="date">Date <span class="req">*</span></label>
+          <input id="date" type="date" required>
+        </div>
+        <div class="field">
+          <label for="time">Time <span class="req">*</span></label>
+          <input id="time" type="time" required>
+        </div>
+
+        <div class="field">
+          <label for="venue">Venue <span class="req">*</span></label>
+          <input id="venue" type="text" maxlength="120" required>
+        </div>
+        <div class="field">
+          <label for="organizer">Organizer <span class="req">*</span></label>
+          <input id="organizer" type="text" maxlength="120" required>
+        </div>
+
+        <div class="field">
+          <label for="category">Category <span class="req">*</span></label>
+          <select id="category" required>
+            <option value="" selected disabled>Choose a category</option>
+            <option>Technical</option>
+            <option>Workshop</option>
+            <option>Hackathon</option>
+            <option>Cultural</option>
+            <option>Sports</option>
+            <option>Career</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="registration_deadline">Registration Deadline</label>
+          <input id="registration_deadline" type="date">
+          <span class="hint">Optional. After this date the Register Now button is turned off.</span>
+        </div>
+
+        <div class="field full">
+          <label for="short_description">Short Description <span class="req">*</span></label>
+          <textarea id="short_description" rows="2" maxlength="200" required></textarea>
+          <span class="hint">Shown on the event card. Up to 200 characters.</span>
+        </div>
+
+        <div class="field full">
+          <label for="description">Full Description</label>
+          <textarea id="description" rows="6" maxlength="5000"></textarea>
+          <span class="hint">Shown on the event details page. Line breaks are kept.</span>
+        </div>
+
+        <div class="field full">
+          <label for="registration_link">Google Form URL <span class="req">*</span></label>
+          <input id="registration_link" type="url" placeholder="https://forms.gle/..." required>
+        </div>
+      </div>
+
+      <label class="check"><input type="checkbox" id="is_published" checked> Show this event on the public website</label>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">Publish Event</button>
+        <a class="btn btn-outline btn-lg" href="dashboard.html">Cancel</a>
+      </div>
+    </form>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/supabase.js"></script>
+  <script src="../js/common.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/admin.js"></script>
+</body>
+</html>
