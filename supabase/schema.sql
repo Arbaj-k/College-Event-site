@@ -1,5 +1,5 @@
 -- =====================================================================
---  Campus Events – database schema, Row Level Security and Storage
+--  Hapn – database schema, Row Level Security and Storage
 --  Run this whole file once in: Supabase Dashboard > SQL Editor > New query
 --  It is safe to run again (it drops and recreates the policies).
 -- =====================================================================

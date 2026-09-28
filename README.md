@@ -1,4 +1,4 @@
-# Campus Events
+# Hapn
 
 A simple college events website. Students browse events and register through **Google Forms**. Admins sign in to add, edit and delete events.
 

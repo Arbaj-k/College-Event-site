@@ -1,5 +1,5 @@
 -- =====================================================================
---  Campus Events – 5 sample events (run ONCE, after schema.sql)
+--  Hapn – 5 sample events (run ONCE, after schema.sql)
 --  Posters point to the placeholder images in assets/images/.
 --  Replace registration links with your real Google Form URLs
 --  (see the README, section "Replacing the sample data").

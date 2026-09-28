@@ -262,7 +262,7 @@
       $('form-heading').textContent = 'Edit event';
       $('submit-btn').textContent = 'Save Changes';
       $('poster-hint').textContent = 'Leave empty to keep the current poster. JPG, PNG or WebP, up to 5 MB.';
-      document.title = 'Edit event – Campus Events';
+      document.title = 'Edit event – Hapn';
       fillForm(data);
     }
 

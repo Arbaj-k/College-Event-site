@@ -199,7 +199,7 @@
     if (error) { console.error(error); return notFound('This event could not be loaded. Please try again.'); }
     if (!data) return notFound('Event not found.');
 
-    document.title = data.title + ' – Campus Events';
+    document.title = data.title + ' – Hapn';
     box.innerHTML = detailHtml(data);
   }
 

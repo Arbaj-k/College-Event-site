@@ -4,5 +4,5 @@
   <rect x="300" y="150" width="200" height="180" rx="24" fill="#ffffff"/>
   <path d="M300 174a24 24 0 0 1 24-24h152a24 24 0 0 1 24 24v30H300z" fill="#ffc935"/>
   <circle cx="400" cy="270" r="26" fill="#2f45ff"/>
-  <text x="400" y="400" text-anchor="middle" fill="#5b6482" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700">Campus Events</text>
+  <text x="400" y="400" text-anchor="middle" fill="#5b6482" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700">Hapn</text>
 </svg>
