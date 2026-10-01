@@ -136,12 +136,6 @@
      ===================================================== */
   let editing = null;   // the event being edited (null when adding)
 
-  function isGoogleFormUrl(url) {
-    const clean = CE.httpsUrl(url);
-    if (!clean) return false;
-    const host = new URL(clean).hostname.toLowerCase();
-    return host === 'forms.gle' || host === 'google.com' || host.endsWith('.google.com');
-  }
 
   function readForm() {
     const v = (id) => $(id).value.trim();
@@ -163,7 +157,7 @@
   function validate(values, file) {
     if (values.title.length < 3) return 'The event name must be at least 3 characters.';
     if (CE.CATEGORIES.indexOf(values.category) === -1) return 'Please choose a category.';
-    if (!isGoogleFormUrl(values.registration_link)) return 'Enter a valid Google Form link. It must start with https:// (for example https://forms.gle/… or https://docs.google.com/forms/…).';
+    if (!CE.httpsUrl(values.registration_link)) return 'Enter a valid registration link. It must start with https://';
     if (values.registration_deadline && values.registration_deadline > values.date) return 'The registration deadline cannot be after the event date.';
     if (file) {
       if (!POSTER_TYPES[file.type]) return 'The poster must be a JPG, PNG or WebP image.';
