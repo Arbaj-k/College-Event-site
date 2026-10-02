@@ -162,7 +162,7 @@
     if (values.title.length < 3) return 'The event name must be at least 3 characters.';
     const selectedCategories = Array.from(document.querySelectorAll('input[name="event-category"]:checked'));
     if (!selectedCategories.length) return 'Please select at least one category.';
-    if (selectedCategories.some((el) => el.value === 'Other') && !v('category_other')) return 'Please specify the Other category.';
+    if (selectedCategories.some((el) => el.value === 'Other') && !$('category_other').value.trim()) return 'Please specify the Other category.';
     if (!values.category) return 'Please select or specify a category.';
     if (!CE.httpsUrl(values.registration_link)) return 'Enter a valid registration link. It must start with https://';
     if (values.end_time && !values.end_date) values.end_date = values.date;
