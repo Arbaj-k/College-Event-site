@@ -7,15 +7,15 @@
   'use strict';
 
   const CE = window.CE;
-  const LIST_COLUMNS = 'id,title,poster_url,date,time,venue,category,short_description,registration_deadline,registration_link';
+  const LIST_COLUMNS = 'id,title,poster_url,date,time,end_date,end_time,venue,category,short_description,registration_deadline,registration_link,is_featured,is_pinned';
   const state = { events: [], category: 'All', query: '' };
 
   const byDateTime = (a, b) => (a.date + ' ' + (a.time || '')).localeCompare(b.date + ' ' + (b.time || ''));
 
   /* Upcoming events first (soonest first), then past events (most recent first). */
   function sortForDisplay(list) {
-    const upcoming = list.filter((e) => CE.eventStatus(e) === 'upcoming').sort(byDateTime);
-    const past = list.filter((e) => CE.eventStatus(e) === 'past').sort(byDateTime).reverse();
+    const upcoming = list.filter((e) => CE.eventStatus(e) === 'upcoming').sort((a, b) => Number(b.is_pinned) - Number(a.is_pinned) || byDateTime(a, b));
+    const past = list.filter((e) => CE.eventStatus(e) !== 'upcoming').sort(byDateTime).reverse();
     return upcoming.concat(past);
   }
 
@@ -27,21 +27,21 @@
 
     const button = canRegister
       ? '<a class="btn btn-primary btn-block" href="' + CE.esc(link) + '" target="_blank" rel="noopener noreferrer">Register Now</a>'
-      : '<span class="btn btn-block btn-disabled" aria-disabled="true">' + (status === 'past' ? 'Event Ended' : 'Registration Closed') + '</span>';
+      : '<span class="btn btn-block btn-disabled" aria-disabled="true">' + (status !== 'upcoming' ? 'Event Ended' : 'Registration Closed') + '</span>';
 
     const stagger = 'style="--i:' + (index % 12) + '"';
     return '' +
-      '<article class="event-card reveal' + (status === 'past' ? ' is-past' : '') + '" ' + stagger + '>' +
+      '<article class="event-card reveal' + (status !== 'upcoming' ? ' is-past' : '') + '" ' + stagger + '>' +
         '<a class="card-poster" href="' + detailUrl + '" tabindex="-1" aria-hidden="true">' +
           '<img class="poster-img" src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="" loading="lazy" width="800" height="500">' +
           '<span class="badge">' + CE.esc(ev.category) + '</span>' +
-          (status === 'past' ? '<span class="badge badge-ended">Ended</span>' : '') +
+          (status !== 'upcoming' ? '<span class="badge badge-ended">Ended</span>' : '') +
         '</a>' +
         '<div class="card-body">' +
           '<h3 class="card-title"><a href="' + detailUrl + '">' + CE.esc(ev.title) + '</a></h3>' +
           '<ul class="meta">' +
-            '<li><span aria-hidden="true">📅</span><span><span class="visually-hidden">Date: </span>' + CE.esc(CE.formatDate(ev.date)) + '</span></li>' +
-            '<li><span aria-hidden="true">⏰</span><span><span class="visually-hidden">Time: </span>' + CE.esc(CE.formatTime(ev.time)) + '</span></li>' +
+            '<li><span aria-hidden="true">📅</span><span><span class="visually-hidden">Date: </span>' + CE.esc(CE.formatDate(ev.date)) + (ev.end_date ? ' – ' + CE.esc(CE.formatDate(ev.end_date)) : '') + '</span></li>' +
+            '<li><span aria-hidden="true">⏰</span><span><span class="visually-hidden">Time: </span>' + CE.esc(CE.formatTime(ev.time)) + (ev.end_time ? ' – ' + CE.esc(CE.formatTime(ev.end_time)) : '') + '</span></li>' +
             '<li><span aria-hidden="true">📍</span><span><span class="visually-hidden">Venue: </span>' + CE.esc(ev.venue) + '</span></li>' +
             '<li><span aria-hidden="true">🏷️</span><span><span class="visually-hidden">Category: </span>' + CE.esc(ev.category) + '</span></li>' +
           '</ul>' +
@@ -105,21 +105,16 @@
   function renderNextUp() {
     const box = document.getElementById('next-up');
     if (!box) return;
-    const next = sortForDisplay(state.events).find((e) => CE.eventStatus(e) === 'upcoming');
-    if (!next) return;
-    const days = CE.daysUntil(next.date);
-    const when = days === 0 ? 'Happening today' : days === 1 ? 'Tomorrow' : 'In ' + days + ' days';
-    box.innerHTML =
-      '<a class="ticket" href="event.html?id=' + encodeURIComponent(next.id) + '">' +
-        '<span class="ticket-label">Next up</span>' +
-        '<span class="ticket-title">' + CE.esc(next.title) + '</span>' +
-        '<span class="ticket-rows">' +
-          '<span>📅 ' + CE.esc(CE.formatDate(next.date)) + '</span>' +
-          '<span>⏰ ' + CE.esc(CE.formatTime(next.time)) + '</span>' +
-          '<span>📍 ' + CE.esc(next.venue) + '</span>' +
-        '</span>' +
-        '<span class="ticket-when">' + when + '</span>' +
-      '</a>';
+    const featured = sortForDisplay(state.events).filter((e) => e.is_featured && CE.eventStatus(e) === 'upcoming');
+    const picks = featured.length ? featured : sortForDisplay(state.events).filter((e) => CE.eventStatus(e) === 'upcoming').slice(0, 5);
+    if (!picks.length) { box.hidden = true; return; }
+    box.innerHTML = '<div class="featured-head"><span class="ticket-label">Upcoming at Hapn</span><div class="carousel-controls"><button type="button" class="carousel-prev" aria-label="Previous events">‹</button><button type="button" class="carousel-next" aria-label="Next events">›</button></div></div>' +
+      '<div class="featured-carousel" aria-label="Featured upcoming events">' +
+      picks.map((ev) => '<article class="featured-card"><a class="featured-poster" href="event.html?id=' + encodeURIComponent(ev.id) + '"><img src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="" loading="lazy"></a><div class="featured-copy"><span class="featured-date">' + CE.esc(CE.formatDate(ev.date)) + '</span><h3><a href="event.html?id=' + encodeURIComponent(ev.id) + '">' + CE.esc(ev.title) + '</a></h3><p>' + CE.esc(ev.venue) + ' · ' + CE.esc(CE.formatTime(ev.time)) + '</p><a class="btn btn-primary btn-sm" href="event.html?id=' + encodeURIComponent(ev.id) + '">View event</a></div></article>').join('') +
+      '</div>';
+    const rail = box.querySelector('.featured-carousel');
+    box.querySelector('.carousel-prev').addEventListener('click', () => rail.scrollBy({ left: -rail.clientWidth * .85, behavior: 'smooth' }));
+    box.querySelector('.carousel-next').addEventListener('click', () => rail.scrollBy({ left: rail.clientWidth * .85, behavior: 'smooth' }));
     box.hidden = false;
     box.classList.add('ticket-ready');
   }
@@ -163,8 +158,8 @@
       : '<span class="btn btn-lg btn-disabled" aria-disabled="true">' + (status === 'past' ? 'This event has ended' : 'Registration closed') + '</span>';
 
     const rows = [
-      ['📅 Date', CE.formatDate(ev.date)],
-      ['⏰ Time', CE.formatTime(ev.time)],
+      ['📅 Date', CE.formatDate(ev.date) + (ev.end_date ? ' – ' + CE.formatDate(ev.end_date) : '')],
+      ['⏰ Time', CE.formatTime(ev.time) + (ev.end_time ? ' – ' + CE.formatTime(ev.end_time) : '')],
       ['📍 Venue', ev.venue],
       ['👥 Organizer', ev.organizer],
       ['🏷️ Category', ev.category]
