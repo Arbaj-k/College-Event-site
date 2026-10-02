@@ -47,12 +47,22 @@
         </div>
 
         <div class="field">
-          <label for="date">Date <span class="req">*</span></label>
+          <label for="date">From date <span class="req">*</span></label>
           <input id="date" type="date" required>
         </div>
         <div class="field">
-          <label for="time">Time <span class="req">*</span></label>
+          <label for="time">From time <span class="req">*</span></label>
           <input id="time" type="time" required>
+        </div>
+        <div class="field">
+          <label for="end_date">To date</label>
+          <input id="end_date" type="date">
+          <span class="hint">Optional. Leave blank for a single-date event.</span>
+        </div>
+        <div class="field">
+          <label for="end_time">To time</label>
+          <input id="end_time" type="time">
+          <span class="hint">When set, registration closes automatically after the event ends.</span>
         </div>
 
         <div class="field">
@@ -101,7 +111,11 @@
         </div>
       </div>
 
-      <label class="check"><input type="checkbox" id="is_published" checked> Show this event on the public website</label>
+      <div class="publish-options">
+        <label class="check"><input type="checkbox" id="is_published" checked> Show this event on the public website</label>
+        <label class="check"><input type="checkbox" id="is_featured"> Feature in homepage carousel</label>
+        <label class="check"><input type="checkbox" id="is_pinned"> Pin near the top of the event list</label>
+      </div>
 
       <div class="form-actions">
         <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">Publish Event</button>
