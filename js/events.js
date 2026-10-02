@@ -120,7 +120,11 @@
     const setActive = (index, shouldScroll) => {
       activeIndex = Math.max(0, Math.min(cards.length - 1, index));
       cards.forEach((card, i) => card.classList.toggle('is-active', i === activeIndex));
-      if (shouldScroll && cards[activeIndex]) cards[activeIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      if (shouldScroll && cards[activeIndex]) {
+        const card = cards[activeIndex];
+        const target = card.offsetLeft - (rail.clientWidth - card.offsetWidth) / 2;
+        rail.scrollTo({ left: Math.max(0, Math.min(rail.scrollWidth - rail.clientWidth, target)), behavior: 'smooth' });
+      }
     };
     const closestCard = () => {
       const center = rail.getBoundingClientRect().left + rail.clientWidth / 2;
@@ -129,6 +133,28 @@
       setActive(best, false);
     };
     rail.addEventListener('scroll', () => { window.requestAnimationFrame(closestCard); }, { passive: true });
+    let pointerStartX = 0, pointerStartY = 0, pointerStartScroll = 0, dragging = false, pointerDown = false;
+    rail.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      pointerStartX = e.clientX; pointerStartY = e.clientY; pointerStartScroll = rail.scrollLeft;
+      pointerDown = true; dragging = false;
+      rail.classList.add('is-pointer-down');
+    });
+    rail.addEventListener('pointermove', (e) => {
+      if (!pointerDown) return;
+      const dx = e.clientX - pointerStartX, dy = e.clientY - pointerStartY;
+      if (!dragging && Math.abs(dx) > 7 && Math.abs(dx) > Math.abs(dy) * 1.15) dragging = true;
+      if (dragging) { rail.setPointerCapture?.(e.pointerId); rail.scrollLeft = pointerStartScroll - dx; e.preventDefault(); }
+    });
+    const finishPointer = () => {
+      if (!pointerDown) return;
+      pointerDown = false; rail.classList.remove('is-pointer-down');
+      if (dragging) { closestCard(); rail.dataset.justDragged = 'true'; window.setTimeout(() => { delete rail.dataset.justDragged; }, 80); }
+      dragging = false;
+    };
+    rail.addEventListener('pointerup', finishPointer);
+    rail.addEventListener('pointercancel', finishPointer);
+    rail.addEventListener('click', (e) => { if (rail.dataset.justDragged === 'true') { e.preventDefault(); e.stopPropagation(); } }, true);
     rail.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') { e.preventDefault(); setActive(activeIndex + 1, true); } if (e.key === 'ArrowLeft') { e.preventDefault(); setActive(activeIndex - 1, true); } });
     box.querySelector('.carousel-prev').addEventListener('click', () => setActive(activeIndex - 1, true));
     box.querySelector('.carousel-next').addEventListener('click', () => setActive(activeIndex + 1, true));

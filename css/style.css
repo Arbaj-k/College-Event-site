@@ -413,3 +413,38 @@ p { margin: 0 0 1rem; }
 @media (prefers-reduced-motion:reduce) {
   .featured-card, .featured-carousel { scroll-behavior:auto; transition:none; }
 }
+
+
+/* Carousel navigation fix: leave enough scroll room to center first/last cards */
+.featured-carousel {
+  box-sizing:border-box;
+  padding-left:max(1rem, calc((100% - 72%) / 2));
+  padding-right:max(1rem, calc((100% - 72%) / 2));
+  scroll-snap-type:x mandatory;
+  overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-x pan-y;
+  user-select:none;
+  -webkit-user-select:none;
+}
+.featured-carousel.is-pointer-down { cursor:grabbing; scroll-behavior:auto !important; scroll-snap-type:none; }
+.featured-carousel.is-pointer-down .featured-card { transition:none; }
+.featured-card { scroll-snap-align:center; }
+.featured-poster img { -webkit-user-drag:none; user-select:none; }
+@media (min-width:900px) {
+  #next-up { overflow:visible; }
+  .featured-carousel {
+    gap:.25rem;
+    padding-left:calc((100% - 33.333%) / 2);
+    padding-right:calc((100% - 33.333%) / 2);
+    scroll-padding-inline:0;
+  }
+  .featured-card { flex-basis:33.333%; width:33.333%; }
+  .featured-copy { padding:.8rem; }
+  .featured-poster { aspect-ratio:4/3; }
+}
+@media (max-width:899px) {
+  .featured-carousel { padding-left:11%; padding-right:11%; scroll-padding-inline:0; }
+}
+#category-other-wrap[hidden] { display:none !important; }
+#category-other-required[hidden] { display:none !important; }
