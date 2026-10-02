@@ -335,3 +335,22 @@ p { margin: 0 0 1rem; }
   .event-card.reveal, .hero-inner > div, #next-up.ticket-ready { opacity: 1; transform: none; }
   .nav { opacity: 1; visibility: visible; transform: none; }
 }
+
+
+/* ---------- Featured events carousel ---------- */
+#next-up { min-width: 0; max-width: none; width: 100%; }
+.featured-head { display:flex; align-items:center; justify-content:space-between; gap:.75rem; margin-bottom:.8rem; }
+.carousel-controls { display:flex; gap:.4rem; }
+.carousel-controls button { width:2.3rem; height:2.3rem; border:1px solid rgba(255,255,255,.55); border-radius:50%; background:rgba(255,255,255,.12); color:#fff; font-size:1.5rem; line-height:1; cursor:pointer; }
+.featured-carousel { display:grid; grid-auto-columns:minmax(230px, 78%); grid-auto-flow:column; gap:.85rem; overflow-x:auto; scroll-snap-type:x mandatory; scroll-behavior:smooth; padding:.15rem .1rem .75rem; scrollbar-width:thin; }
+.featured-card { min-width:0; display:flex; flex-direction:column; background:#fff; color:var(--ink); border-radius:16px; overflow:hidden; scroll-snap-align:start; box-shadow:0 12px 24px -16px rgba(0,0,30,.5); }
+.featured-poster { display:block; aspect-ratio:16/8; background:var(--blue-soft); overflow:hidden; }
+.featured-poster img { display:block; width:100%; height:100%; object-fit:cover; }
+.featured-copy { padding:1rem; display:flex; flex-direction:column; align-items:flex-start; gap:.45rem; }
+.featured-date { color:var(--blue); font-weight:800; font-size:.85rem; }
+.featured-copy h3 { margin:0; font-size:1.1rem; line-height:1.25; }
+.featured-copy h3 a { color:var(--ink); }
+.featured-copy p { margin:0 0 .35rem; color:var(--muted); font-size:.9rem; }
+.featured-copy .btn { margin-top:auto; }
+.publish-options { display:grid; gap:.6rem; margin-top:1rem; }
+@media (min-width:900px) { .featured-carousel { grid-auto-columns:minmax(250px, 48%); } }

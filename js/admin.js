@@ -41,7 +41,7 @@
 
   function statusOf(ev) {
     if (!ev.is_published) return { key: 'draft', label: 'Draft' };
-    return CE.eventStatus(ev) === 'past' ? { key: 'past', label: 'Past' } : { key: 'upcoming', label: 'Upcoming' };
+    return CE.eventStatus(ev) === 'past' ? { key: 'past', label: 'Past' } : (CE.eventStatus(ev) === 'ended' ? { key: 'past', label: 'Ended' } : { key: 'upcoming', label: 'Upcoming' });
   }
 
   /* =====================================================
@@ -68,7 +68,7 @@
       return '<tr>' +
         '<td data-label="Poster"><img class="thumb poster-img" src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="" loading="lazy"></td>' +
         '<td data-label="Event"><span class="event-name">' + CE.esc(ev.title) + '</span></td>' +
-        '<td data-label="Date">' + CE.esc(CE.formatDate(ev.date)) + '</td>' +
+        '<td data-label="Date">' + CE.esc(CE.formatDate(ev.date)) + (ev.end_date ? ' – ' + CE.esc(CE.formatDate(ev.end_date)) : '') + '</td>' +
         '<td data-label="Category">' + CE.esc(ev.category) + '</td>' +
         '<td data-label="Status"><span class="status status-' + s.key + '">' + s.label + '</span></td>' +
         '<td data-label="Actions"><div class="row-actions">' +
@@ -81,7 +81,7 @@
 
   async function loadEvents() {
     const { data, error } = await sb.from('events')
-      .select('id,title,poster_url,date,time,category,is_published')
+      .select('id,title,poster_url,date,time,end_date,end_time,category,is_published')
       .order('date', { ascending: false });
     if (error) {
       CE.showNotice($('dash-error'), friendlyError(error));
@@ -143,6 +143,10 @@
       title: v('title'),
       date: v('date'),
       time: v('time').slice(0, 5),
+      end_date: v('end_date') || null,
+      end_time: v('end_time') || null,
+      is_featured: $('is_featured').checked,
+      is_pinned: $('is_pinned').checked,
       venue: v('venue'),
       organizer: v('organizer'),
       category: v('category'),
@@ -158,7 +162,11 @@
     if (values.title.length < 3) return 'The event name must be at least 3 characters.';
     if (CE.CATEGORIES.indexOf(values.category) === -1) return 'Please choose a category.';
     if (!CE.httpsUrl(values.registration_link)) return 'Enter a valid registration link. It must start with https://';
-    if (values.registration_deadline && values.registration_deadline > values.date) return 'The registration deadline cannot be after the event date.';
+    if (values.end_time && !values.end_date) values.end_date = values.date;
+    if (values.end_date && values.end_date < values.date) return 'The end date cannot be before the start date.';
+    if (values.end_date === values.date && values.end_time && values.end_time < values.time) return 'For an event ending on the same date, the end time cannot be before the start time.';
+    if (values.end_date && !values.end_time) return 'Please enter an end time when an end date is set.';
+    if (values.registration_deadline && values.registration_deadline > values.date) return 'The registration deadline cannot be after the event start date.';
     if (file) {
       if (!POSTER_TYPES[file.type]) return 'The poster must be a JPG, PNG or WebP image.';
       if (file.size > MAX_POSTER_BYTES) return 'The poster is too large. Please use an image under 5 MB.';
@@ -176,10 +184,12 @@
   }
 
   function fillForm(ev) {
-    ['title', 'date', 'venue', 'organizer', 'category', 'short_description', 'description', 'registration_deadline', 'registration_link']
+    ['title', 'date', 'end_date', 'end_time', 'venue', 'organizer', 'category', 'short_description', 'description', 'registration_deadline', 'registration_link']
       .forEach((f) => { $(f).value = ev[f] || ''; });
     $('time').value = (ev.time || '').slice(0, 5);
     $('is_published').checked = ev.is_published !== false;
+    $('is_featured').checked = ev.is_featured === true;
+    $('is_pinned').checked = ev.is_pinned === true;
     if (ev.poster_url) {
       $('poster-preview').src = CE.posterSrc(ev.poster_url);
       $('poster-preview').hidden = false;

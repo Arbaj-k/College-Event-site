@@ -58,10 +58,24 @@
     return Math.round((a - b) / 86400000);
   };
 
-  CE.eventStatus = function (ev) { return ev.date < CE.todayStr() ? 'past' : 'upcoming'; };
+  CE.nowLocalParts = function () {
+    const d = new Date();
+    return { date: CE.todayStr(), time: String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') };
+  };
+
+  CE.eventStatus = function (ev) {
+    const now = CE.nowLocalParts();
+    const endDate = ev.end_date || ev.date;
+    const endTime = ev.end_time || null;
+    if (endDate < now.date || (endDate === now.date && endTime && endTime <= now.time)) return 'ended';
+    return 'upcoming';
+  };
 
   CE.registrationOpen = function (ev) {
-    return CE.eventStatus(ev) === 'upcoming' && (!ev.registration_deadline || ev.registration_deadline >= CE.todayStr());
+    const now = CE.nowLocalParts();
+    const beforeEnd = CE.eventStatus(ev) === 'upcoming';
+    const beforeDeadline = !ev.registration_deadline || ev.registration_deadline >= now.date;
+    return beforeEnd && beforeDeadline;
   };
 
   /* ---------- small UI helpers ---------- */
