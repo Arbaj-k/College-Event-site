@@ -55,7 +55,7 @@
   function filtered() {
     const q = state.query.trim().toLowerCase();
     return sortForDisplay(state.events).filter((ev) => {
-      if (state.category !== 'All' && ev.category !== state.category) return false;
+      if (state.category !== 'All' && !String(ev.category || '').split(',').map((c) => c.trim()).includes(state.category)) return false;
       if (!q) return true;
       return [ev.title, ev.venue, ev.category].some((field) => String(field || '').toLowerCase().indexOf(q) !== -1);
     });
@@ -87,7 +87,9 @@
 
   function renderChips() {
     const wrap = document.getElementById('category-chips');
-    wrap.innerHTML = ['All'].concat(CE.CATEGORIES).map((c) =>
+    const dynamicCategories = state.events.flatMap((ev) => String(ev.category || '').split(',').map((c) => c.trim()).filter(Boolean));
+    const categories = ['All'].concat(Array.from(new Set(CE.CATEGORIES.concat(dynamicCategories))));
+    wrap.innerHTML = categories.map((c) =>
       '<button type="button" class="chip" data-category="' + CE.esc(c) + '" aria-pressed="' + (c === state.category) + '">' + CE.esc(c) + '</button>'
     ).join('');
     wrap.addEventListener('click', (e) => {
@@ -113,8 +115,24 @@
       picks.map((ev) => '<article class="featured-card"><a class="featured-poster" href="event.html?id=' + encodeURIComponent(ev.id) + '"><img src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="" loading="lazy"></a><div class="featured-copy"><span class="featured-date">' + CE.esc(CE.formatDate(ev.date)) + '</span><h3><a href="event.html?id=' + encodeURIComponent(ev.id) + '">' + CE.esc(ev.title) + '</a></h3><p>' + CE.esc(ev.venue) + ' · ' + CE.esc(CE.formatTime(ev.time)) + '</p><a class="btn btn-primary btn-sm" href="event.html?id=' + encodeURIComponent(ev.id) + '">View event</a></div></article>').join('') +
       '</div>';
     const rail = box.querySelector('.featured-carousel');
-    box.querySelector('.carousel-prev').addEventListener('click', () => rail.scrollBy({ left: -rail.clientWidth * .85, behavior: 'smooth' }));
-    box.querySelector('.carousel-next').addEventListener('click', () => rail.scrollBy({ left: rail.clientWidth * .85, behavior: 'smooth' }));
+    const cards = Array.from(rail.querySelectorAll('.featured-card'));
+    let activeIndex = 0;
+    const setActive = (index, shouldScroll) => {
+      activeIndex = Math.max(0, Math.min(cards.length - 1, index));
+      cards.forEach((card, i) => card.classList.toggle('is-active', i === activeIndex));
+      if (shouldScroll && cards[activeIndex]) cards[activeIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    };
+    const closestCard = () => {
+      const center = rail.getBoundingClientRect().left + rail.clientWidth / 2;
+      let best = 0, distance = Infinity;
+      cards.forEach((card, i) => { const d = Math.abs(card.getBoundingClientRect().left + card.clientWidth / 2 - center); if (d < distance) { distance = d; best = i; } });
+      setActive(best, false);
+    };
+    rail.addEventListener('scroll', () => { window.requestAnimationFrame(closestCard); }, { passive: true });
+    rail.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') { e.preventDefault(); setActive(activeIndex + 1, true); } if (e.key === 'ArrowLeft') { e.preventDefault(); setActive(activeIndex - 1, true); } });
+    box.querySelector('.carousel-prev').addEventListener('click', () => setActive(activeIndex - 1, true));
+    box.querySelector('.carousel-next').addEventListener('click', () => setActive(activeIndex + 1, true));
+    setActive(0, true);
     box.hidden = false;
     box.classList.add('ticket-ready');
   }
