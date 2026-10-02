@@ -155,7 +155,7 @@
     const cta = canRegister
       ? '<a class="btn btn-primary btn-lg" href="' + CE.esc(link) + '" target="_blank" rel="noopener noreferrer">Register Now</a>' +
         '<small>Opens the registration form in a new tab.</small>'
-      : '<span class="btn btn-lg btn-disabled" aria-disabled="true">' + (status === 'past' ? 'This event has ended' : 'Registration closed') + '</span>';
+      : '<span class="btn btn-lg btn-disabled" aria-disabled="true">' + (status !== 'upcoming' ? 'This event has ended' : 'Registration closed') + '</span>';
 
     const rows = [
       ['📅 Date', CE.formatDate(ev.date) + (ev.end_date ? ' – ' + CE.formatDate(ev.end_date) : '')],
@@ -170,7 +170,7 @@
       '<div class="detail">' +
         '<div class="detail-poster"><img class="poster-img" src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="Poster for ' + CE.esc(ev.title) + '"></div>' +
         '<div class="detail-info">' +
-          '<span class="pill">' + CE.esc(ev.category) + '</span>' + (status === 'past' ? '<span class="pill pill-ended">Ended</span>' : '') +
+          '<span class="pill">' + CE.esc(ev.category) + '</span>' + (status !== 'upcoming' ? '<span class="pill pill-ended">Ended</span>' : '') +
           '<h1>' + CE.esc(ev.title) + '</h1>' +
           '<dl class="info-list">' + rows.map((r) => '<div><dt>' + r[0] + '</dt><dd>' + CE.esc(r[1]) + '</dd></div>').join('') + '</dl>' +
           '<h2 class="detail-text-title">About this event</h2>' +
