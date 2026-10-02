@@ -197,7 +197,10 @@
     });
     const otherValue = categories.find((c) => !CE.CATEGORIES.includes(c));
     $('category_other').value = otherValue || '';
-    $('category-other-wrap').hidden = !document.querySelector('input[name="event-category"][value="Other"]').checked;
+    const otherSelected = document.querySelector('input[name="event-category"][value="Other"]').checked;
+    $('category-other-wrap').hidden = !otherSelected;
+    $('category_other').required = otherSelected;
+    $('category-other-required').hidden = !otherSelected;
     $('time').value = (ev.time || '').slice(0, 5);
     $('is_published').checked = ev.is_published !== false;
     $('is_featured').checked = ev.is_featured === true;
@@ -283,7 +286,10 @@
     }
 
     document.querySelectorAll('input[name="event-category"]').forEach((el) => el.addEventListener('change', () => {
-      $('category-other-wrap').hidden = !document.querySelector('input[name="event-category"][value="Other"]').checked;
+      const otherSelected = document.querySelector('input[name="event-category"][value="Other"]').checked;
+      $('category-other-wrap').hidden = !otherSelected;
+      $('category_other').required = otherSelected;
+      $('category-other-required').hidden = !otherSelected;
     }));
     $('event-form').addEventListener('submit', submitForm);
   }
