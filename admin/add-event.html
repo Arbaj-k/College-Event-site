@@ -74,18 +74,22 @@
           <input id="organizer" type="text" maxlength="120" required>
         </div>
 
-        <div class="field">
-          <label for="category">Category <span class="req">*</span></label>
-          <select id="category" required>
-            <option value="" selected disabled>Choose a category</option>
-            <option>Technical</option>
-            <option>Workshop</option>
-            <option>Hackathon</option>
-            <option>Cultural</option>
-            <option>Sports</option>
-            <option>Career</option>
-            <option>Other</option>
-          </select>
+        <div class="field full">
+          <span class="field-label">Categories <span class="req">*</span></span>
+          <div id="category-options" class="category-options">
+            <label class="check"><input type="checkbox" name="event-category" value="Technical"> Technical</label>
+            <label class="check"><input type="checkbox" name="event-category" value="Workshop"> Workshop</label>
+            <label class="check"><input type="checkbox" name="event-category" value="Hackathon"> Hackathon</label>
+            <label class="check"><input type="checkbox" name="event-category" value="Cultural"> Cultural</label>
+            <label class="check"><input type="checkbox" name="event-category" value="Sports"> Sports</label>
+            <label class="check"><input type="checkbox" name="event-category" value="Career"> Career</label>
+            <label class="check"><input type="checkbox" name="event-category" value="Other"> Other</label>
+          </div>
+          <div class="field" id="category-other-wrap" hidden>
+            <label for="category_other">Specify other category <span class="req">*</span></label>
+            <input id="category_other" type="text" maxlength="60" placeholder="e.g. Entrepreneurship">
+          </div>
+          <span class="hint">Select one or more categories. If you select Other, enter its name.</span>
         </div>
         <div class="field">
           <label for="registration_deadline">Registration Deadline</label>

@@ -354,3 +354,62 @@ p { margin: 0 0 1rem; }
 .featured-copy .btn { margin-top:auto; }
 .publish-options { display:grid; gap:.6rem; margin-top:1rem; }
 @media (min-width:900px) { .featured-carousel { grid-auto-columns:minmax(250px, 48%); } }
+
+
+/* ---------- Center-focused glass featured carousel ---------- */
+.hero { overflow:hidden; }
+.hero-inner { min-width:0; }
+#next-up { min-width:0; width:100%; max-width:100%; align-self:center; }
+.featured-head { display:flex; align-items:center; justify-content:space-between; gap:.75rem; margin:0 auto 1rem; max-width:100%; }
+.featured-head .ticket-label { color:#fff; background:rgba(255,255,255,.17); border:1px solid rgba(255,255,255,.28); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); box-shadow:0 8px 24px rgba(12,18,90,.14); }
+.carousel-controls button { width:2.5rem; height:2.5rem; color:#fff; background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.45); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
+.featured-carousel {
+  display:flex; align-items:stretch; gap:1rem; width:100%; min-width:0;
+  overflow-x:auto; overflow-y:hidden; padding:1rem max(1rem, calc((100% - 72%) / 2)) 1.5rem;
+  scroll-snap-type:x mandatory; scroll-padding-inline:calc((100% - 72%) / 2);
+  scroll-behavior:smooth; overscroll-behavior-x:contain; touch-action:pan-x pan-y;
+  -webkit-overflow-scrolling:touch; scrollbar-width:none; cursor:grab;
+  perspective:1000px;
+}
+.featured-carousel::-webkit-scrollbar { display:none; }
+.featured-carousel:active { cursor:grabbing; }
+.featured-card {
+  flex:0 0 72%; min-width:0; width:72%; display:flex; flex-direction:column;
+  opacity:.48; transform:scale(.86); filter:saturate(.62) brightness(.84);
+  border:1px solid rgba(255,255,255,.62);
+  background:rgba(255,255,255,.16); color:#fff;
+  border-radius:22px; overflow:hidden; scroll-snap-align:center;
+  box-shadow:0 18px 50px rgba(7,14,90,.2), inset 0 1px 0 rgba(255,255,255,.55);
+  backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);
+  transition:transform .35s ease, opacity .35s ease, filter .35s ease, box-shadow .35s ease;
+}
+.featured-card.is-active { opacity:1; transform:scale(1); filter:none; box-shadow:0 28px 65px rgba(8,14,90,.3), inset 0 1px 0 rgba(255,255,255,.7); }
+.featured-poster { display:block; aspect-ratio:16/9; overflow:hidden; background:rgba(255,255,255,.12); }
+.featured-poster img { width:100%; height:100%; display:block; object-fit:cover; }
+.featured-copy { padding:1rem; gap:.5rem; background:linear-gradient(145deg,rgba(255,255,255,.93),rgba(241,244,255,.82)); color:var(--ink); }
+.featured-date { color:var(--blue); font-size:.82rem; font-weight:800; }
+.featured-copy h3 { margin:0; font-size:clamp(1rem,1.2vw,1.3rem); line-height:1.25; }
+.featured-copy h3 a { color:var(--ink); }
+.featured-copy p { margin:0 0 .35rem; color:var(--muted); font-size:.88rem; }
+.featured-copy .btn { margin-top:auto; align-self:flex-start; }
+.category-options { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:.5rem .8rem; padding:.8rem; border:1px solid var(--line); border-radius:12px; background:#fafbff; }
+.category-options .check { margin:0; }
+.field-label { display:block; font-weight:700; margin-bottom:.5rem; }
+@media (min-width:900px) {
+  .hero { padding:4rem 0 4.5rem; }
+  .hero-inner { grid-template-columns:minmax(0,1fr) minmax(0,1.05fr); gap:2.25rem; }
+  #next-up { width:100%; max-width:100%; overflow:hidden; }
+  .featured-carousel { gap:.5rem; padding:1.5rem 0 1.75rem; scroll-padding-inline:33.333%; }
+  .featured-card { flex:0 0 33.333%; width:33.333%; transform:scale(.82); }
+  .featured-card.is-active { transform:scale(1.04); z-index:2; }
+  .featured-copy { padding:.9rem; }
+  .featured-copy .btn { padding:.55rem .9rem; font-size:.88rem; }
+}
+@media (max-width:899px) {
+  .hero-inner { grid-template-columns:minmax(0,1fr); }
+  .featured-carousel { padding-inline:14%; scroll-padding-inline:14%; }
+  .featured-card { flex-basis:78%; width:78%; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .featured-card, .featured-carousel { scroll-behavior:auto; transition:none; }
+}

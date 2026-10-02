@@ -149,7 +149,7 @@
       is_pinned: $('is_pinned').checked,
       venue: v('venue'),
       organizer: v('organizer'),
-      category: v('category'),
+      category: Array.from(document.querySelectorAll('input[name="event-category"]:checked')).map((el) => el.value === 'Other' ? v('category_other') : el.value).filter(Boolean).join(', '),
       short_description: v('short_description'),
       description: v('description') || null,
       registration_deadline: v('registration_deadline') || null,
@@ -160,7 +160,10 @@
 
   function validate(values, file) {
     if (values.title.length < 3) return 'The event name must be at least 3 characters.';
-    if (CE.CATEGORIES.indexOf(values.category) === -1) return 'Please choose a category.';
+    const selectedCategories = Array.from(document.querySelectorAll('input[name="event-category"]:checked'));
+    if (!selectedCategories.length) return 'Please select at least one category.';
+    if (selectedCategories.some((el) => el.value === 'Other') && !v('category_other')) return 'Please specify the Other category.';
+    if (!values.category) return 'Please select or specify a category.';
     if (!CE.httpsUrl(values.registration_link)) return 'Enter a valid registration link. It must start with https://';
     if (values.end_time && !values.end_date) values.end_date = values.date;
     if (values.end_date && values.end_date < values.date) return 'The end date cannot be before the start date.';
@@ -184,8 +187,17 @@
   }
 
   function fillForm(ev) {
-    ['title', 'date', 'end_date', 'end_time', 'venue', 'organizer', 'category', 'short_description', 'description', 'registration_deadline', 'registration_link']
+    ['title', 'date', 'end_date', 'end_time', 'venue', 'organizer', 'short_description', 'description', 'registration_deadline', 'registration_link']
       .forEach((f) => { $(f).value = ev[f] || ''; });
+    const categories = String(ev.category || '').split(',').map((c) => c.trim()).filter(Boolean);
+    document.querySelectorAll('input[name="event-category"]').forEach((el) => {
+      const exact = categories.includes(el.value);
+      const other = el.value === 'Other' && categories.some((c) => !CE.CATEGORIES.includes(c));
+      el.checked = exact || other;
+    });
+    const otherValue = categories.find((c) => !CE.CATEGORIES.includes(c));
+    $('category_other').value = otherValue || '';
+    $('category-other-wrap').hidden = !document.querySelector('input[name="event-category"][value="Other"]').checked;
     $('time').value = (ev.time || '').slice(0, 5);
     $('is_published').checked = ev.is_published !== false;
     $('is_featured').checked = ev.is_featured === true;
@@ -270,6 +282,9 @@
       fillForm(data);
     }
 
+    document.querySelectorAll('input[name="event-category"]').forEach((el) => el.addEventListener('change', () => {
+      $('category-other-wrap').hidden = !document.querySelector('input[name="event-category"][value="Other"]').checked;
+    }));
     $('event-form').addEventListener('submit', submitForm);
   }
 
