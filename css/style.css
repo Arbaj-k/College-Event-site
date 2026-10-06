@@ -448,3 +448,53 @@ p { margin: 0 0 1rem; }
 }
 #category-other-wrap[hidden] { display:none !important; }
 #category-other-required[hidden] { display:none !important; }
+
+/* ---------- Final featured carousel layout ---------- */
+@media (min-width:900px) {
+  .hero-inner { grid-template-columns:minmax(0, .9fr) minmax(0, 1.1fr); gap:2rem; }
+  #next-up { min-width:0; overflow:visible; }
+  .featured-head { max-width:100%; }
+  .featured-carousel {
+    width:100%;
+    gap:.65rem;
+    padding:1.35rem 34% 1.75rem;
+    overflow-x:auto;
+    overflow-y:visible;
+    scroll-snap-type:x mandatory;
+    scroll-padding-inline:0;
+  }
+  .featured-card {
+    flex:0 0 32%;
+    width:32%;
+    min-width:190px;
+    transform:scale(.88);
+    opacity:.5;
+    filter:saturate(.72) brightness(.88);
+    border-radius:22px;
+  }
+  .featured-card.is-active {
+    transform:scale(1);
+    opacity:1;
+    filter:none;
+    z-index:3;
+  }
+  .featured-poster { aspect-ratio:3 / 2; }
+  .featured-copy { padding:1rem; }
+  .featured-copy h3 { font-size:1.15rem; }
+}
+@media (max-width:899px) {
+  .featured-carousel {
+    padding-left:11%;
+    padding-right:11%;
+    gap:.8rem;
+    touch-action:pan-x;
+    overscroll-behavior-x:contain;
+  }
+  .featured-card { flex-basis:78%; width:78%; }
+}
+.featured-carousel.is-pointer-down {
+  cursor:grabbing;
+  scroll-snap-type:none;
+  scroll-behavior:auto;
+}
+.featured-carousel.is-pointer-down .featured-card { transition:none; }

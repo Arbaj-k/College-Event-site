@@ -134,27 +134,46 @@
     };
     rail.addEventListener('scroll', () => { window.requestAnimationFrame(closestCard); }, { passive: true });
     let pointerStartX = 0, pointerStartY = 0, pointerStartScroll = 0, dragging = false, pointerDown = false;
-    rail.addEventListener('pointerdown', (e) => {
-      if (e.pointerType === 'mouse' && e.button !== 0) return;
-      pointerStartX = e.clientX; pointerStartY = e.clientY; pointerStartScroll = rail.scrollLeft;
-      pointerDown = true; dragging = false;
-      rail.classList.add('is-pointer-down');
-    });
-    rail.addEventListener('pointermove', (e) => {
+    const startDrag = (x, y) => {
+      pointerStartX = x; pointerStartY = y; pointerStartScroll = rail.scrollLeft;
+      pointerDown = true; dragging = false; rail.classList.add('is-pointer-down');
+    };
+    const moveDrag = (x, y, prevent) => {
       if (!pointerDown) return;
-      const dx = e.clientX - pointerStartX, dy = e.clientY - pointerStartY;
-      if (!dragging && Math.abs(dx) > 7 && Math.abs(dx) > Math.abs(dy) * 1.15) dragging = true;
-      if (dragging) { rail.setPointerCapture?.(e.pointerId); rail.scrollLeft = pointerStartScroll - dx; e.preventDefault(); }
-    });
-    const finishPointer = () => {
+      const dx = x - pointerStartX, dy = y - pointerStartY;
+      if (!dragging && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy) * 1.05) dragging = true;
+      if (dragging) { rail.scrollLeft = pointerStartScroll - dx; if (prevent) prevent(); }
+    };
+    const finishDrag = () => {
       if (!pointerDown) return;
       pointerDown = false; rail.classList.remove('is-pointer-down');
-      if (dragging) { closestCard(); rail.dataset.justDragged = 'true'; window.setTimeout(() => { delete rail.dataset.justDragged; }, 80); }
+      if (dragging) {
+        closestCard();
+        rail.dataset.justDragged = 'true';
+        window.setTimeout(() => { delete rail.dataset.justDragged; }, 120);
+      }
       dragging = false;
     };
-    rail.addEventListener('pointerup', finishPointer);
-    rail.addEventListener('pointercancel', finishPointer);
-    rail.addEventListener('click', (e) => { if (rail.dataset.justDragged === 'true') { e.preventDefault(); e.stopPropagation(); } }, true);
+    rail.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      startDrag(e.clientX, e.clientY);
+      if (e.pointerType === 'mouse') rail.setPointerCapture?.(e.pointerId);
+    });
+    rail.addEventListener('pointermove', (e) => moveDrag(e.clientX, e.clientY, () => e.preventDefault()));
+    rail.addEventListener('pointerup', finishDrag);
+    rail.addEventListener('pointercancel', finishDrag);
+    // Explicit touch handlers make horizontal swiping reliable on mobile browsers.
+    rail.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) startDrag(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
+    rail.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 1) moveDrag(e.touches[0].clientX, e.touches[0].clientY, () => e.preventDefault());
+    }, { passive: false });
+    rail.addEventListener('touchend', finishDrag, { passive: true });
+    rail.addEventListener('touchcancel', finishDrag, { passive: true });
+    rail.addEventListener('click', (e) => {
+      if (rail.dataset.justDragged === 'true') { e.preventDefault(); e.stopPropagation(); }
+    }, true);
     rail.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') { e.preventDefault(); setActive(activeIndex + 1, true); } if (e.key === 'ArrowLeft') { e.preventDefault(); setActive(activeIndex - 1, true); } });
     box.querySelector('.carousel-prev').addEventListener('click', () => setActive(activeIndex - 1, true));
     box.querySelector('.carousel-next').addEventListener('click', () => setActive(activeIndex + 1, true));
