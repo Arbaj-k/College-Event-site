@@ -154,8 +154,93 @@
     box.querySelector('.carousel-prev').addEventListener('click', () => moveBy(-1));
     box.querySelector('.carousel-next').addEventListener('click', () => moveBy(1));
 
-    // Touch gestures are intentionally native. Horizontal swipes move the rail;
-    // vertical swipes continue to scroll the page normally.
+    // Keep touch gestures native so horizontal swipes move the carousel
+    // and vertical swipes continue normal page scrolling on mobile.
     updateActive();
     box.hidden = false;
     box.classList.add('ticket-ready');
+  }
+
+  function showListError(message) {
+    const grid = document.getElementById('events-grid');
+    grid.setAttribute('aria-busy', 'false');
+    grid.innerHTML = '<div class="empty"><p class="empty-title">Events could not be loaded.</p><p>' + CE.esc(message) + '</p></div>';
+  }
+
+  async function initList() {
+    renderChips();
+
+    let timer;
+    document.getElementById('search-input').addEventListener('input', (e) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => { state.query = e.target.value; renderList(); }, 120);
+    });
+
+    const problem = CE.setupProblem();
+    if (problem) return showListError(problem);
+
+    const { data, error } = await sb.from('events').select(LIST_COLUMNS).order('date', { ascending: true }).order('time', { ascending: true });
+    if (error) {
+      console.error(error);
+      return showListError('Please check your connection and try again.');
+    }
+    state.events = data || [];
+    renderList();
+    renderNextUp();
+  }
+
+  /* ---------- details page ---------- */
+  function detailHtml(ev) {
+    const status = CE.eventStatus(ev);
+    const link = CE.httpsUrl(ev.registration_link);
+    const canRegister = CE.registrationOpen(ev) && link;
+    const cta = canRegister
+      ? '<a class="btn btn-primary btn-lg" href="' + CE.esc(link) + '" target="_blank" rel="noopener noreferrer">Register Now</a>' +
+        '<small>Opens the registration form in a new tab.</small>'
+      : '<span class="btn btn-lg btn-disabled" aria-disabled="true">' + (status !== 'upcoming' ? 'This event has ended' : 'Registration closed') + '</span>';
+
+    const rows = [
+      ['📅 Date', CE.formatDate(ev.date) + (ev.end_date ? ' – ' + CE.formatDate(ev.end_date) : '')],
+      ['⏰ Time', CE.formatTime(ev.time) + (ev.end_time ? ' – ' + CE.formatTime(ev.end_time) : '')],
+      ['📍 Venue', ev.venue],
+      ['👥 Organizer', ev.organizer],
+      ['🏷️ Category', ev.category]
+    ];
+    if (ev.registration_deadline) rows.push(['📝 Register by', CE.formatDate(ev.registration_deadline)]);
+
+    return '' +
+      '<div class="detail">' +
+        '<div class="detail-poster"><img class="poster-img" src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="Poster for ' + CE.esc(ev.title) + '"></div>' +
+        '<div class="detail-info">' +
+          '<span class="pill">' + CE.esc(ev.category) + '</span>' + (status !== 'upcoming' ? '<span class="pill pill-ended">Ended</span>' : '') +
+          '<h1>' + CE.esc(ev.title) + '</h1>' +
+          '<dl class="info-list">' + rows.map((r) => '<div><dt>' + r[0] + '</dt><dd>' + CE.esc(r[1]) + '</dd></div>').join('') + '</dl>' +
+          '<h2 class="detail-text-title">About this event</h2>' +
+          '<p class="detail-text">' + CE.esc(ev.description || ev.short_description) + '</p>' +
+          '<div class="detail-cta">' + cta + '</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  async function initDetail() {
+    const box = document.getElementById('event-detail');
+    const notFound = (msg) => { box.innerHTML = '<div class="empty"><p class="empty-title">' + CE.esc(msg) + '</p><p><a href="events.html">Browse all events</a></p></div>'; };
+
+    const id = new URLSearchParams(location.search).get('id') || '';
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return notFound('Event not found.');
+
+    const problem = CE.setupProblem();
+    if (problem) return notFound(problem);
+
+    const { data, error } = await sb.from('events').select('*').eq('id', id).maybeSingle();
+    if (error) { console.error(error); return notFound('This event could not be loaded. Please try again.'); }
+    if (!data) return notFound('Event not found.');
+
+    document.title = data.title + ' – Hapn';
+    box.innerHTML = detailHtml(data);
+  }
+
+  const page = document.body.getAttribute('data-page');
+  if (page === 'home' || page === 'events') initList();
+  if (page === 'event') initDetail();
+})();
