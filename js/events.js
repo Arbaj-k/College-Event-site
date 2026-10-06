@@ -249,6 +249,48 @@
     if (!data) return notFound('Event not found.');
 
     document.title = data.title + ' – Hapn';
+
+    const canonical = document.getElementById('canonical-link');
+    if (canonical) canonical.href = location.origin + '/event.html?id=' + encodeURIComponent(data.id);
+
+    let description = document.querySelector('meta[name="description"]');
+    if (!description) {
+      description = document.createElement('meta');
+      description.name = 'description';
+      document.head.appendChild(description);
+    }
+    description.content = String(data.short_description || data.description || 'View college event details and registration on Hapn.').slice(0, 160);
+
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.content = data.title + ' – Hapn';
+    const ogDescription = document.querySelector('meta[property="og:description"]');
+    if (ogDescription) ogDescription.content = description.content;
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) ogUrl.content = canonical ? canonical.href : location.href;
+    const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twitterTitle) twitterTitle.content = data.title + ' – Hapn';
+    const twitterDescription = document.querySelector('meta[name="twitter:description"]');
+    if (twitterDescription) twitterDescription.content = description.content;
+
+    const existingLd = document.getElementById('event-jsonld');
+    if (existingLd) existingLd.remove();
+    const ld = document.createElement('script');
+    ld.id = 'event-jsonld';
+    ld.type = 'application/ld+json';
+    ld.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Event',
+      name: data.title,
+      description: String(data.description || data.short_description || '').slice(0, 500),
+      startDate: data.date + (data.time ? 'T' + data.time : ''),
+      endDate: data.end_date ? data.end_date + (data.end_time ? 'T' + data.end_time : '') : undefined,
+      location: data.venue ? { '@type': 'Place', name: data.venue } : undefined,
+      image: data.poster_url ? [CE.posterSrc(data.poster_url)] : undefined,
+      url: canonical ? canonical.href : location.href,
+      eventStatus: 'https://schema.org/EventScheduled'
+    });
+    document.head.appendChild(ld);
+
     box.innerHTML = detailHtml(data);
   }
 
