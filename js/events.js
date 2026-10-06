@@ -166,9 +166,52 @@
     });
     rail.addEventListener('pointerup', finishDrag);
     rail.addEventListener('pointercancel', finishDrag);
-    // On touch devices, let the browser handle native horizontal carousel scrolling
-    // and vertical page scrolling. Custom drag logic is kept for mouse/trackpad.
-    // This prevents later cards from creating a touch-scroll dead zone.
+    // Touch: explicitly distinguish horizontal carousel swipes from vertical page scroll.
+    // Handling the gesture on the rail (rather than individual cards) makes it work
+    // consistently on every card.
+    let touchStartX = 0, touchStartY = 0, touchLastX = 0, touchLastY = 0;
+    let touchMode = null, touchMoved = false;
+    rail.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) return;
+      const t = e.touches[0];
+      touchStartX = touchLastX = t.clientX;
+      touchStartY = touchLastY = t.clientY;
+      touchMode = null;
+      touchMoved = false;
+    }, { passive: true });
+    rail.addEventListener('touchmove', (e) => {
+      if (e.touches.length !== 1) return;
+      const t = e.touches[0];
+      const dx = t.clientX - touchStartX;
+      const dy = t.clientY - touchStartY;
+      if (!touchMode && Math.max(Math.abs(dx), Math.abs(dy)) > 6) {
+        touchMode = Math.abs(dx) > Math.abs(dy) ? 'horizontal' : 'vertical';
+      }
+      if (touchMode === 'horizontal') {
+        rail.scrollLeft -= t.clientX - touchLastX;
+        e.preventDefault();
+        touchMoved = true;
+      } else if (touchMode === 'vertical') {
+        window.scrollBy(0, touchLastY - t.clientY);
+        e.preventDefault();
+        touchMoved = true;
+      }
+      touchLastX = t.clientX;
+      touchLastY = t.clientY;
+    }, { passive: false });
+    rail.addEventListener('touchend', () => {
+      if (touchMode === 'horizontal' && touchMoved) {
+        closestCard();
+        rail.dataset.justDragged = 'true';
+        window.setTimeout(() => { delete rail.dataset.justDragged; }, 120);
+      }
+      touchMode = null;
+      touchMoved = false;
+    }, { passive: true });
+    rail.addEventListener('touchcancel', () => {
+      touchMode = null;
+      touchMoved = false;
+    }, { passive: true });
     rail.addEventListener('click', (e) => {
       if (rail.dataset.justDragged === 'true') { e.preventDefault(); e.stopPropagation(); }
     }, true);

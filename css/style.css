@@ -503,3 +503,9 @@ p { margin: 0 0 1rem; }
 @media (max-width:899px) {
   .featured-carousel { touch-action: pan-x pan-y; }
 }
+
+@media (max-width:899px) {
+  /* JS explicitly routes horizontal gestures to the carousel and vertical gestures to the page. */
+  .featured-carousel { touch-action: none; }
+  .featured-card { touch-action: none; }
+}
