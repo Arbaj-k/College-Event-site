@@ -505,7 +505,37 @@ p { margin: 0 0 1rem; }
 }
 
 @media (max-width:899px) {
-  /* JS explicitly routes horizontal gestures to the carousel and vertical gestures to the page. */
-  .featured-carousel { touch-action: none; }
-  .featured-card { touch-action: none; }
+  /* Netflix-style mobile carousel: native horizontal swipe + normal page scroll. */
+  .featured-carousel {
+    width:100%;
+    padding:1rem 8% 1.25rem;
+    gap:.75rem;
+    overflow-x:auto;
+    overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    scroll-padding-inline:8%;
+    overscroll-behavior-x:contain;
+    touch-action:pan-x pan-y;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    cursor:grab;
+  }
+
+  .featured-card,
+  .featured-card.is-active {
+    flex:0 0 84%;
+    width:84%;
+    min-width:0;
+    opacity:1;
+    transform:none;
+    filter:none;
+    scroll-snap-align:center;
+    transition:none;
+    border-radius:18px;
+  }
+
+  .featured-poster { aspect-ratio:16 / 9; }
+  .featured-copy { padding:1rem; }
+  .featured-copy h3 { font-size:1.08rem; }
+  .carousel-controls { display:none; }
 }

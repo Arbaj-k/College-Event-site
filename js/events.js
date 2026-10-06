@@ -117,192 +117,45 @@
     const rail = box.querySelector('.featured-carousel');
     const cards = Array.from(rail.querySelectorAll('.featured-card'));
     let activeIndex = 0;
-    const setActive = (index, shouldScroll) => {
-      activeIndex = Math.max(0, Math.min(cards.length - 1, index));
-      cards.forEach((card, i) => card.classList.toggle('is-active', i === activeIndex));
-      if (shouldScroll && cards[activeIndex]) {
-        const card = cards[activeIndex];
-        const target = card.offsetLeft - (rail.clientWidth - card.offsetWidth) / 2;
-        rail.scrollTo({ left: Math.max(0, Math.min(rail.scrollWidth - rail.clientWidth, target)), behavior: 'smooth' });
-      }
+
+    const cardStep = () => {
+      const card = cards[0];
+      if (!card) return 0;
+      const gap = parseFloat(getComputedStyle(rail).gap) || 0;
+      return card.getBoundingClientRect().width + gap;
     };
-    const closestCard = () => {
+
+    const updateActive = () => {
       const center = rail.getBoundingClientRect().left + rail.clientWidth / 2;
-      let best = 0, distance = Infinity;
-      cards.forEach((card, i) => { const d = Math.abs(card.getBoundingClientRect().left + card.clientWidth / 2 - center); if (d < distance) { distance = d; best = i; } });
-      setActive(best, false);
+      let best = 0;
+      let distance = Infinity;
+      cards.forEach((card, i) => {
+        const cardCenter = card.getBoundingClientRect().left + card.clientWidth / 2;
+        const d = Math.abs(cardCenter - center);
+        if (d < distance) { distance = d; best = i; }
+      });
+      activeIndex = best;
+      cards.forEach((card, i) => card.classList.toggle('is-active', i === activeIndex));
     };
-    rail.addEventListener('scroll', () => { window.requestAnimationFrame(closestCard); }, { passive: true });
-    let pointerStartX = 0, pointerStartY = 0, pointerStartScroll = 0, dragging = false, pointerDown = false;
-    const startDrag = (x, y) => {
-      pointerStartX = x; pointerStartY = y; pointerStartScroll = rail.scrollLeft;
-      pointerDown = true; dragging = false; rail.classList.add('is-pointer-down');
+
+    const moveBy = (direction) => {
+      rail.scrollBy({ left: direction * cardStep(), behavior: 'smooth' });
     };
-    const moveDrag = (x, y, prevent) => {
-      if (!pointerDown) return;
-      const dx = x - pointerStartX, dy = y - pointerStartY;
-      if (!dragging && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy) * 1.05) dragging = true;
-      if (dragging) { rail.scrollLeft = pointerStartScroll - dx; if (prevent) prevent(); }
-    };
-    const finishDrag = () => {
-      if (!pointerDown) return;
-      pointerDown = false; rail.classList.remove('is-pointer-down');
-      if (dragging) {
-        closestCard();
-        rail.dataset.justDragged = 'true';
-        window.setTimeout(() => { delete rail.dataset.justDragged; }, 120);
-      }
-      dragging = false;
-    };
-    rail.addEventListener('pointerdown', (e) => {
-      if (e.pointerType !== 'mouse') return;
-      if (e.button !== 0) return;
-      startDrag(e.clientX, e.clientY);
-      if (e.pointerType === 'mouse') rail.setPointerCapture?.(e.pointerId);
+
+    rail.addEventListener('scroll', () => {
+      window.requestAnimationFrame(updateActive);
+    }, { passive: true });
+
+    rail.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); moveBy(1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); moveBy(-1); }
     });
-    rail.addEventListener('pointermove', (e) => {
-      if (e.pointerType !== 'mouse') return;
-      moveDrag(e.clientX, e.clientY, () => e.preventDefault());
-    });
-    rail.addEventListener('pointerup', finishDrag);
-    rail.addEventListener('pointercancel', finishDrag);
-    // Touch: explicitly distinguish horizontal carousel swipes from vertical page scroll.
-    // Handling the gesture on the rail (rather than individual cards) makes it work
-    // consistently on every card.
-    let touchStartX = 0, touchStartY = 0, touchLastX = 0, touchLastY = 0;
-    let touchMode = null, touchMoved = false;
-    rail.addEventListener('touchstart', (e) => {
-      if (e.touches.length !== 1) return;
-      const t = e.touches[0];
-      touchStartX = touchLastX = t.clientX;
-      touchStartY = touchLastY = t.clientY;
-      touchMode = null;
-      touchMoved = false;
-    }, { passive: true });
-    rail.addEventListener('touchmove', (e) => {
-      if (e.touches.length !== 1) return;
-      const t = e.touches[0];
-      const dx = t.clientX - touchStartX;
-      const dy = t.clientY - touchStartY;
-      if (!touchMode && Math.max(Math.abs(dx), Math.abs(dy)) > 6) {
-        touchMode = Math.abs(dx) > Math.abs(dy) ? 'horizontal' : 'vertical';
-      }
-      if (touchMode === 'horizontal') {
-        rail.scrollLeft -= t.clientX - touchLastX;
-        e.preventDefault();
-        touchMoved = true;
-      } else if (touchMode === 'vertical') {
-        window.scrollBy(0, touchLastY - t.clientY);
-        e.preventDefault();
-        touchMoved = true;
-      }
-      touchLastX = t.clientX;
-      touchLastY = t.clientY;
-    }, { passive: false });
-    rail.addEventListener('touchend', () => {
-      if (touchMode === 'horizontal' && touchMoved) {
-        closestCard();
-        rail.dataset.justDragged = 'true';
-        window.setTimeout(() => { delete rail.dataset.justDragged; }, 120);
-      }
-      touchMode = null;
-      touchMoved = false;
-    }, { passive: true });
-    rail.addEventListener('touchcancel', () => {
-      touchMode = null;
-      touchMoved = false;
-    }, { passive: true });
-    rail.addEventListener('click', (e) => {
-      if (rail.dataset.justDragged === 'true') { e.preventDefault(); e.stopPropagation(); }
-    }, true);
-    rail.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') { e.preventDefault(); setActive(activeIndex + 1, true); } if (e.key === 'ArrowLeft') { e.preventDefault(); setActive(activeIndex - 1, true); } });
-    box.querySelector('.carousel-prev').addEventListener('click', () => setActive(activeIndex - 1, true));
-    box.querySelector('.carousel-next').addEventListener('click', () => setActive(activeIndex + 1, true));
-    setActive(0, true);
+
+    box.querySelector('.carousel-prev').addEventListener('click', () => moveBy(-1));
+    box.querySelector('.carousel-next').addEventListener('click', () => moveBy(1));
+
+    // Touch gestures are intentionally native. Horizontal swipes move the rail;
+    // vertical swipes continue to scroll the page normally.
+    updateActive();
     box.hidden = false;
     box.classList.add('ticket-ready');
-  }
-
-  function showListError(message) {
-    const grid = document.getElementById('events-grid');
-    grid.setAttribute('aria-busy', 'false');
-    grid.innerHTML = '<div class="empty"><p class="empty-title">Events could not be loaded.</p><p>' + CE.esc(message) + '</p></div>';
-  }
-
-  async function initList() {
-    renderChips();
-
-    let timer;
-    document.getElementById('search-input').addEventListener('input', (e) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => { state.query = e.target.value; renderList(); }, 120);
-    });
-
-    const problem = CE.setupProblem();
-    if (problem) return showListError(problem);
-
-    const { data, error } = await sb.from('events').select(LIST_COLUMNS).order('date', { ascending: true }).order('time', { ascending: true });
-    if (error) {
-      console.error(error);
-      return showListError('Please check your connection and try again.');
-    }
-    state.events = data || [];
-    renderList();
-    renderNextUp();
-  }
-
-  /* ---------- details page ---------- */
-  function detailHtml(ev) {
-    const status = CE.eventStatus(ev);
-    const link = CE.httpsUrl(ev.registration_link);
-    const canRegister = CE.registrationOpen(ev) && link;
-    const cta = canRegister
-      ? '<a class="btn btn-primary btn-lg" href="' + CE.esc(link) + '" target="_blank" rel="noopener noreferrer">Register Now</a>' +
-        '<small>Opens the registration form in a new tab.</small>'
-      : '<span class="btn btn-lg btn-disabled" aria-disabled="true">' + (status !== 'upcoming' ? 'This event has ended' : 'Registration closed') + '</span>';
-
-    const rows = [
-      ['📅 Date', CE.formatDate(ev.date) + (ev.end_date ? ' – ' + CE.formatDate(ev.end_date) : '')],
-      ['⏰ Time', CE.formatTime(ev.time) + (ev.end_time ? ' – ' + CE.formatTime(ev.end_time) : '')],
-      ['📍 Venue', ev.venue],
-      ['👥 Organizer', ev.organizer],
-      ['🏷️ Category', ev.category]
-    ];
-    if (ev.registration_deadline) rows.push(['📝 Register by', CE.formatDate(ev.registration_deadline)]);
-
-    return '' +
-      '<div class="detail">' +
-        '<div class="detail-poster"><img class="poster-img" src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="Poster for ' + CE.esc(ev.title) + '"></div>' +
-        '<div class="detail-info">' +
-          '<span class="pill">' + CE.esc(ev.category) + '</span>' + (status !== 'upcoming' ? '<span class="pill pill-ended">Ended</span>' : '') +
-          '<h1>' + CE.esc(ev.title) + '</h1>' +
-          '<dl class="info-list">' + rows.map((r) => '<div><dt>' + r[0] + '</dt><dd>' + CE.esc(r[1]) + '</dd></div>').join('') + '</dl>' +
-          '<h2 class="detail-text-title">About this event</h2>' +
-          '<p class="detail-text">' + CE.esc(ev.description || ev.short_description) + '</p>' +
-          '<div class="detail-cta">' + cta + '</div>' +
-        '</div>' +
-      '</div>';
-  }
-
-  async function initDetail() {
-    const box = document.getElementById('event-detail');
-    const notFound = (msg) => { box.innerHTML = '<div class="empty"><p class="empty-title">' + CE.esc(msg) + '</p><p><a href="events.html">Browse all events</a></p></div>'; };
-
-    const id = new URLSearchParams(location.search).get('id') || '';
-    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return notFound('Event not found.');
-
-    const problem = CE.setupProblem();
-    if (problem) return notFound(problem);
-
-    const { data, error } = await sb.from('events').select('*').eq('id', id).maybeSingle();
-    if (error) { console.error(error); return notFound('This event could not be loaded. Please try again.'); }
-    if (!data) return notFound('Event not found.');
-
-    document.title = data.title + ' – Hapn';
-    box.innerHTML = detailHtml(data);
-  }
-
-  const page = document.body.getAttribute('data-page');
-  if (page === 'home' || page === 'events') initList();
-  if (page === 'event') initDetail();
-})();
