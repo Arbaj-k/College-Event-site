@@ -1,0 +1,34 @@
+# Hapn
+
+> Hapn is a college events website that helps students discover upcoming workshops, competitions, hackathons, cultural events, and other college activities, with registration links provided by event organizers.
+
+Hapn is a public, mobile-friendly website. Event listings and event details are presented to students without requiring a public login. Registration is handled through external Google Forms when provided by an event organizer.
+
+The site is built with plain HTML, CSS, and JavaScript on the frontend, with Supabase used for authentication, database storage, file storage, and row-level security. The repository is hosted on GitHub and the production website is served at https://hapn.info/.
+
+## Public Pages
+
+- [Hapn home](https://hapn.info/): Main landing page and featured/upcoming events.
+- [Events](https://hapn.info/events.html): Browse and filter public college events.
+- [About](https://hapn.info/about.html): Information about Hapn.
+- [Help](https://hapn.info/help.html): Help and usage information.
+- [Terms & Conditions](https://hapn.info/terms.html): Terms governing use of Hapn.
+- [Sitemap](https://hapn.info/sitemap.xml): XML sitemap of public indexable pages.
+- [Robots](https://hapn.info/robots.txt): Crawler guidance and sitemap location.
+
+## Event Information
+
+Event pages may be rendered from event data stored in Supabase. Event information can include the event title, description, date/time, venue, category, poster/image, registration link, and registration status. Event registration links may point to Google Forms or another external registration destination supplied by the organizer.
+
+## Technical Context
+
+- Production site: https://hapn.info/
+- Source repository: https://github.com/Arbaj-k/College-Event-site
+- Frontend: HTML, CSS, JavaScript
+- Backend: Supabase
+- Hosting/deployment: Netlify
+- Registration: Google Forms or organizer-provided external registration links
+
+## Optional
+
+- [GitHub repository](https://github.com/Arbaj-k/College-Event-site): Source code and project documentation.
