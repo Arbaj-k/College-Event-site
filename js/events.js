@@ -155,22 +155,20 @@
       dragging = false;
     };
     rail.addEventListener('pointerdown', (e) => {
-      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (e.pointerType !== 'mouse') return;
+      if (e.button !== 0) return;
       startDrag(e.clientX, e.clientY);
       if (e.pointerType === 'mouse') rail.setPointerCapture?.(e.pointerId);
     });
-    rail.addEventListener('pointermove', (e) => moveDrag(e.clientX, e.clientY, () => e.preventDefault()));
+    rail.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      moveDrag(e.clientX, e.clientY, () => e.preventDefault());
+    });
     rail.addEventListener('pointerup', finishDrag);
     rail.addEventListener('pointercancel', finishDrag);
-    // Explicit touch handlers make horizontal swiping reliable on mobile browsers.
-    rail.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 1) startDrag(e.touches[0].clientX, e.touches[0].clientY);
-    }, { passive: true });
-    rail.addEventListener('touchmove', (e) => {
-      if (e.touches.length === 1) moveDrag(e.touches[0].clientX, e.touches[0].clientY, () => e.preventDefault());
-    }, { passive: false });
-    rail.addEventListener('touchend', finishDrag, { passive: true });
-    rail.addEventListener('touchcancel', finishDrag, { passive: true });
+    // On touch devices, let the browser handle native horizontal carousel scrolling
+    // and vertical page scrolling. Custom drag logic is kept for mouse/trackpad.
+    // This prevents later cards from creating a touch-scroll dead zone.
     rail.addEventListener('click', (e) => {
       if (rail.dataset.justDragged === 'true') { e.preventDefault(); e.stopPropagation(); }
     }, true);
