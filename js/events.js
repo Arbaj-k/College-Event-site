@@ -179,14 +179,26 @@
     const problem = CE.setupProblem();
     if (problem) return showListError(problem);
 
-    const { data, error } = await sb.from('events').select(LIST_COLUMNS).order('date', { ascending: true }).order('time', { ascending: true });
-    if (error) {
-      console.error(error);
-      return showListError('Please check your connection and try again.');
+    try {
+      const request = sb.from('events')
+        .select(LIST_COLUMNS)
+        .order('date', { ascending: true })
+        .order('time', { ascending: true });
+
+      const timeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Events request timed out')), 10000)
+      );
+
+      const { data, error } = await Promise.race([request, timeout]);
+      if (error) throw error;
+
+      state.events = data || [];
+      renderList();
+      renderNextUp();
+    } catch (error) {
+      console.error('Hapn event loading failed:', error);
+      showListError('Events could not be loaded right now. Please refresh and try again.');
     }
-    state.events = data || [];
-    renderList();
-    renderNextUp();
   }
 
   /* ---------- details page ---------- */
