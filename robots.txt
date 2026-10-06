@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hapn.info/sitemap.xml
