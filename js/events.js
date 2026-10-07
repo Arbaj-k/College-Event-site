@@ -22,7 +22,7 @@
   function cardHtml(ev, index) {
     const status = CE.eventStatus(ev);
     const link = CE.httpsUrl(ev.registration_link);
-    const detailUrl = 'events/' + encodeURIComponent(ev.id) + '/';
+    const detailUrl = 'event-' + encodeURIComponent(ev.id) + '.html';
     const canRegister = CE.registrationOpen(ev) && link;
 
     const button = canRegister
@@ -112,7 +112,7 @@
     if (!picks.length) { box.hidden = true; return; }
     box.innerHTML = '<div class="featured-head"><span class="ticket-label">Upcoming at Hapn</span><div class="carousel-controls"><button type="button" class="carousel-prev" aria-label="Previous events">‹</button><button type="button" class="carousel-next" aria-label="Next events">›</button></div></div>' +
       '<div class="featured-carousel" aria-label="Featured upcoming events">' +
-      picks.map((ev) => '<article class="featured-card"><a class="featured-poster" href="event.html?id=' + encodeURIComponent(ev.id) + '"><img src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="" loading="lazy"></a><div class="featured-copy"><span class="featured-date">' + CE.esc(CE.formatDate(ev.date)) + '</span><h3><a href="event.html?id=' + encodeURIComponent(ev.id) + '">' + CE.esc(ev.title) + '</a></h3><p>' + CE.esc(ev.venue) + ' · ' + CE.esc(CE.formatTime(ev.time)) + '</p><a class="btn btn-primary btn-sm" href="event.html?id=' + encodeURIComponent(ev.id) + '">View event</a></div></article>').join('') +
+      picks.map((ev) => '<article class="featured-card"><a class="featured-poster" href="event-' + encodeURIComponent(ev.id) + '.html"><img src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="" loading="lazy"></a><div class="featured-copy"><span class="featured-date">' + CE.esc(CE.formatDate(ev.date)) + '</span><h3><a href="event-' + encodeURIComponent(ev.id) + '.html">' + CE.esc(ev.title) + '</a></h3><p>' + CE.esc(ev.venue) + ' · ' + CE.esc(CE.formatTime(ev.time)) + '</p><a class="btn btn-primary btn-sm" href="event-' + encodeURIComponent(ev.id) + '.html">View event</a></div></article>').join('') +
       '</div>';
     const rail = box.querySelector('.featured-carousel');
     const cards = Array.from(rail.querySelectorAll('.featured-card'));
