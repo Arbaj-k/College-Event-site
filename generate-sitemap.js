@@ -58,7 +58,7 @@ async function main() {
   }
 
   const urls = staticUrls.concat(events.map((event) => ({
-    loc: baseUrl + '/event.html?id=' + encodeURIComponent(event.id),
+    loc: baseUrl + '/events/' + encodeURIComponent(event.id) + '/',
     lastmod: event.updated_at ? new Date(event.updated_at).toISOString() : undefined
   })));
 
