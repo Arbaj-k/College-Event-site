@@ -22,7 +22,7 @@
   function cardHtml(ev, index) {
     const status = CE.eventStatus(ev);
     const link = CE.httpsUrl(ev.registration_link);
-    const detailUrl = 'event.html?id=' + encodeURIComponent(ev.id);
+    const detailUrl = 'events/' + encodeURIComponent(ev.id) + '/';
     const canRegister = CE.registrationOpen(ev) && link;
 
     const button = canRegister
