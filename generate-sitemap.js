@@ -13,15 +13,29 @@ const staticUrls = [
   { loc: baseUrl + '/terms.html' }
 ];
 
+function readPublicConfig() {
+  try {
+    const config = fs.readFileSync('js/config.js', 'utf8');
+    const url = config.match(/SUPABASE_URL:\s*"([^"]+)"/)?.[1] || '';
+    const key = config.match(/SUPABASE_ANON_KEY:\s*"([^"]+)"/)?.[1] || '';
+    return { url, key };
+  } catch {
+    return { url: '', key: '' };
+  }
+}
+
 async function getPublishedEvents() {
-  if (!supabaseUrl || !anonKey) {
-    console.warn('[sitemap] Supabase env vars are missing; generating the static sitemap only.');
-    return [];
+  const config = readPublicConfig();
+  const apiUrl = supabaseUrl || config.url;
+  const apiKey = anonKey || config.key;
+
+  if (!apiUrl || !apiKey) {
+    throw new Error('Supabase public configuration is missing.');
   }
 
-  const url = supabaseUrl + '/rest/v1/events?select=id,updated_at&is_published=eq.true&order=date.asc,time.asc';
+  const url = apiUrl + '/rest/v1/events?select=id,updated_at&is_published=eq.true&order=date.asc,time.asc';
   const response = await fetch(url, {
-    headers: { apikey: anonKey, Authorization: 'Bearer ' + anonKey }
+    headers: { apikey: apiKey, Authorization: 'Bearer ' + apiKey }
   });
 
   if (!response.ok) throw new Error('Supabase returned HTTP ' + response.status);
