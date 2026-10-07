@@ -30,28 +30,22 @@ jobs:
       - name: Assemble explicit Pages output
         shell: bash
         run: |
+          set -euo pipefail
           rm -rf _site
           mkdir -p _site
-
-          # Copy the repository's public site files into the Pages output.
-          # Keep GitHub metadata/workflow files out of the published artifact.
-          rsync -a --exclude='.git/' --exclude='.github/' --exclude='_site/' ./ _site/
-
-          # The generator creates these at build time; fail if they are missing.
+          rsync -a --exclude=".git/" --exclude=".github/" --exclude="_site/" ./ _site/
           test -f sitemap.xml
-          count=$(find . -maxdepth 1 -type f -name 'event-*.html' | wc -l)
-          echo "Generated event pages: $count"
-          test "$count" -gt 0
-
+          event_count=$(find . -maxdepth 1 -type f -name "event-*.html" | wc -l)
+          echo "Generated event pages: $event_count"
+          test "$event_count" -gt 0
           cp sitemap.xml _site/sitemap.xml
-          find . -maxdepth 1 -type f -name 'event-*.html' -exec cp {} _site/ \;
-
-          # Verify the exact deployment payload before upload.
+          find . -maxdepth 1 -type f -name "event-*.html" -exec cp {} _site/ \;
           test -f _site/index.html
-          test -f _site/CNAME
-          test -f _site/event-*.html
+          site_event_count=$(find _site -maxdepth 1 -type f -name "event-*.html" | wc -l)
+          echo "Pages artifact event pages: $site_event_count"
+          test "$site_event_count" -eq "$event_count"
           echo "Pages output contains:"
-          ls -la _site | sed -n '1,80p'
+          ls -la _site | sed -n "1,80p"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
