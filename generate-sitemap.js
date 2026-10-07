@@ -51,7 +51,7 @@ function escapeHtml(value) {
 function eventPageHtml(event) {
   const title = escapeHtml(event.title || 'College Event');
   const description = escapeHtml(event.description || event.short_description || 'College event details and registration.');
-  const canonical = baseUrl + '/events/' + encodeURIComponent(event.id) + '/';
+  const canonical = baseUrl + '/event-' + encodeURIComponent(event.id) + '.html';
   const image = event.poster_url ? escapeHtml(event.poster_url) : baseUrl + '/assets/images/og-image.png';
   const date = escapeHtml(event.date || '');
   const endDate = escapeHtml(event.end_date || event.date || '');
@@ -131,9 +131,8 @@ ${registration ? '<div class="detail-cta"><a class="btn btn-primary btn-lg" href
 
 async function generateEventPages(events) {
   for (const event of events) {
-    const dir = require('path').join('events', String(event.id));
-    fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(require('path').join(dir, 'index.html'), eventPageHtml(event));
+    const fileName = 'event-' + String(event.id).replace(/[^a-zA-Z0-9_-]/g, '') + '.html';
+    fs.writeFileSync(fileName, eventPageHtml(event));
   }
 }
 
@@ -155,7 +154,7 @@ async function main() {
   await generateEventPages(events);
 
   const urls = staticUrls.concat(events.map((event) => ({
-    loc: baseUrl + '/events/' + encodeURIComponent(event.id) + '/',
+    loc: baseUrl + '/event-' + encodeURIComponent(event.id) + '.html',
     lastmod: event.updated_at ? new Date(event.updated_at).toISOString() : undefined
   })));
 
