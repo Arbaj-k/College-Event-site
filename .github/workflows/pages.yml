@@ -27,19 +27,36 @@ jobs:
       - name: Generate published-event sitemap and static event pages
         run: node generate-sitemap.js
 
-      - name: Verify generated Pages files
+      - name: Assemble explicit Pages output
         shell: bash
         run: |
-          test -f index.html
+          rm -rf _site
+          mkdir -p _site
+
+          # Copy the repository's public site files into the Pages output.
+          # Keep GitHub metadata/workflow files out of the published artifact.
+          rsync -a --exclude='.git/' --exclude='.github/' --exclude='_site/' ./ _site/
+
+          # The generator creates these at build time; fail if they are missing.
           test -f sitemap.xml
           count=$(find . -maxdepth 1 -type f -name 'event-*.html' | wc -l)
           echo "Generated event pages: $count"
           test "$count" -gt 0
 
+          cp sitemap.xml _site/sitemap.xml
+          find . -maxdepth 1 -type f -name 'event-*.html' -exec cp {} _site/ \;
+
+          # Verify the exact deployment payload before upload.
+          test -f _site/index.html
+          test -f _site/CNAME
+          test -f _site/event-*.html
+          echo "Pages output contains:"
+          ls -la _site | sed -n '1,80p'
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: .
+          path: _site
 
   deploy:
     environment:
