@@ -152,7 +152,9 @@ async function main() {
     process.exit(1);
   }
 
-  await generateEventPages(events);\n\n  const urls = staticUrls.concat(events.map((event) => ({
+  await generateEventPages(events);
+
+  const urls = staticUrls.concat(events.map((event) => ({
     loc: baseUrl + '/events/' + encodeURIComponent(event.id) + '/',
     lastmod: event.updated_at ? new Date(event.updated_at).toISOString() : undefined
   })));
