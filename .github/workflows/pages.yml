@@ -42,13 +42,20 @@ jobs:
           echo "Sitemap event URLs: $sitemap_event_count"
           test "$sitemap_event_count" -eq "$event_count"
           cp sitemap.xml _site/sitemap.xml
-          find . -maxdepth 1 -type f -name "event-*.html" -exec cp {} _site/ \;
+          find . -maxdepth 1 -type f -name "event-*.html" -exec cp {} _site/ ;
           test -f _site/index.html
           site_event_count=$(find _site -maxdepth 1 -type f -name "event-*.html" | wc -l)
           echo "Pages artifact event pages: $site_event_count"
           test "$site_event_count" -eq "$event_count"
           echo "Pages output contains:"
           ls -la _site | sed -n "1,80p"
+
+      - name: Verify sitemap before deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Sitemap URL count: $(grep -c '<loc>' sitemap.xml)"
+          grep -q '<loc>https://hapn.info/event-' sitemap.xml
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
