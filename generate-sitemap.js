@@ -33,7 +33,7 @@ async function getPublishedEvents() {
     throw new Error('Supabase public configuration is missing.');
   }
 
-  const url = apiUrl + '/rest/v1/events?select=*&is_published=eq.true&order=date.asc,time.asc';
+  const url = apiUrl + '/rest/v1/events?select=id,title,description,short_description,date,time,end_date,end_time,venue,organizer,category,registration_link,poster_url,updated_at&is_published=eq.true&order=date.asc,time.asc';
   const response = await fetch(url, {
     headers: { apikey: apiKey, Authorization: 'Bearer ' + apiKey }
   });
@@ -165,10 +165,16 @@ async function main() {
 
   await generateEventPages(events);
 
-  const urls = staticUrls.concat(events.map((event) => ({
+  const eventUrls = events.map((event) => ({
     loc: baseUrl + '/event-' + encodeURIComponent(event.id) + '.html',
     lastmod: event.updated_at ? new Date(event.updated_at).toISOString() : undefined
-  })));
+  }));
+
+  const urls = staticUrls.concat(eventUrls);
+
+  if (events.length === 0) {
+    throw new Error('No published events were returned; refusing to publish a sitemap without event URLs.');
+  }
 
   const body = urls.map((item) => [
     '  <url>',
@@ -184,6 +190,7 @@ async function main() {
   );
 
   console.log('[sitemap] Generated ' + urls.length + ' URLs (' + events.length + ' published events).');
+  console.log('[sitemap] Event URLs: ' + eventUrls.length);
 }
 
 main();
