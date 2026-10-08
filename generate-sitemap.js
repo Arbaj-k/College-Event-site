@@ -76,6 +76,18 @@ function eventPageHtml(event) {
     image: [event.poster_url || baseUrl + '/assets/images/og-image.png'],
     location: { '@type': 'Place', name: event.venue || 'College campus' }
   };
+
+  // VGU Campus has a verified public address; add it only when the event venue is VGU Campus.
+  if (String(event.venue || '').trim().toLowerCase() === 'vgu campus') {
+    schema.location.address = {
+      '@type': 'PostalAddress',
+      streetAddress: 'Sector-36, NRI Road, Jagatpura',
+      addressLocality: 'Jaipur',
+      postalCode: '303012',
+      addressRegion: 'Rajasthan',
+      addressCountry: 'IN'
+    };
+  }
   if (event.organizer) schema.organizer = { '@type': 'Organization', name: event.organizer };
 
   return `<!DOCTYPE html>
