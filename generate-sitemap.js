@@ -83,17 +83,17 @@ function eventPageHtml(event) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${title} – Hapn</title>
-<meta name="description" content="${description}">
+<title>${title} – College Event | Hapn</title>
+<meta name="description" content="${description}">\n<meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="${canonical}">
-<meta property="og:type" content="event">
+<meta property="og:type" content="website">
 <meta property="og:site_name" content="Hapn">
-<meta property="og:title" content="${title} – Hapn">
+<meta property="og:title" content="${title} – College Event | Hapn">
 <meta property="og:description" content="${description}">
 <meta property="og:url" content="${canonical}">
 <meta property="og:image" content="${image}">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="${title} – Hapn">
+<meta name="twitter:title" content="${title} – College Event | Hapn">
 <meta name="twitter:description" content="${description}">
 <meta name="twitter:image" content="${image}">
 <link rel="icon" href="${baseUrl}/assets/images/logo.svg" type="image/svg+xml">
