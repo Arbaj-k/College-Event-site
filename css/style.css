@@ -709,3 +709,77 @@ p { margin: 0 0 1rem; }
   .featured-carousel { scroll-behavior:auto; }
   .featured-card, .carousel-dot { transition:none; }
 }
+
+
+/* Streaming-app inspired portrait event rail (reference: user's JioHotstar video) */
+#next-up .featured-head { margin-bottom:.25rem; }
+#next-up .featured-carousel {
+  align-items:stretch;
+  gap:14px;
+  padding:14px max(14px, calc((100% - 290px) / 2)) 20px;
+}
+#next-up .featured-card {
+  flex:0 0 290px;
+  width:290px;
+  border-radius:16px;
+  background:#fff;
+  transform:scale(.94);
+  opacity:.78;
+}
+#next-up .featured-card.is-active {
+  transform:scale(1);
+  opacity:1;
+}
+#next-up .featured-poster {
+  aspect-ratio:2 / 3;
+  background:#101426;
+}
+#next-up .featured-poster img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+#next-up .featured-poster-wrap::after {
+  content:"";
+  pointer-events:none;
+  position:absolute;
+  inset:35% 0 0;
+  background:linear-gradient(180deg, transparent 0%, rgba(7,12,28,.12) 35%, rgba(7,12,28,.72) 100%);
+}
+#next-up .featured-poster-badge,
+#next-up .featured-poster-wrap > .poster-share-button { z-index:2; }
+#next-up .featured-copy {
+  min-height:205px;
+  padding:13px 14px 15px;
+  gap:7px;
+}
+#next-up .featured-copy h3 { font-size:1.04rem; }
+#next-up .featured-copy .featured-description { -webkit-line-clamp:2; }
+#next-up .carousel-controls { display:flex; gap:8px; }
+#next-up .carousel-controls button {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:38px; height:38px; border-radius:50%;
+  border:1px solid rgba(255,255,255,.42);
+  color:inherit; background:rgba(255,255,255,.12);
+  font-size:1.5rem; line-height:1; cursor:pointer;
+}
+#next-up .carousel-dot { background:rgba(100,116,139,.35); }
+#next-up .carousel-dot.is-active { background:var(--blue, #3545ff); }
+@media (min-width:900px) {
+  #next-up .featured-carousel {
+    padding-left:calc((100% - 310px) / 2);
+    padding-right:calc((100% - 310px) / 2);
+    gap:18px;
+  }
+  #next-up .featured-card { flex-basis:310px; width:310px; }
+}
+@media (max-width:899px) {
+  #next-up .featured-carousel { padding:12px 7% 18px; gap:12px; }
+  #next-up .featured-card { flex-basis:78%; width:78%; transform:none; opacity:1; }
+  #next-up .featured-card.is-active { transform:none; }
+  #next-up .featured-poster { aspect-ratio:2 / 3; }
+  #next-up .carousel-controls { display:none; }
+}
+@media (max-width:380px) {
+  #next-up .featured-card { flex-basis:84%; width:84%; }
+}
