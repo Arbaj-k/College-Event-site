@@ -234,7 +234,7 @@
           '<dl class="info-list">' + rows.map((r) => '<div><dt>' + r[0] + '</dt><dd>' + CE.esc(r[1]) + '</dd></div>').join('') + '</dl>' +
           '<h2 class="detail-text-title">About this event</h2>' +
           '<p class="detail-text">' + CE.esc(ev.description || ev.short_description) + '</p>' +
-          '<div class="detail-cta">' + cta + '<button class="btn btn-outline share-button" type="button" data-share-url="event-' + encodeURIComponent(ev.id) + '.html" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share this event"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4M8.7 13.3l6.6 4.4"/></svg> Share event</button></div>' +
+          '<div class="detail-cta">' + cta + '<button class="register-share-icon share-button" type="button" data-share-url="event-' + encodeURIComponent(ev.id) + '.html" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share this event" title="Share event"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button></div>' +
         '</div>' +
       '</div>';
   }
