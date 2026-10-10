@@ -140,11 +140,24 @@ ${organizer ? '<div><dt>👥 Organizer</dt><dd>' + organizer + '</dd></div>' : '
 </dl>
 <h2 class="detail-text-title">About this event</h2>
 <p class="detail-text">${description}</p>
-${registration ? '<div class="detail-cta"><a class="btn btn-primary btn-lg" href="' + registration + '" target="_blank" rel="noopener noreferrer">Register Now</a></div>' : ''}
+${'<div class="detail-cta">' + (registration ? '<a class="btn btn-primary btn-lg" href="' + registration + '" target="_blank" rel="noopener noreferrer">Register Now</a>' : '') + '<button class="btn btn-outline share-button" type="button" data-share-url="' + canonical + '" data-share-title="' + title + ' – Hapn" aria-label="Share this event"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4M8.7 13.3l6.6 4.4"/></svg> Share event</button></div>'}
 </div>
 </article>
 </div></section></main>
 <footer class="site-footer"><div class="container"><p class="footer-bottom">© 2026 Hapn</p></div></footer>
+<script>
+document.addEventListener('click', async function (event) {
+  const button = event.target.closest('.share-button'); if (!button) return;
+  const url = new URL(button.getAttribute('data-share-url') || location.href, location.href).href;
+  const title = button.getAttribute('data-share-title') || document.title;
+  if (navigator.share) { try { await navigator.share({ title, text: 'Check this out on Hapn:', url }); return; } catch (error) { if (error && error.name === 'AbortError') return; } }
+  try {
+    if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(url);
+    else { const input=document.createElement('textarea'); input.value=url; input.setAttribute('readonly',''); input.style.position='fixed'; input.style.opacity='0'; document.body.appendChild(input); input.select(); const copied=document.execCommand('copy'); input.remove(); if(!copied) throw new Error('Copy failed'); }
+    window.alert('Event link copied! Share it with your friends.');
+  } catch (error) { window.prompt('Copy this event link:', url); }
+});
+</script>
 </body>
 </html>`;
 }
