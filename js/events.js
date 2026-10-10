@@ -112,58 +112,104 @@
   function renderNextUp() {
     const box = document.getElementById('next-up');
     if (!box) return;
-    const featured = sortForDisplay(state.events).filter((e) => e.is_featured && CE.eventStatus(e) === 'upcoming');
-    const picks = featured.length ? featured : sortForDisplay(state.events).filter((e) => CE.eventStatus(e) === 'upcoming').slice(0, 5);
+
+    // Use every upcoming event; featured events appear first, without hiding the rest.
+    const upcoming = sortForDisplay(state.events).filter((e) => CE.eventStatus(e) === 'upcoming');
+    const picks = upcoming.slice().sort((a, b) => Number(Boolean(b.is_featured)) - Number(Boolean(a.is_featured)) || Number(Boolean(b.is_pinned)) - Number(Boolean(a.is_pinned)) || byDateTime(a, b));
     if (!picks.length) { box.hidden = true; return; }
-    box.innerHTML = '<div class="featured-head"><span class="ticket-label">Upcoming at Hapn</span><div class="carousel-controls"><button type="button" class="carousel-prev" aria-label="Previous events">‹</button><button type="button" class="carousel-next" aria-label="Next events">›</button></div></div>' +
-      '<div class="featured-carousel" aria-label="Featured upcoming events">' +
-      picks.map((ev) => '<article class="featured-card"><div class="featured-poster-wrap"><a class="featured-poster" href="event-' + encodeURIComponent(ev.id) + '.html"><img src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="" loading="lazy"></a><button class="poster-share-button share-button" type="button" data-share-url="event-' + encodeURIComponent(ev.id) + '.html" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '">' + plane + '</button></div><div class="featured-copy"><span class="featured-date">' + CE.esc(CE.formatDate(ev.date)) + '</span><h3><a href="event-' + encodeURIComponent(ev.id) + '.html">' + CE.esc(ev.title) + '</a></h3><p>' + CE.esc(ev.venue) + ' · ' + CE.esc(CE.formatTime(ev.time)) + '</p><div class="featured-actions"><a class="btn btn-primary btn-sm" href="event-' + encodeURIComponent(ev.id) + '.html">View event</a><button class="btn btn-outline btn-share-icon share-button" type="button" data-share-url="event-' + encodeURIComponent(ev.id) + '.html" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4M8.7 13.3l6.6 4.4"/></svg><span class="visually-hidden">Share event</span></button></div></div></article>').join('') +
+
+    box.innerHTML =
+      '<div class="featured-head">' +
+        '<div class="featured-heading-copy"><span class="ticket-label">Upcoming at Hapn</span><p class="featured-subtitle">Swipe to discover what’s happening next</p></div>' +
+        '<div class="carousel-controls">' +
+          '<button type="button" class="carousel-prev" aria-label="Previous event">‹</button>' +
+          '<button type="button" class="carousel-next" aria-label="Next event">›</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="featured-carousel" role="region" aria-label="Upcoming college events" tabindex="0">' +
+      picks.map((ev, index) => {
+        const eventUrl = 'event-' + encodeURIComponent(ev.id) + '.html';
+        const description = String(ev.short_description || '').trim();
+        return '<article class="featured-card' + (index === 0 ? ' is-active' : '') + '" data-slide-index="' + index + '">' +
+          '<div class="featured-poster-wrap">' +
+            '<a class="featured-poster" href="' + eventUrl + '" aria-label="View ' + CE.esc(ev.title) + '">' +
+              '<img src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="' + CE.esc(ev.title) + ' poster" loading="' + (index < 2 ? 'eager' : 'lazy') + '" width="800" height="450">' +
+            '</a>' +
+            '<span class="featured-poster-badge">' + CE.esc(ev.category || 'College event') + '</span>' +
+            '<button class="poster-share-button share-button" type="button" data-share-url="' + eventUrl + '" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '">' + plane + '</button>' +
+          '</div>' +
+          '<div class="featured-copy">' +
+            '<span class="featured-date">' + CE.esc(CE.formatDate(ev.date)) + (ev.end_date ? ' – ' + CE.esc(CE.formatDate(ev.end_date)) : '') + '</span>' +
+            '<h3><a href="' + eventUrl + '">' + CE.esc(ev.title) + '</a></h3>' +
+            '<p class="featured-venue">' + CE.esc(ev.venue || 'Venue to be announced') + (ev.time ? ' · ' + CE.esc(CE.formatTime(ev.time)) : '') + '</p>' +
+            (description ? '<p class="featured-description">' + CE.esc(description) + '</p>' : '') +
+            '<div class="featured-actions"><a class="btn btn-primary btn-sm" href="' + eventUrl + '">View Event</a></div>' +
+          '</div>' +
+        '</article>';
+      }).join('') +
+      '</div>' +
+      '<div class="carousel-dots" role="group" aria-label="Choose an event slide">' +
+        picks.map((ev, index) => '<button type="button" class="carousel-dot' + (index === 0 ? ' is-active' : '') + '" data-slide-to="' + index + '" aria-label="Go to event ' + (index + 1) + ': ' + CE.esc(ev.title) + '" aria-current="' + (index === 0 ? 'true' : 'false') + '"></button>').join('') +
       '</div>';
+
     const rail = box.querySelector('.featured-carousel');
     const cards = Array.from(rail.querySelectorAll('.featured-card'));
+    const dots = Array.from(box.querySelectorAll('.carousel-dot'));
     let activeIndex = 0;
+    let scrollFrame = 0;
 
-    const cardStep = () => {
-      const card = cards[0];
-      if (!card) return 0;
-      const gap = parseFloat(getComputedStyle(rail).gap) || 0;
-      return card.getBoundingClientRect().width + gap;
+    const goTo = (index, behavior) => {
+      if (!cards.length) return;
+      const nextIndex = (index + cards.length) % cards.length;
+      const card = cards[nextIndex];
+      const left = card.offsetLeft - (rail.clientWidth - card.clientWidth) / 2;
+      rail.scrollTo({ left: Math.max(0, left), behavior: behavior || 'smooth' });
+      setActive(nextIndex);
+    };
+
+    const setActive = (index) => {
+      activeIndex = index;
+      cards.forEach((card, i) => {
+        card.classList.toggle('is-active', i === activeIndex);
+        card.setAttribute('aria-label', 'Event ' + (i + 1) + ' of ' + cards.length);
+      });
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('is-active', i === activeIndex);
+        dot.setAttribute('aria-current', String(i === activeIndex));
+      });
     };
 
     const updateActive = () => {
+      scrollFrame = 0;
       const center = rail.getBoundingClientRect().left + rail.clientWidth / 2;
       let best = 0;
       let distance = Infinity;
       cards.forEach((card, i) => {
-        const cardCenter = card.getBoundingClientRect().left + card.clientWidth / 2;
+        const cardCenter = card.getBoundingClientRect().left + card.getBoundingClientRect().width / 2;
         const d = Math.abs(cardCenter - center);
         if (d < distance) { distance = d; best = i; }
       });
-      activeIndex = best;
-      cards.forEach((card, i) => card.classList.toggle('is-active', i === activeIndex));
-    };
-
-    const moveBy = (direction) => {
-      rail.scrollBy({ left: direction * cardStep(), behavior: 'smooth' });
+      setActive(best);
     };
 
     rail.addEventListener('scroll', () => {
-      window.requestAnimationFrame(updateActive);
+      if (!scrollFrame) scrollFrame = window.requestAnimationFrame(updateActive);
     }, { passive: true });
-
     rail.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight') { e.preventDefault(); moveBy(1); }
-      if (e.key === 'ArrowLeft') { e.preventDefault(); moveBy(-1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); goTo(activeIndex + 1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(activeIndex - 1); }
+    });
+    box.querySelector('.carousel-prev').addEventListener('click', () => goTo(activeIndex - 1));
+    box.querySelector('.carousel-next').addEventListener('click', () => goTo(activeIndex + 1));
+    box.querySelector('.carousel-dots').addEventListener('click', (e) => {
+      const dot = e.target.closest('[data-slide-to]');
+      if (dot) goTo(Number(dot.dataset.slideTo));
     });
 
-    box.querySelector('.carousel-prev').addEventListener('click', () => moveBy(-1));
-    box.querySelector('.carousel-next').addEventListener('click', () => moveBy(1));
-
-    // Keep touch gestures native so horizontal swipes move the carousel
-    // and vertical swipes continue normal page scrolling on mobile.
-    updateActive();
+    // Native touch scrolling preserves vertical page scroll while enabling horizontal swipes.
     box.hidden = false;
     box.classList.add('ticket-ready');
+    requestAnimationFrame(() => goTo(0, 'auto'));
   }
 
   function showListError(message) {
