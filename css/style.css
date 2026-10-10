@@ -783,3 +783,76 @@ p { margin: 0 0 1rem; }
 @media (max-width:380px) {
   #next-up .featured-card { flex-basis:84%; width:84%; }
 }
+
+
+/* Hapn streaming-style stacked event cards: one card on top of another */
+#next-up .featured-carousel {
+  display:grid;
+  grid-template-columns:minmax(0, 1fr);
+  justify-items:center;
+  gap:0;
+  padding:18px 16px 22px;
+  overflow:hidden;
+  scroll-snap-type:none;
+  touch-action:pan-y;
+  cursor:grab;
+  user-select:none;
+}
+#next-up .featured-carousel.is-dragging { cursor:grabbing; }
+#next-up .featured-card {
+  grid-area:1 / 1;
+  width:min(100%, 340px);
+  max-width:340px;
+  min-height:0;
+  transform:translateX(0) scale(1);
+  opacity:0;
+  pointer-events:none;
+  visibility:hidden;
+  transition:transform .34s ease, opacity .34s ease, visibility .34s;
+  z-index:0;
+}
+#next-up .featured-card.is-active {
+  transform:translateX(0) scale(1);
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  z-index:3;
+}
+#next-up .featured-card.stack-next {
+  transform:translateX(22px) translateY(8px) scale(.94);
+  opacity:.6;
+  visibility:visible;
+  z-index:2;
+  pointer-events:none;
+}
+#next-up .featured-card.stack-next-2 {
+  transform:translateX(40px) translateY(15px) scale(.88);
+  opacity:.3;
+  visibility:visible;
+  z-index:1;
+  pointer-events:none;
+}
+#next-up .featured-card.stack-prev {
+  transform:translateX(-22px) translateY(8px) scale(.94);
+  opacity:.45;
+  visibility:visible;
+  z-index:1;
+  pointer-events:none;
+}
+#next-up .featured-card.stack-prev-2 {
+  transform:translateX(-40px) translateY(15px) scale(.88);
+  opacity:.2;
+  visibility:visible;
+  z-index:0;
+  pointer-events:none;
+}
+#next-up .featured-poster { aspect-ratio:2 / 3; }
+#next-up .carousel-controls { display:flex; }
+@media (max-width:899px) {
+  #next-up .featured-carousel { padding:14px 18px 20px; touch-action:pan-y; }
+  #next-up .featured-card { width:min(100%, 340px); }
+  #next-up .carousel-controls { display:none; }
+}
+@media (prefers-reduced-motion:reduce) {
+  #next-up .featured-card { transition:none; }
+}
