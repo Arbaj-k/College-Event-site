@@ -19,8 +19,8 @@ create table if not exists public.events (
   id                    uuid primary key default gen_random_uuid(),
   title                 text not null check (char_length(title) between 3 and 120),
   poster_url            text,
-  "date"                date not null,
-  "time"                time not null,
+  "date"                date,
+  "time"                time,
   venue                 text not null check (char_length(venue) between 1 and 120),
   organizer             text not null check (char_length(organizer) between 1 and 120),
   category              text not null check (category in
