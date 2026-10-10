@@ -591,3 +591,16 @@ p { margin: 0 0 1rem; }
 }
 .poster-share-button:hover { transform:scale(1.08); background:rgba(15,23,42,.94); }
 .poster-share-button:focus-visible { outline:3px solid #fff; outline-offset:3px; }
+
+
+/* Small paper-plane share icon beside Register Now */
+.detail-cta { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
+.register-share-icon {
+ display:inline-flex; align-items:center; justify-content:center;
+ width:40px; height:40px; min-width:40px; padding:0;
+ border:1px solid var(--border, rgba(100,116,139,.45)); border-radius:50%;
+ color:inherit; background:transparent; cursor:pointer;
+ transition:background .18s ease, transform .18s ease;
+}
+.register-share-icon:hover { background:rgba(100,116,139,.12); transform:scale(1.06); }
+.register-share-icon:focus-visible { outline:2px solid currentColor; outline-offset:3px; }
