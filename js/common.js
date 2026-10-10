@@ -117,6 +117,33 @@
     });
   }
 
+  /* Share buttons use native sharing when available, otherwise copy the link. */
+  document.addEventListener('click', async function (event) {
+    const button = event.target.closest('.share-button');
+    if (!button) return;
+    event.preventDefault();
+    const url = new URL(button.getAttribute('data-share-url') || location.href, location.href).href;
+    const title = button.getAttribute('data-share-title') || document.title;
+    if (navigator.share) {
+      try { await navigator.share({ title: title, text: 'Check this out on Hapn:', url: url }); return; }
+      catch (error) { if (error && error.name === 'AbortError') return; }
+    }
+    try {
+      if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(url);
+      else {
+        const input = document.createElement('textarea');
+        input.value = url; input.setAttribute('readonly', '');
+        input.style.position = 'fixed'; input.style.opacity = '0';
+        document.body.appendChild(input); input.select();
+        const copied = document.execCommand('copy'); input.remove();
+        if (!copied) throw new Error('Copy failed');
+      }
+      CE.toast('Link copied! Share it with your friends.', 'success');
+    } catch (error) {
+      CE.toast('Could not copy the link. Please copy the page URL from your browser.', 'error');
+    }
+  });
+
   /* If a poster image fails to load, show the placeholder instead. */
   document.addEventListener('error', function (e) {
     const el = e.target;
