@@ -171,7 +171,12 @@
       activeIndex = index;
       cards.forEach((card, i) => {
         card.classList.toggle('is-active', i === activeIndex);
+        card.classList.toggle('stack-next', i === (activeIndex + 1) % cards.length);
+        card.classList.toggle('stack-next-2', i === (activeIndex + 2) % cards.length && cards.length > 2);
+        card.classList.toggle('stack-prev', i === (activeIndex - 1 + cards.length) % cards.length && cards.length > 1);
+        card.classList.toggle('stack-prev-2', i === (activeIndex - 2 + cards.length) % cards.length && cards.length > 3);
         card.setAttribute('aria-label', 'Event ' + (i + 1) + ' of ' + cards.length);
+        card.setAttribute('aria-hidden', String(i !== activeIndex));
       });
       dots.forEach((dot, i) => {
         dot.classList.toggle('is-active', i === activeIndex);
@@ -198,6 +203,33 @@
     rail.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowRight') { e.preventDefault(); goTo(activeIndex + 1); }
       if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(activeIndex - 1); }
+    });
+
+    // Horizontal swipe changes the stacked card; vertical movement remains page scrolling.
+    let pointerStartX = 0;
+    let pointerStartY = 0;
+    let pointerId = null;
+    rail.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      pointerStartX = e.clientX;
+      pointerStartY = e.clientY;
+      pointerId = e.pointerId;
+      rail.classList.add('is-dragging');
+    });
+    rail.addEventListener('pointerup', (e) => {
+      if (pointerId !== e.pointerId) return;
+      const dx = e.clientX - pointerStartX;
+      const dy = e.clientY - pointerStartY;
+      pointerId = null;
+      rail.classList.remove('is-dragging');
+      if (Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+        goTo(activeIndex + (dx < 0 ? 1 : -1));
+      }
+    });
+    const cancelSwipe = () => { pointerId = null; rail.classList.remove('is-dragging'); };
+    rail.addEventListener('pointercancel', cancelSwipe);
+    rail.addEventListener('pointerleave', (e) => {
+      if (e.pointerType === 'mouse') cancelSwipe();
     });
     box.querySelector('.carousel-prev').addEventListener('click', () => goTo(activeIndex - 1));
     box.querySelector('.carousel-next').addEventListener('click', () => goTo(activeIndex + 1));
