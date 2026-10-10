@@ -622,3 +622,90 @@ p { margin: 0 0 1rem; }
   cursor:pointer;
 }
 .detail-poster-wrap > .poster-share-button:hover { background:rgba(15,23,42,.95); }
+
+
+/* Modern swipeable Hapn upcoming-events carousel */
+.featured-heading-copy { min-width:0; }
+.featured-subtitle { margin:.25rem 0 0; color:rgba(255,255,255,.78); font-size:.9rem; }
+.featured-head .ticket-label { display:inline-block; }
+.featured-carousel {
+  display:flex;
+  align-items:stretch;
+  gap:1rem;
+  width:100%;
+  padding:1rem max(1rem, calc((100% - 360px) / 2)) 1.25rem;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scroll-snap-type:x mandatory;
+  scroll-behavior:smooth;
+  scroll-padding-inline:1rem;
+  overscroll-behavior-x:contain;
+  touch-action:pan-x pan-y;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.featured-carousel::-webkit-scrollbar { display:none; }
+.featured-card {
+  flex:0 0 min(360px, 82%);
+  width:min(360px, 82%);
+  min-width:0;
+  scroll-snap-align:center;
+  scroll-snap-stop:always;
+  border:1px solid rgba(255,255,255,.42);
+  border-radius:20px;
+  overflow:hidden;
+  background:#fff;
+  box-shadow:0 18px 42px rgba(13,24,75,.16);
+  transform:scale(.94);
+  opacity:.78;
+  transition:transform .28s ease, opacity .28s ease, box-shadow .28s ease;
+}
+.featured-card.is-active {
+  transform:scale(1);
+  opacity:1;
+  box-shadow:0 22px 48px rgba(13,24,75,.24);
+}
+.featured-poster-wrap { position:relative; }
+.featured-poster { display:block; aspect-ratio:16/9; overflow:hidden; background:var(--blue-soft); }
+.featured-poster img { display:block; width:100%; height:100%; object-fit:cover; }
+.featured-poster-badge {
+  position:absolute; left:12px; top:12px; max-width:calc(100% - 76px);
+  padding:.35rem .65rem; border-radius:999px; background:rgba(255,255,255,.94);
+  color:var(--ink); font-size:.76rem; font-weight:800; box-shadow:0 4px 12px rgba(0,0,0,.12);
+}
+.featured-copy { min-height:220px; padding:1rem 1.05rem 1.1rem; display:flex; flex-direction:column; align-items:flex-start; gap:.5rem; }
+.featured-copy h3 { margin:0; font-size:1.12rem; line-height:1.28; }
+.featured-copy h3 a { color:var(--ink); text-decoration:none; }
+.featured-copy h3 a:hover { color:var(--blue); }
+.featured-date { color:var(--blue); font-size:.86rem; font-weight:800; }
+.featured-copy .featured-venue { margin:0; color:var(--muted); font-size:.88rem; }
+.featured-copy .featured-description {
+  display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; overflow:hidden;
+  margin:0; color:var(--muted); font-size:.9rem; line-height:1.5;
+}
+.featured-actions { margin-top:auto; padding-top:.35rem; width:100%; }
+.featured-actions .btn { display:inline-flex; align-items:center; justify-content:center; min-height:42px; padding:.65rem 1rem; }
+.carousel-dots { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:.45rem; padding:.15rem 1rem .4rem; }
+.carousel-dot {
+  width:7px; height:7px; padding:0; border:0; border-radius:999px;
+  background:rgba(255,255,255,.45); cursor:pointer; transition:width .22s ease, background .22s ease;
+}
+.carousel-dot.is-active { width:22px; background:#fff; }
+.carousel-dot:focus-visible, .carousel-controls button:focus-visible { outline:2px solid #fff; outline-offset:3px; }
+.carousel-controls button:disabled { opacity:.45; cursor:not-allowed; }
+@media (min-width:900px) {
+  .featured-carousel { padding-left:calc((100% - 390px) / 2); padding-right:calc((100% - 390px) / 2); gap:1.2rem; }
+  .featured-card { flex-basis:390px; width:390px; }
+}
+@media (max-width:899px) {
+  .featured-carousel { padding:1rem 8% 1.15rem; gap:.8rem; }
+  .featured-card { flex-basis:84%; width:84%; transform:none; opacity:1; }
+  .featured-card.is-active { transform:none; }
+  .carousel-controls { display:none; }
+  .carousel-dot { width:6px; height:6px; }
+  .carousel-dot.is-active { width:18px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .featured-carousel { scroll-behavior:auto; }
+  .featured-card, .carousel-dot { transition:none; }
+}
