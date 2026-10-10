@@ -574,3 +574,20 @@ p { margin: 0 0 1rem; }
   .hero-actions .btn-sun { flex:0 1 auto; min-width:0; white-space:nowrap; }
   .hero-share-icon { width:36px; height:36px; min-width:36px; }
 }
+
+
+/* Paper-plane share icon over event posters */
+.card-poster-wrap, .featured-poster-wrap { position:relative; display:block; }
+.card-poster-wrap .card-poster, .featured-poster-wrap .featured-poster { display:block; }
+.poster-share-button {
+  position:absolute; z-index:5; top:12px; right:12px;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:40px; height:40px; min-width:40px; padding:0;
+  color:#fff; background:rgba(15,23,42,.76);
+  border:1px solid rgba(255,255,255,.82); border-radius:50%;
+  box-shadow:0 4px 14px rgba(0,0,0,.24);
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  cursor:pointer; transition:transform .18s ease, background .18s ease;
+}
+.poster-share-button:hover { transform:scale(1.08); background:rgba(15,23,42,.94); }
+.poster-share-button:focus-visible { outline:3px solid #fff; outline-offset:3px; }
