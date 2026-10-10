@@ -593,8 +593,11 @@ p { margin: 0 0 1rem; }
 .poster-share-button:focus-visible { outline:3px solid #fff; outline-offset:3px; }
 
 
-/* Small paper-plane share icon beside Register Now */
+/* Keep the paper-plane share icon on the same row as Register Now */
 .detail-cta { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
+.detail-cta > a { order:1; }
+.detail-cta > .register-share-icon { order:2; }
+.detail-cta > small { order:3; flex-basis:100%; }
 .register-share-icon {
  display:inline-flex; align-items:center; justify-content:center;
  width:40px; height:40px; min-width:40px; padding:0;
