@@ -140,34 +140,29 @@
   function readForm() {
     const v = (id) => $(id).value.trim();
     return {
-      title: v('title'),
-      date: v('date'),
-      time: v('time').slice(0, 5),
+      title: v('title') || null,
+      date: v('date') || null,
+      time: v('time').slice(0, 5) || null,
       end_date: v('end_date') || null,
       end_time: v('end_time') || null,
       is_featured: $('is_featured').checked,
       is_pinned: $('is_pinned').checked,
-      venue: v('venue'),
-      organizer: v('organizer'),
+      venue: v('venue') || null,
+      organizer: v('organizer') || null,
       category: Array.from(document.querySelectorAll('input[name="event-category"]:checked')).map((el) => el.value === 'Other' ? v('category_other') : el.value).filter(Boolean).join(', '),
-      short_description: v('short_description'),
+      short_description: v('short_description') || null,
       description: v('description') || null,
       registration_deadline: v('registration_deadline') || null,
-      registration_link: v('registration_link'),
+      registration_link: v('registration_link') ? CE.httpsUrl(v('registration_link')) : null,
       is_published: $('is_published').checked
     };
   }
 
   function validate(values, file) {
-    if (values.title.length < 3) return 'The event name must be at least 3 characters.';
-    const selectedCategories = Array.from(document.querySelectorAll('input[name="event-category"]:checked'));
-    if (!selectedCategories.length) return 'Please select at least one category.';
-    if (selectedCategories.some((el) => el.value === 'Other') && !$('category_other').value.trim()) return 'Please specify the Other category.';
-    if (!values.category) return 'Please select or specify a category.';
-    if (!CE.httpsUrl(values.registration_link)) return 'Enter a valid registration link. It must start with https://';
+    if (values.registration_link && !CE.httpsUrl(values.registration_link)) return 'Enter a valid registration link starting with https://, or leave it blank.';
     if (values.end_date && values.date && values.end_date < values.date) return 'The end date cannot be before the start date.';
     if (values.date && values.end_date === values.date && values.end_time && values.time && values.end_time < values.time) return 'For an event ending on the same date, the end time cannot be before the start time.';
-    if (values.registration_deadline && values.registration_deadline > values.date) return 'The registration deadline cannot be after the event start date.';
+    if (values.registration_deadline && values.date && values.registration_deadline > values.date) return 'The registration deadline cannot be after the event start date.';
     if (file) {
       if (!POSTER_TYPES[file.type]) return 'The poster must be a JPG, PNG or WebP image.';
       if (file.size > MAX_POSTER_BYTES) return 'The poster is too large. Please use an image under 5 MB.';
