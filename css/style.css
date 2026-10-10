@@ -607,3 +607,18 @@ p { margin: 0 0 1rem; }
 }
 .register-share-icon:hover { background:rgba(100,116,139,.12); transform:scale(1.06); }
 .register-share-icon:focus-visible { outline:2px solid currentColor; outline-offset:3px; }
+
+
+/* Share icon overlay on the event detail poster itself */
+.detail-poster-wrap { position:relative; display:block; }
+.detail-poster-wrap > .poster-share-button {
+  position:absolute; z-index:10; top:12px; right:12px;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:40px; height:40px; min-width:40px; padding:0;
+  color:#fff; background:rgba(15,23,42,.78);
+  border:1px solid rgba(255,255,255,.85); border-radius:50%;
+  box-shadow:0 4px 14px rgba(0,0,0,.24);
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  cursor:pointer;
+}
+.detail-poster-wrap > .poster-share-button:hover { background:rgba(15,23,42,.95); }
