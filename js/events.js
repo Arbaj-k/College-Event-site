@@ -32,11 +32,14 @@
     const stagger = 'style="--i:' + (index % 12) + '"';
     return '' +
       '<article class="event-card reveal' + (status !== 'upcoming' ? ' is-past' : '') + '" ' + stagger + '>' +
-        '<a class="card-poster" href="' + detailUrl + '" tabindex="-1" aria-hidden="true">' +
-          '<img class="poster-img" src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="" loading="lazy" width="800" height="500">' +
-          '<span class="badge">' + CE.esc(ev.category) + '</span>' +
-          (status !== 'upcoming' ? '<span class="badge badge-ended">Ended</span>' : '') +
-        '</a>' +
+        '<div class="card-poster-wrap">' +
+          '<a class="card-poster" href="' + detailUrl + '" tabindex="-1" aria-hidden="true">' +
+            '<img class="poster-img" src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="" loading="lazy" width="800" height="500">' +
+            '<span class="badge">' + CE.esc(ev.category) + '</span>' +
+            (status !== 'upcoming' ? '<span class="badge badge-ended">Ended</span>' : '') +
+          '</a>' +
+          '<button class="poster-share-button share-button" type="button" data-share-url="' + detailUrl + '" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '">' + plane + '</button>' +
+        '</div>' +
         '<div class="card-body">' +
           '<h3 class="card-title"><a href="' + detailUrl + '">' + CE.esc(ev.title) + '</a></h3>' +
           '<ul class="meta">' +
@@ -112,7 +115,7 @@
     if (!picks.length) { box.hidden = true; return; }
     box.innerHTML = '<div class="featured-head"><span class="ticket-label">Upcoming at Hapn</span><div class="carousel-controls"><button type="button" class="carousel-prev" aria-label="Previous events">‹</button><button type="button" class="carousel-next" aria-label="Next events">›</button></div></div>' +
       '<div class="featured-carousel" aria-label="Featured upcoming events">' +
-      picks.map((ev) => '<article class="featured-card"><a class="featured-poster" href="event-' + encodeURIComponent(ev.id) + '.html"><img src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="" loading="lazy"></a><div class="featured-copy"><span class="featured-date">' + CE.esc(CE.formatDate(ev.date)) + '</span><h3><a href="event-' + encodeURIComponent(ev.id) + '.html">' + CE.esc(ev.title) + '</a></h3><p>' + CE.esc(ev.venue) + ' · ' + CE.esc(CE.formatTime(ev.time)) + '</p><div class="featured-actions"><a class="btn btn-primary btn-sm" href="event-' + encodeURIComponent(ev.id) + '.html">View event</a><button class="btn btn-outline btn-share-icon share-button" type="button" data-share-url="event-' + encodeURIComponent(ev.id) + '.html" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4M8.7 13.3l6.6 4.4"/></svg><span class="visually-hidden">Share event</span></button></div></div></article>').join('') +
+      picks.map((ev) => '<article class="featured-card"><div class="featured-poster-wrap"><a class="featured-poster" href="event-' + encodeURIComponent(ev.id) + '.html"><img src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="" loading="lazy"></a><button class="poster-share-button share-button" type="button" data-share-url="event-' + encodeURIComponent(ev.id) + '.html" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '">' + plane + '</button></div><div class="featured-copy"><span class="featured-date">' + CE.esc(CE.formatDate(ev.date)) + '</span><h3><a href="event-' + encodeURIComponent(ev.id) + '.html">' + CE.esc(ev.title) + '</a></h3><p>' + CE.esc(ev.venue) + ' · ' + CE.esc(CE.formatTime(ev.time)) + '</p><div class="featured-actions"><a class="btn btn-primary btn-sm" href="event-' + encodeURIComponent(ev.id) + '.html">View event</a><button class="btn btn-outline btn-share-icon share-button" type="button" data-share-url="event-' + encodeURIComponent(ev.id) + '.html" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4M8.7 13.3l6.6 4.4"/></svg><span class="visually-hidden">Share event</span></button></div></div></article>').join('') +
       '</div>';
     const rail = box.querySelector('.featured-carousel');
     const cards = Array.from(rail.querySelectorAll('.featured-card'));
