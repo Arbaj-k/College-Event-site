@@ -165,10 +165,8 @@
     if (selectedCategories.some((el) => el.value === 'Other') && !$('category_other').value.trim()) return 'Please specify the Other category.';
     if (!values.category) return 'Please select or specify a category.';
     if (!CE.httpsUrl(values.registration_link)) return 'Enter a valid registration link. It must start with https://';
-    if (values.end_time && !values.end_date) values.end_date = values.date;
-    if (values.end_date && values.end_date < values.date) return 'The end date cannot be before the start date.';
-    if (values.end_date === values.date && values.end_time && values.end_time < values.time) return 'For an event ending on the same date, the end time cannot be before the start time.';
-    if (values.end_date && !values.end_time) return 'Please enter an end time when an end date is set.';
+    if (values.end_date && values.date && values.end_date < values.date) return 'The end date cannot be before the start date.';
+    if (values.date && values.end_date === values.date && values.end_time && values.time && values.end_time < values.time) return 'For an event ending on the same date, the end time cannot be before the start time.';
     if (values.registration_deadline && values.registration_deadline > values.date) return 'The registration deadline cannot be after the event start date.';
     if (file) {
       if (!POSTER_TYPES[file.type]) return 'The poster must be a JPG, PNG or WebP image.';
