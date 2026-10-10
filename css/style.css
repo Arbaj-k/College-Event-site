@@ -856,3 +856,21 @@ p { margin: 0 0 1rem; }
 @media (prefers-reduced-motion:reduce) {
   #next-up .featured-card { transition:none; }
 }
+
+
+/* Compact stacked event cards */
+#next-up .featured-carousel { padding-top:10px; padding-bottom:14px; }
+#next-up .featured-card { width:min(100%, 280px); max-width:280px; }
+#next-up .featured-poster { aspect-ratio:3 / 4; }
+#next-up .featured-copy { min-height:160px; padding:10px 12px 12px; gap:5px; }
+#next-up .featured-copy h3 { font-size:.98rem; }
+#next-up .featured-copy .featured-description { -webkit-line-clamp:2; font-size:.84rem; }
+#next-up .featured-copy .featured-venue { font-size:.82rem; }
+#next-up .featured-actions .btn { min-height:36px; padding:.5rem .85rem; }
+@media (min-width:900px) {
+  #next-up .featured-card { width:280px; max-width:280px; }
+}
+@media (max-width:899px) {
+  #next-up .featured-carousel { padding:10px 22px 14px; }
+  #next-up .featured-card { width:min(100%, 280px); max-width:280px; }
+}
