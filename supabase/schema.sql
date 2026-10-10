@@ -17,23 +17,22 @@ create table if not exists public.admins (
 
 create table if not exists public.events (
   id                    uuid primary key default gen_random_uuid(),
-  title                 text not null check (char_length(title) between 3 and 120),
+  title                 text check (title is null or char_length(title) <= 120),
   poster_url            text,
   "date"                date,
   "time"                time,
-  venue                 text not null check (char_length(venue) between 1 and 120),
-  organizer             text not null check (char_length(organizer) between 1 and 120),
-  category              text not null check (category in
-                          ('Technical','Workshop','Hackathon','Cultural','Sports','Career','Other')),
-  short_description     text not null check (char_length(short_description) between 1 and 200),
+  venue                 text check (venue is null or char_length(venue) <= 120),
+  organizer             text check (organizer is null or char_length(organizer) <= 120),
+  category              text,
+  short_description     text check (short_description is null or char_length(short_description) <= 200),
   description           text check (description is null or char_length(description) <= 5000),
   registration_deadline date,
-  registration_link     text not null check (registration_link ~* '^https://'),
+  registration_link     text check (registration_link is null or registration_link ~* '^https://'),
   is_published          boolean not null default true,   -- false = hidden draft (admins only)
   created_at            timestamptz not null default now(),
   updated_at            timestamptz not null default now(),
   constraint deadline_not_after_event
-    check (registration_deadline is null or registration_deadline <= "date")
+    check (registration_deadline is null or "date" is null or registration_deadline <= "date")
 );
 
 create index if not exists events_date_idx on public.events ("date");
