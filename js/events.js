@@ -51,7 +51,7 @@
             '<li><span aria-hidden="true">🏷️</span><span><span class="visually-hidden">Category: </span>' + CE.esc(ev.category) + '</span></li>' +
           '</ul>' +
           '<p class="card-desc">' + CE.esc(ev.short_description) + '</p>' +
-          '<div class="card-actions">' + button + '<button class="btn btn-outline btn-share-icon share-button" type="button" data-share-url="' + detailUrl + '" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4M8.7 13.3l6.6 4.4"/></svg><span class="visually-hidden">Share event</span></button></div>' +
+          '<div class="card-actions">' + button + '</div>' +
         '</div>' +
       '</article>';
   }
