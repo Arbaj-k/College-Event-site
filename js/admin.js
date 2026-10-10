@@ -192,7 +192,6 @@
     $('category_other').value = otherValue || '';
     const otherSelected = document.querySelector('input[name="event-category"][value="Other"]').checked;
     $('category-other-wrap').hidden = !otherSelected;
-    $('category_other').required = otherSelected;
     $('category-other-required').hidden = !otherSelected;
     $('time').value = (ev.time || '').slice(0, 5);
     $('is_published').checked = ev.is_published !== false;
@@ -281,7 +280,6 @@
     document.querySelectorAll('input[name="event-category"]').forEach((el) => el.addEventListener('change', () => {
       const otherSelected = document.querySelector('input[name="event-category"][value="Other"]').checked;
       $('category-other-wrap').hidden = !otherSelected;
-      $('category_other').required = otherSelected;
       $('category-other-required').hidden = !otherSelected;
     }));
     $('event-form').addEventListener('submit', submitForm);
