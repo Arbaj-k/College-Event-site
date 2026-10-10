@@ -46,7 +46,7 @@
             '<li><span aria-hidden="true">🏷️</span><span><span class="visually-hidden">Category: </span>' + CE.esc(ev.category) + '</span></li>' +
           '</ul>' +
           '<p class="card-desc">' + CE.esc(ev.short_description) + '</p>' +
-          '<div class="card-actions">' + button + '</div>' +
+          '<div class="card-actions">' + button + '<button class="btn btn-outline btn-share-icon share-button" type="button" data-share-url="' + detailUrl + '" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4M8.7 13.3l6.6 4.4"/></svg><span class="visually-hidden">Share event</span></button></div>' +
         '</div>' +
       '</article>';
   }
@@ -112,7 +112,7 @@
     if (!picks.length) { box.hidden = true; return; }
     box.innerHTML = '<div class="featured-head"><span class="ticket-label">Upcoming at Hapn</span><div class="carousel-controls"><button type="button" class="carousel-prev" aria-label="Previous events">‹</button><button type="button" class="carousel-next" aria-label="Next events">›</button></div></div>' +
       '<div class="featured-carousel" aria-label="Featured upcoming events">' +
-      picks.map((ev) => '<article class="featured-card"><a class="featured-poster" href="event-' + encodeURIComponent(ev.id) + '.html"><img src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="" loading="lazy"></a><div class="featured-copy"><span class="featured-date">' + CE.esc(CE.formatDate(ev.date)) + '</span><h3><a href="event-' + encodeURIComponent(ev.id) + '.html">' + CE.esc(ev.title) + '</a></h3><p>' + CE.esc(ev.venue) + ' · ' + CE.esc(CE.formatTime(ev.time)) + '</p><a class="btn btn-primary btn-sm" href="event-' + encodeURIComponent(ev.id) + '.html">View event</a></div></article>').join('') +
+      picks.map((ev) => '<article class="featured-card"><a class="featured-poster" href="event-' + encodeURIComponent(ev.id) + '.html"><img src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="" loading="lazy"></a><div class="featured-copy"><span class="featured-date">' + CE.esc(CE.formatDate(ev.date)) + '</span><h3><a href="event-' + encodeURIComponent(ev.id) + '.html">' + CE.esc(ev.title) + '</a></h3><p>' + CE.esc(ev.venue) + ' · ' + CE.esc(CE.formatTime(ev.time)) + '</p><div class="featured-actions"><a class="btn btn-primary btn-sm" href="event-' + encodeURIComponent(ev.id) + '.html">View event</a><button class="btn btn-outline btn-share-icon share-button" type="button" data-share-url="event-' + encodeURIComponent(ev.id) + '.html" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4M8.7 13.3l6.6 4.4"/></svg><span class="visually-hidden">Share event</span></button></div></div></article>').join('') +
       '</div>';
     const rail = box.querySelector('.featured-carousel');
     const cards = Array.from(rail.querySelectorAll('.featured-card'));
@@ -229,7 +229,7 @@
           '<dl class="info-list">' + rows.map((r) => '<div><dt>' + r[0] + '</dt><dd>' + CE.esc(r[1]) + '</dd></div>').join('') + '</dl>' +
           '<h2 class="detail-text-title">About this event</h2>' +
           '<p class="detail-text">' + CE.esc(ev.description || ev.short_description) + '</p>' +
-          '<div class="detail-cta">' + cta + '</div>' +
+          '<div class="detail-cta">' + cta + '<button class="btn btn-outline share-button" type="button" data-share-url="event-' + encodeURIComponent(ev.id) + '.html" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share this event"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4M8.7 13.3l6.6 4.4"/></svg> Share event</button></div>' +
         '</div>' +
       '</div>';
   }
