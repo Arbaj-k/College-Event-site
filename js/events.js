@@ -380,7 +380,8 @@
     const box = document.getElementById('event-detail');
     const notFound = (msg) => { box.innerHTML = '<div class="empty"><p class="empty-title">' + CE.esc(msg) + '</p><p><a href="events.html">Browse all events</a></p></div>'; };
 
-    const pathMatch = location.pathname.match(/\/event-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.html$/i);\n    const id = new URLSearchParams(location.search).get('id') || (pathMatch ? pathMatch[1] : '');
+    const pathMatch = location.pathname.match(/\/event-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.html$/i);
+    const id = new URLSearchParams(location.search).get('id') || (pathMatch ? pathMatch[1] : '');
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return notFound('Event not found.');
 
     const problem = CE.setupProblem();
@@ -433,7 +434,8 @@
     });
     document.head.appendChild(ld);
 
-    box.innerHTML = detailHtml(data);\n    const ctaBar = box.querySelector('.detail-cta');\n    if (ctaBar) ctaBar.setAttribute('data-registration-label', (CE.registrationOpen(data) && CE.httpsUrl(data.registration_link)) ? 'Registration open' : (CE.eventStatus(data) !== 'upcoming' ? 'Event ended' : 'Registration closed'));
+    box.innerHTML = detailHtml(data);
+    const ctaBar = box.querySelector('.detail-cta');\n    if (ctaBar) ctaBar.setAttribute('data-registration-label', (CE.registrationOpen(data) && CE.httpsUrl(data.registration_link)) ? 'Registration open' : (CE.eventStatus(data) !== 'upcoming' ? 'Event ended' : 'Registration closed'));
   }
 
   const page = document.body.getAttribute('data-page');
