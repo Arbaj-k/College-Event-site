@@ -138,13 +138,7 @@
             '<span class="featured-poster-badge">' + CE.esc(ev.category || 'College event') + '</span>' +
             '<button class="poster-share-button share-button" type="button" data-share-url="' + eventUrl + '" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '">' + plane + '</button>' +
           '</div>' +
-          '<div class="featured-copy">' +
-            '<span class="featured-date">' + CE.esc(CE.formatDate(ev.date)) + (ev.end_date ? ' – ' + CE.esc(CE.formatDate(ev.end_date)) : '') + '</span>' +
-            '<h3><a href="' + eventUrl + '">' + CE.esc(ev.title) + '</a></h3>' +
-            '<p class="featured-venue">' + CE.esc(ev.venue || 'Venue to be announced') + (ev.time ? ' · ' + CE.esc(CE.formatTime(ev.time)) : '') + '</p>' +
-            (description ? '<p class="featured-description">' + CE.esc(description) + '</p>' : '') +
-            '<div class="featured-actions"><a class="btn btn-primary btn-sm" href="' + eventUrl + '">View Event</a></div>' +
-          '</div>' +
+          '<div class="featured-actions"><a class="btn btn-primary btn-sm" href="' + eventUrl + '">' + (ev.registration_url ? 'Register Now' : 'View Event') + '</a></div>' +
         '</article>';
       }).join('') +
       '</div>' +
