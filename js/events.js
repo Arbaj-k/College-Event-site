@@ -435,7 +435,8 @@
     document.head.appendChild(ld);
 
     box.innerHTML = detailHtml(data);
-    const ctaBar = box.querySelector('.detail-cta');\n    if (ctaBar) ctaBar.setAttribute('data-registration-label', (CE.registrationOpen(data) && CE.httpsUrl(data.registration_link)) ? 'Registration open' : (CE.eventStatus(data) !== 'upcoming' ? 'Event ended' : 'Registration closed'));
+    const ctaBar = box.querySelector('.detail-cta');
+    if (ctaBar) ctaBar.setAttribute('data-registration-label', (CE.registrationOpen(data) && CE.httpsUrl(data.registration_link)) ? 'Registration open' : (CE.eventStatus(data) !== 'upcoming' ? 'Event ended' : 'Registration closed'));
   }
 
   const page = document.body.getAttribute('data-page');
