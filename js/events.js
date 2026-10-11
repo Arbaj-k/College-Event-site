@@ -8,7 +8,7 @@
 
   const CE = window.CE;
   const LIST_COLUMNS = 'id,title,poster_url,date,time,end_date,end_time,venue,category,short_description,registration_deadline,registration_link,is_featured,is_pinned';
-  const state = { events: [], category: 'All', query: '' };
+  const state = { events: [], category: 'All', query: '', selectedDate: '' };
 
   const plane = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>';
 
@@ -60,6 +60,11 @@
   function filtered() {
     const q = state.query.trim().toLowerCase();
     return sortForDisplay(state.events).filter((ev) => {
+      if (state.selectedDate) {
+        const eventStart = String(ev.date || '');
+        const eventEnd = String(ev.end_date || ev.date || '');
+        if (state.selectedDate < eventStart || state.selectedDate > eventEnd) return false;
+      }
       if (state.category !== 'All' && !String(ev.category || '').split(',').map((c) => c.trim()).includes(state.category)) return false;
       if (!q) return true;
       return [ev.title, ev.venue, ev.category].some((field) => String(field || '').toLowerCase().indexOf(q) !== -1);
@@ -107,6 +112,53 @@
       btn.classList.add('just-selected');
       renderList();
     });
+  }
+
+  function renderHomeCalendar() {
+    const root = document.getElementById('home-calendar');
+    const daysRoot = document.getElementById('calendar-days');
+    const monthLabel = document.getElementById('calendar-month');
+    const reset = document.getElementById('calendar-reset');
+    if (!root || !daysRoot || !monthLabel || !reset) return;
+
+    const now = new Date();
+    now.setHours(12, 0, 0, 0);
+    const monday = new Date(now);
+    const offset = (now.getDay() + 6) % 7;
+    monday.setDate(now.getDate() - offset);
+    const iso = (date) => date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+    const monthFmt = new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric' });
+    const dayFmt = new Intl.DateTimeFormat('en', { weekday: 'short' });
+    monthLabel.textContent = monthFmt.format(monday);
+    daysRoot.innerHTML = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + i);
+      const key = iso(date);
+      const hasEvents = state.events.some((ev) => {
+        const start = String(ev.date || '');
+        const end = String(ev.end_date || ev.date || '');
+        return key >= start && key <= end && CE.eventStatus(ev) === 'upcoming';
+      });
+      const isSelected = state.selectedDate === key || (!state.selectedDate && key === iso(now));
+      return '<button type="button" class="calendar-day' + (isSelected ? ' is-selected' : '') + '" data-date="' + key + '" aria-pressed="' + isSelected + '">' +
+        '<span class="calendar-weekday">' + dayFmt.format(date) + '</span>' +
+        '<strong>' + date.getDate() + '</strong>' +
+        '<span class="calendar-event-dot' + (hasEvents ? ' has-events' : '') + '" aria-hidden="true"></span>' +
+      '</button>';
+    }).join('');
+    daysRoot.onclick = (event) => {
+      const button = event.target.closest('[data-date]');
+      if (!button) return;
+      state.selectedDate = button.dataset.date;
+      renderHomeCalendar();
+      renderList();
+      document.getElementById('events')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    reset.onclick = () => {
+      state.selectedDate = '';
+      renderHomeCalendar();
+      renderList();
+    };
   }
 
   function renderNextUp() {
@@ -270,6 +322,7 @@
       if (error) throw error;
 
       state.events = data || [];
+      renderHomeCalendar();
       renderList();
       renderNextUp();
     } catch (error) {
