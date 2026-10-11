@@ -1160,3 +1160,44 @@ body { background:#edf5f0; color:var(--ink); }
   .event-card .poster-date-overlay > strong { font-size:2rem; }
   .event-card .poster-date-side small { font-size:.6rem; }
 }
+
+
+/* Match reference cards: title, date, time, venue and register button only */
+.events-grid { align-items:stretch; }
+.event-card { display:flex; flex-direction:column; overflow:hidden; }
+.event-card .card-body { display:flex; flex:1; flex-direction:column; gap:6px; padding:11px 12px 12px; }
+.event-card .card-title {
+  margin:0 0 1px;
+  font-size:.9rem;
+  line-height:1.28;
+  font-weight:750;
+  letter-spacing:-.015em;
+}
+.event-card .meta {
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  margin:0;
+  padding:0;
+  list-style:none;
+  color:#4f5e56;
+  font-size:.76rem;
+  line-height:1.35;
+}
+.event-card .meta li { display:flex; align-items:flex-start; gap:5px; }
+.event-card .meta li > span:first-child { flex:0 0 auto; }
+.event-card .meta li > span:last-child { min-width:0; overflow-wrap:anywhere; }
+.event-card .card-desc { display:none !important; }
+.event-card .card-actions { margin-top:auto; padding-top:5px; }
+.event-card .card-actions .btn { width:100%; justify-content:center; }
+.event-card .poster-date-overlay { left:9px; bottom:9px; }
+.event-card .poster-date-overlay > strong { font-size:2.15rem; }
+.event-card .poster-date-side { font-size:.62rem; }
+@media (max-width:767px) {
+  .events-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+  .event-card { border-radius:19px; }
+  .event-card .card-body { padding:10px 10px 11px; gap:5px; }
+  .event-card .card-title { font-size:.84rem; }
+  .event-card .meta { font-size:.7rem; gap:4px; }
+  .event-card .card-actions .btn { min-height:40px; font-size:.76rem; }
+}
