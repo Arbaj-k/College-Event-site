@@ -186,12 +186,18 @@
       picks.map((ev, index) => {
         const eventUrl = 'event-' + encodeURIComponent(ev.id) + '.html';
         const description = String(ev.short_description || '').trim();
+        const dateValue = ev.date ? new Date(String(ev.date).slice(0, 10) + 'T12:00:00') : null;
+        const validDate = dateValue && !Number.isNaN(dateValue.getTime());
+        const posterDay = validDate ? String(dateValue.getDate()) : '';
+        const posterMonth = validDate ? dateValue.toLocaleDateString('en', { month: 'short' }).toUpperCase() : '';
+        const posterTime = ev.time ? CE.formatTime(ev.time) : '';
         return '<article class="featured-card' + (index === 0 ? ' is-active' : '') + '" data-slide-index="' + index + '">' +
           '<div class="featured-poster-wrap">' +
             '<a class="featured-poster" href="' + eventUrl + '" aria-label="View ' + CE.esc(ev.title) + '">' +
               '<img src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="' + CE.esc(ev.title) + ' poster" loading="' + (index < 2 ? 'eager' : 'lazy') + '" width="800" height="450">' +
             '</a>' +
             '<span class="featured-poster-badge">' + CE.esc(ev.category || 'College event') + '</span>' +
+            (validDate ? '<span class="poster-date-overlay carousel-poster-date"><strong>' + CE.esc(posterDay) + '</strong><span class="poster-date-side"><span>' + CE.esc(posterMonth) + '</span>' + (posterTime ? '<small>' + CE.esc(posterTime) + '</small>' : '') + '</span></span>' : '') +
             '<button class="poster-share-button share-button" type="button" data-share-url="' + eventUrl + '" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '">' + plane + '</button>' +
           '</div>' +
           '<div class="featured-actions"><a class="btn btn-primary btn-sm" href="' + eventUrl + '">' + (ev.registration_url ? 'Register Now' : 'View Event') + '</a></div>' +
