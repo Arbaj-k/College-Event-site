@@ -1354,3 +1354,23 @@ body { background:#edf5f0; color:var(--ink); }
   font-size:.58rem;
 }
 .event-card .btn-disabled:hover { background:#dfe9e3; color:#52635a; }
+
+
+/* Compact blue homepage hero; keep the Hapn header/logo untouched */
+.hero { background:var(--blue) !important; color:#fff !important; }
+.hero h1 { color:#fff !important; }
+.hero p { color:#eef0ff !important; }
+.hero h1 span { background:#c9f36a; color:#101d19; }
+.hero-actions .btn-sun { background:#fff; color:var(--blue); }
+.hero-actions .btn-sun::after { background:#c9f36a; color:#101d19; }
+.hero-share-icon { border-color:#fff; color:#fff; background:transparent; }
+@media (max-width:767px) {
+  .hero { padding:16px 0 10px !important; }
+  .hero-inner { gap:15px !important; }
+  .hero h1 { font-size:clamp(2.05rem,7.8vw,2.65rem) !important; line-height:.98 !important; margin:0 0 8px !important; }
+  .hero p { font-size:.9rem !important; line-height:1.35 !important; margin:0 0 13px !important; }
+  .hero-actions { gap:10px !important; }
+  .hero-actions .btn-sun { min-height:46px !important; padding:5px 10px 5px 14px !important; font-size:.84rem !important; }
+  .hero-actions .btn-sun::after { width:32px !important; height:32px !important; flex-basis:32px !important; }
+  .hero-share-icon { width:46px !important; height:46px !important; min-width:46px !important; flex-basis:46px !important; }
+}
