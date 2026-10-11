@@ -30,7 +30,6 @@
     const posterDateValid = posterDate && !Number.isNaN(posterDate.getTime());
     const posterDay = posterDateValid ? String(posterDate.getDate()) : '';
     const posterMonth = posterDateValid ? posterDate.toLocaleDateString('en', { month: 'short' }).toUpperCase() : '';
-    const posterTime = ev.time ? CE.formatTime(ev.time) : '';
 
     const button = canRegister
       ? '<a class="btn btn-primary btn-block" href="' + CE.esc(link) + '" target="_blank" rel="noopener noreferrer">Register Now</a>'
@@ -43,7 +42,7 @@
           '<a class="card-poster" href="' + detailUrl + '" tabindex="-1" aria-hidden="true">' +
             '<img class="poster-img" src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="" loading="lazy" width="800" height="500">' +
             '<span class="badge">' + CE.esc(ev.category) + '</span>' +
-            (posterDateValid ? '<span class="poster-date-overlay"><strong>' + CE.esc(posterDay) + '</strong><span class="poster-date-side"><span>' + CE.esc(posterMonth) + '</span>' + (posterTime ? '<small>' + CE.esc(posterTime) + '</small>' : '') + '</span></span>' : '') +
+            (posterDateValid ? '<span class="poster-date-overlay"><strong>' + CE.esc(posterDay) + '</strong><span class="poster-date-side"><span>' + CE.esc(posterMonth) + '</span></span></span>' : '') +
             (status !== 'upcoming' ? '<span class="badge badge-ended">Ended</span>' : '') +
           '</a>' +
           '<button class="poster-share-button share-button" type="button" data-share-url="' + detailUrl + '" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '">' + plane + '</button>' +
@@ -190,14 +189,13 @@
         const validDate = dateValue && !Number.isNaN(dateValue.getTime());
         const posterDay = validDate ? String(dateValue.getDate()) : '';
         const posterMonth = validDate ? dateValue.toLocaleDateString('en', { month: 'short' }).toUpperCase() : '';
-        const posterTime = ev.time ? CE.formatTime(ev.time) : '';
         return '<article class="featured-card' + (index === 0 ? ' is-active' : '') + '" data-slide-index="' + index + '">' +
           '<div class="featured-poster-wrap">' +
             '<a class="featured-poster" href="' + eventUrl + '" aria-label="View ' + CE.esc(ev.title) + '">' +
               '<img src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="' + CE.esc(ev.title) + ' poster" loading="' + (index < 2 ? 'eager' : 'lazy') + '" width="800" height="450">' +
             '</a>' +
             '<span class="featured-poster-badge">' + CE.esc(ev.category || 'College event') + '</span>' +
-            (validDate ? '<span class="poster-date-overlay carousel-poster-date"><strong>' + CE.esc(posterDay) + '</strong><span class="poster-date-side"><span>' + CE.esc(posterMonth) + '</span>' + (posterTime ? '<small>' + CE.esc(posterTime) + '</small>' : '') + '</span></span>' : '') +
+            (validDate ? '<span class="poster-date-overlay carousel-poster-date"><strong>' + CE.esc(posterDay) + '</strong><span class="poster-date-side"><span>' + CE.esc(posterMonth) + '</span></span></span>' : '') +
             '<button class="poster-share-button share-button" type="button" data-share-url="' + eventUrl + '" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '">' + plane + '</button>' +
           '</div>' +
           '<div class="featured-actions"><a class="btn btn-primary btn-sm" href="' + eventUrl + '">' + (ev.registration_url ? 'Register Now' : 'View Event') + '</a></div>' +
