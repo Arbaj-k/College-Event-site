@@ -1447,3 +1447,78 @@ body { background:#edf5f0; color:var(--ink); }
 .detail-cta .btn { flex:1; }
 .register-share-icon { display:grid; place-items:center; width:48px; height:48px; border:1.5px solid var(--line); border-radius:50%; background:#fff; color:var(--ink); cursor:pointer; }
 @media(max-width:767px){ body[data-page="event"] .detail-poster img { aspect-ratio:4/5; object-fit:cover; } body[data-page="event"] .detail-cta { position:fixed; z-index:60; left:0; right:0; bottom:0; margin:0; padding:1.15rem 1rem calc(1rem + env(safe-area-inset-bottom)); background:#fff; border-radius:24px 24px 0 0; box-shadow:0 -8px 28px rgba(17,25,54,.12); } body[data-page="event"] .detail-cta::before { content:attr(data-registration-label); position:absolute; top:.35rem; left:1.25rem; color:#12805c; font-size:.72rem; font-weight:800; } body[data-page="event"] .detail-cta .btn { margin-top:.75rem; min-height:50px; } body[data-page="event"] .detail-cta .register-share-icon { width:50px; height:50px; flex:0 0 50px; } body[data-page="event"] .section { padding-bottom:7.5rem; } }
+
+
+/* Final stacked-card carousel tuning: show a clear layered deck on desktop and mobile. */
+#next-up .featured-carousel {
+  position:relative;
+  min-height:clamp(420px, 42vw, 560px);
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  align-items:center;
+  justify-items:center;
+  gap:0;
+  padding:24px 20px 34px;
+  overflow:hidden;
+  isolation:isolate;
+}
+#next-up .featured-card {
+  grid-area:1 / 1;
+  width:min(76%, 390px);
+  max-width:390px;
+  transform-origin:center center;
+  border-radius:24px;
+  box-shadow:0 24px 55px rgba(8,14,65,.22), inset 0 1px 0 rgba(255,255,255,.65);
+}
+#next-up .featured-card.is-active {
+  transform:translateY(-3px) scale(1);
+  z-index:5;
+}
+#next-up .featured-card.stack-next {
+  transform:translateX(72px) translateY(10px) scale(.91);
+  opacity:.76;
+  z-index:4;
+}
+#next-up .featured-card.stack-prev {
+  transform:translateX(-72px) translateY(10px) scale(.91);
+  opacity:.68;
+  z-index:3;
+}
+#next-up .featured-card.stack-next-2 {
+  transform:translateX(126px) translateY(24px) scale(.82);
+  opacity:.42;
+  z-index:2;
+}
+#next-up .featured-card.stack-prev-2 {
+  transform:translateX(-126px) translateY(24px) scale(.82);
+  opacity:.36;
+  z-index:1;
+}
+#next-up .featured-poster { aspect-ratio:4 / 3; }
+#next-up .featured-copy { min-height:160px; padding:1rem 1.1rem 1.1rem; }
+#next-up .featured-copy h3 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+#next-up .featured-copy p { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+#next-up .carousel-controls { z-index:10; }
+#next-up .carousel-controls button { box-shadow:0 8px 22px rgba(4,8,50,.2); }
+@media (min-width:900px) {
+  #next-up .featured-carousel { min-height:clamp(440px, 38vw, 570px); }
+  #next-up .featured-card { width:min(72%, 390px); }
+}
+@media (max-width:899px) {
+  #next-up .featured-carousel { min-height:450px; padding:20px 8px 28px; overflow:hidden; }
+  #next-up .featured-card { width:min(76%, 320px); max-width:320px; }
+  #next-up .featured-card.stack-next { transform:translateX(38px) translateY(9px) scale(.92); }
+  #next-up .featured-card.stack-prev { transform:translateX(-38px) translateY(9px) scale(.92); }
+  #next-up .featured-card.stack-next-2 { transform:translateX(66px) translateY(19px) scale(.84); }
+  #next-up .featured-card.stack-prev-2 { transform:translateX(-66px) translateY(19px) scale(.84); }
+  #next-up .featured-poster { aspect-ratio:3 / 4; }
+  #next-up .featured-copy { min-height:145px; padding:.85rem; }
+}
+@media (max-width:420px) {
+  #next-up .featured-carousel { min-height:420px; }
+  #next-up .featured-card { width:min(80%, 290px); }
+  #next-up .featured-card.stack-next { transform:translateX(26px) translateY(8px) scale(.91); }
+  #next-up .featured-card.stack-prev { transform:translateX(-26px) translateY(8px) scale(.91); }
+  #next-up .featured-card.stack-next-2 { transform:translateX(44px) translateY(16px) scale(.83); }
+  #next-up .featured-card.stack-prev-2 { transform:translateX(-44px) translateY(16px) scale(.83); }
+}
