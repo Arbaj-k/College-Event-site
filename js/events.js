@@ -26,6 +26,11 @@
     const link = CE.httpsUrl(ev.registration_link);
     const detailUrl = 'event-' + encodeURIComponent(ev.id) + '.html';
     const canRegister = CE.registrationOpen(ev) && link;
+    const posterDate = ev.date ? new Date(String(ev.date).slice(0, 10) + 'T12:00:00') : null;
+    const posterDateValid = posterDate && !Number.isNaN(posterDate.getTime());
+    const posterDay = posterDateValid ? String(posterDate.getDate()) : '';
+    const posterMonth = posterDateValid ? posterDate.toLocaleDateString('en', { month: 'short' }).toUpperCase() : '';
+    const posterTime = ev.time ? CE.formatTime(ev.time) : '';
 
     const button = canRegister
       ? '<a class="btn btn-primary btn-block" href="' + CE.esc(link) + '" target="_blank" rel="noopener noreferrer">Register Now</a>'
@@ -38,6 +43,7 @@
           '<a class="card-poster" href="' + detailUrl + '" tabindex="-1" aria-hidden="true">' +
             '<img class="poster-img" src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="" loading="lazy" width="800" height="500">' +
             '<span class="badge">' + CE.esc(ev.category) + '</span>' +
+            (posterDateValid ? '<span class="poster-date-overlay"><strong>' + CE.esc(posterDay) + '</strong><span class="poster-date-side"><span>' + CE.esc(posterMonth) + '</span>' + (posterTime ? '<small>' + CE.esc(posterTime) + '</small>' : '') + '</span></span>' : '') +
             (status !== 'upcoming' ? '<span class="badge badge-ended">Ended</span>' : '') +
           '</a>' +
           '<button class="poster-share-button share-button" type="button" data-share-url="' + detailUrl + '" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '">' + plane + '</button>' +
