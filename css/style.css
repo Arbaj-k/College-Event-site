@@ -1257,3 +1257,72 @@ body { background:#edf5f0; color:var(--ink); }
   .event-card .poster-date-overlay > strong,
   #next-up .carousel-poster-date > strong { font-size:1.9rem; }
 }
+
+
+/* Cleaner poster date: no floating dark pill; use a soft bottom fade instead */
+.event-card .card-poster,
+#next-up .featured-poster-wrap { position:relative; isolation:isolate; }
+.event-card .card-poster::after,
+#next-up .featured-poster-wrap::after {
+  content:"";
+  position:absolute;
+  z-index:1;
+  left:0; right:0; bottom:0;
+  height:34%;
+  background:linear-gradient(to top,rgba(8,20,15,.64),rgba(8,20,15,.18) 58%,transparent);
+  pointer-events:none;
+}
+.event-card .poster-date-overlay,
+#next-up .carousel-poster-date {
+  left:10px;
+  bottom:10px;
+  max-width:calc(100% - 20px);
+  padding:0;
+  border-radius:0;
+  gap:6px;
+  align-items:baseline;
+  color:#fff;
+  background:transparent;
+  box-shadow:none;
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+  text-shadow:0 1px 5px rgba(0,0,0,.5);
+}
+.event-card .poster-date-overlay { z-index:3; }
+#next-up .carousel-poster-date { z-index:3; }
+.event-card .poster-date-overlay > strong,
+#next-up .carousel-poster-date > strong {
+  color:#fff;
+  font-size:clamp(2.15rem,7vw,2.65rem);
+  line-height:.88;
+  font-weight:950;
+  letter-spacing:-.065em;
+  text-shadow:0 2px 7px rgba(0,0,0,.38);
+}
+.event-card .poster-date-side,
+#next-up .carousel-poster-date .poster-date-side {
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  padding-bottom:2px;
+  color:#fff;
+  font-size:.66rem;
+  font-weight:900;
+  letter-spacing:.06em;
+  text-shadow:0 1px 5px rgba(0,0,0,.55);
+}
+.event-card .poster-date-side small,
+#next-up .carousel-poster-date .poster-date-side small {
+  color:#fff;
+  font-size:.68rem;
+  font-weight:800;
+  letter-spacing:0;
+  line-height:1.15;
+  text-shadow:0 1px 5px rgba(0,0,0,.65);
+}
+@media (max-width:380px) {
+  .event-card .poster-date-overlay,
+  #next-up .carousel-poster-date { left:9px; bottom:9px; }
+  .event-card .poster-date-overlay > strong,
+  #next-up .carousel-poster-date > strong { font-size:1.9rem; }
+}
