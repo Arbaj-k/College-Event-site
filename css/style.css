@@ -1067,3 +1067,96 @@ body { background:#edf5f0; color:var(--ink); }
   .calendar-weekday { font-size:.65rem; }
   .calendar-day strong { font-size:1.15rem; }
 }
+
+
+/* Poster date + time treatment inspired by the supplied Hapn event-card reference */
+.event-card .card-poster-wrap { position:relative; }
+.event-card .card-poster {
+  position:relative;
+  display:block;
+  aspect-ratio:4 / 5;
+  overflow:hidden;
+  background:#e4eee8;
+}
+.event-card .card-poster .poster-img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.event-card .card-poster .badge {
+  position:absolute;
+  top:10px;
+  left:10px;
+  z-index:2;
+  max-width:calc(100% - 66px);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  padding:5px 9px;
+  border-radius:999px;
+  background:#fff;
+  color:#17231d;
+  font-size:.68rem;
+  font-weight:650;
+  box-shadow:0 1px 4px rgba(0,0,0,.08);
+}
+.event-card .card-poster .badge-ended { top:40px; background:#101d19; color:#fff; }
+.event-card .poster-share-button {
+  position:absolute;
+  top:9px;
+  right:9px;
+  z-index:5;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:36px;
+  height:36px;
+  padding:0;
+  border:1px solid rgba(255,255,255,.85);
+  border-radius:50%;
+  color:#fff;
+  background:#101d19;
+  box-shadow:0 2px 8px rgba(0,0,0,.2);
+}
+.event-card .poster-share-button svg { width:17px; height:17px; }
+.event-card .poster-date-overlay {
+  position:absolute;
+  z-index:2;
+  left:10px;
+  bottom:10px;
+  display:flex;
+  align-items:baseline;
+  gap:5px;
+  max-width:calc(100% - 20px);
+  color:#fff;
+  text-shadow:0 2px 8px rgba(0,0,0,.28);
+  pointer-events:none;
+}
+.event-card .poster-date-overlay > strong {
+  font-size:clamp(2rem, 6vw, 2.55rem);
+  line-height:.9;
+  font-weight:900;
+  letter-spacing:-.06em;
+}
+.event-card .poster-date-side {
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  padding-bottom:2px;
+  font-size:.66rem;
+  font-weight:850;
+  letter-spacing:.06em;
+}
+.event-card .poster-date-side small {
+  max-width:150px;
+  font-size:.66rem;
+  font-weight:700;
+  letter-spacing:0;
+  line-height:1.2;
+  white-space:normal;
+}
+.event-card .card-body { background:#fff; }
+@media (max-width:380px) {
+  .event-card .poster-date-overlay > strong { font-size:2rem; }
+  .event-card .poster-date-side small { font-size:.6rem; }
+}
