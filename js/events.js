@@ -53,10 +53,8 @@
           '<ul class="meta">' +
             '<li><span aria-hidden="true">📅</span><span><span class="visually-hidden">Date: </span>' + CE.esc(CE.formatDate(ev.date)) + (ev.end_date ? ' – ' + CE.esc(CE.formatDate(ev.end_date)) : '') + '</span></li>' +
             '<li><span aria-hidden="true">⏰</span><span><span class="visually-hidden">Time: </span>' + CE.esc(CE.formatTime(ev.time)) + (ev.end_time ? ' – ' + CE.esc(CE.formatTime(ev.end_time)) : '') + '</span></li>' +
-            '<li><span aria-hidden="true">📍</span><span><span class="visually-hidden">Venue: </span>' + CE.esc(ev.venue) + '</span></li>' +
-            '<li><span aria-hidden="true">🏷️</span><span><span class="visually-hidden">Category: </span>' + CE.esc(ev.category) + '</span></li>' +
+            '<li><span aria-hidden="true">📍</span><span><span class="visually-hidden">Venue: </span>' + CE.esc(ev.venue || 'Venue to be announced') + '</span></li>' +
           '</ul>' +
-          '<p class="card-desc">' + CE.esc(ev.short_description) + '</p>' +
           '<div class="card-actions">' + button + '</div>' +
         '</div>' +
       '</article>';
