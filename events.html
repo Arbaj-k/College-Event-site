@@ -55,15 +55,31 @@
   </header>
 
   <main id="main">
-    <div class="page-head">
-      <div class="container">
-        <h1>Events</h1>
-        <p>Find something to join. Search by name, venue or category, then register with one tap.</p>
+    <section class="page-head events-hero">
+      <div class="events-hero-glow events-hero-glow-one" aria-hidden="true"></div>
+      <div class="events-hero-glow events-hero-glow-two" aria-hidden="true"></div>
+      <div class="container events-hero-inner">
+        <div class="events-hero-copy">
+          <span class="events-eyebrow"><span class="events-eyebrow-dot"></span> YOUR CAMPUS. YOUR MOMENT.</span>
+          <h1>Find your <span>next thing.</span></h1>
+          <p>Discover workshops, competitions, cultural nights and campus experiences worth showing up for.</p>
+          <a class="events-hero-cta" href="#events-browser">Explore events <span aria-hidden="true">↓</span></a>
+        </div>
+        <div class="events-hero-art" aria-hidden="true">
+          <div class="events-art-orbit events-art-orbit-one"></div>
+          <div class="events-art-orbit events-art-orbit-two"></div>
+          <div class="events-art-ticket events-art-ticket-back"><span>HAPN / CAMPUS LIFE</span><strong>Make it<br>memorable.</strong><i>✦ ✦ ✦</i></div>
+          <div class="events-art-ticket events-art-ticket-front"><span class="events-art-pill">YOUR NEXT PLAN</span><strong>Show up.<br>Stand out.</strong><div class="events-art-bottom"><span>MEET • LEARN • CREATE</span><b>H.</b></div></div>
+          <span class="events-art-spark events-art-spark-one">✦</span><span class="events-art-spark events-art-spark-two">✳</span>
+        </div>
       </div>
-    </div>
-    <section class="section">
+    </section>
+    <section class="section events-browser-section" id="events-browser">
       <div class="container">
-        <p class="results-count" id="results-count" aria-live="polite"></p>
+        <div class="events-browser-heading">
+          <div><span class="events-section-kicker">WHAT'S HAPPENING</span><h2>Explore events</h2><p>Find the right room, the right people, the right opportunity.</p></div>
+          <p class="results-count" id="results-count" aria-live="polite"></p>
+        </div>
         <div class="toolbar">
           <div class="search">
             <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
