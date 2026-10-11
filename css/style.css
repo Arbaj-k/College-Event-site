@@ -1374,3 +1374,53 @@ body { background:#edf5f0; color:var(--ink); }
   .hero-actions .btn-sun::after { width:32px !important; height:32px !important; flex-basis:32px !important; }
   .hero-share-icon { width:46px !important; height:46px !important; min-width:46px !important; flex-basis:46px !important; }
 }
+
+
+/* Event details page — organized to match Hapn mobile reference */
+.detail { gap:1.25rem; }
+.detail-poster { border:0; border-radius:26px; box-shadow:0 14px 32px rgba(12,30,22,.12); }
+.detail-poster img { display:block; width:100%; aspect-ratio:4/5; object-fit:cover; }
+.detail-info h1 { margin:.8rem 0 .25rem; color:var(--ink); font-size:clamp(2rem,7vw,2.65rem); line-height:1.02; letter-spacing:-.045em; }
+.detail-pills { display:flex; align-items:center; flex-wrap:wrap; gap:.5rem; }
+.detail-pills .pill { background:#c9f36a; color:#10231b; font-size:.78rem; padding:.45rem .8rem; }
+.detail-subtitle { margin:.25rem 0 1.1rem; color:#43544b; }
+.info-list { gap:0; padding:.35rem 1rem; margin:1.15rem 0 .8rem; border:0; border-radius:24px; background:#fff; }
+.info-list > div { display:flex; align-items:center; gap:.85rem; padding:1rem 0; }
+.info-list > div + div { border-top:1px solid #e1e9e4; }
+.info-icon { display:flex; align-items:center; justify-content:center; flex:0 0 46px; width:46px; height:46px; border-radius:50%; background:#edf5f0; color:#187456; font-size:1.45rem; font-weight:700; }
+.info-copy { min-width:0; }
+.info-list dt { display:block; margin:0 0 .18rem; color:#64736b; font-size:.69rem; font-weight:700; letter-spacing:.09em; }
+.info-list dd { margin:0; color:#14251e; font-size:.94rem; line-height:1.4; font-weight:700; overflow-wrap:anywhere; }
+.detail-quick-actions { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; margin:0 0 1.25rem; }
+.detail-outline-btn { display:flex; align-items:center; justify-content:center; min-height:48px; padding:.65rem .75rem; border:1.5px solid #17251f; border-radius:999px; color:#17251f; font-size:.82rem; font-weight:700; text-align:center; }
+.detail-outline-btn:hover { background:#e5eee8; }
+.detail-text-title { margin:1.5rem 0 .5rem; color:#14251e; font-size:1.2rem; }
+.detail-text { color:#3c4c44; font-size:.94rem; line-height:1.7; }
+.detail-cta { gap:.65rem; }
+.detail-cta .btn { min-height:52px; border-radius:999px; }
+@media (max-width:767px) {
+  .back-link { margin-bottom:1rem; }
+  body[data-page="event"] .section { padding-top:1rem; padding-bottom:7rem; }
+  body[data-page="event"] .detail { gap:1rem; }
+  body[data-page="event"] .detail-poster img { aspect-ratio:4/5; object-fit:cover; }
+  body[data-page="event"] .detail-info h1 { font-size:2.35rem; }
+  body[data-page="event"] .detail-cta {
+    position:fixed; z-index:60; left:0; right:0; bottom:0;
+    display:flex; align-items:center; gap:.7rem;
+    margin:0; padding:1rem max(16px, calc((100vw - 520px)/2)) calc(1rem + env(safe-area-inset-bottom));
+    background:#fff; border-radius:28px 28px 0 0;
+    box-shadow:0 -8px 28px rgba(13,31,23,.12);
+  }
+  body[data-page="event"] .detail-cta::before {
+    content:"•  " attr(data-registration-label);
+    position:absolute; top:.45rem; left:1.25rem;
+    color:#187456; font-size:.75rem; font-weight:700;
+  }
+  body[data-page="event"] .detail-cta .btn { flex:1; min-width:0; margin-top:1rem; }
+  body[data-page="event"] .detail-cta .register-share-icon { width:54px; height:54px; min-width:54px; flex:0 0 54px; border:1.5px solid #17251f; }
+  body[data-page="event"] .detail-cta small { display:none; }
+}
+@media (min-width:900px) {
+  .detail { grid-template-columns:minmax(0,1fr) minmax(0,.9fr); gap:2rem; }
+  .detail-poster { position:sticky; top:88px; }
+}
