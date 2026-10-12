@@ -1821,3 +1821,62 @@ body[data-page="home"] .calendar-share-link:focus-visible {
   body[data-page="home"] .calendar-all-events,
   body[data-page="home"] .calendar-share-link { padding: 0 12px; font-size: .82rem; }
 }
+
+
+/* Homepage hero CTA: a wide event button with a distinct adjacent share action. */
+body[data-page="home"] .hero-actions {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+  margin-top: 22px;
+}
+body[data-page="home"] .hero-view-events {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 58px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: var(--sun);
+  color: #111936;
+  text-decoration: none;
+  font-weight: 850;
+  font-size: 1rem;
+  box-shadow: 0 8px 22px rgba(17,25,54,.14);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+body[data-page="home"] .hero-view-events span:first-of-type { white-space: nowrap; }
+body[data-page="home"] .hero-cta-arrow { font-size: 1.1rem; }
+body[data-page="home"] .hero-view-events:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(17,25,54,.18); }
+body[data-page="home"] .hero-share-icon {
+  flex: 0 0 58px;
+  width: 58px;
+  height: 58px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255,255,255,.8);
+  border-radius: 50%;
+  color: #fff;
+  background: transparent;
+  cursor: pointer;
+  transition: transform .18s ease, background .18s ease;
+}
+body[data-page="home"] .hero-share-icon:hover { transform: translateY(-2px); background: rgba(255,255,255,.14); }
+body[data-page="home"] .hero-action-hint {
+  margin-top: 9px;
+  font-size: .78rem !important;
+  line-height: 1.4;
+  color: rgba(255,255,255,.82);
+}
+body[data-page="home"] .hero-view-events:focus-visible,
+body[data-page="home"] .hero-share-icon:focus-visible { outline: 3px solid var(--sun); outline-offset: 4px; }
+@media (max-width: 420px) {
+  body[data-page="home"] .hero-actions { gap: 9px; }
+  body[data-page="home"] .hero-view-events { min-height: 50px; padding: 8px 12px; gap: 7px; font-size: .88rem; }
+  body[data-page="home"] .hero-share-icon { flex-basis: 50px; width: 50px; height: 50px; }
+}
