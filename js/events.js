@@ -149,10 +149,13 @@
       renderList();
       document.getElementById('events')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
+    reset.textContent = 'View all events ↗';
+    reset.setAttribute('aria-label', 'View all upcoming events');
     reset.onclick = () => {
       state.selectedDate = '';
       renderHomeCalendar();
       renderList();
+      document.getElementById('events')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
   }
 
