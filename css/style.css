@@ -1770,3 +1770,54 @@ body[data-page="event"] .site-footer{padding-bottom:7rem}
     grid-template-columns: minmax(0, 1.04fr) minmax(440px, .96fr);
   }
 }
+
+
+/* Homepage calendar actions: keep the main CTA and share link side by side. */
+body[data-page="home"] .calendar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+body[data-page="home"] .calendar-all-events,
+body[data-page="home"] .calendar-share-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  border-radius: 999px;
+  padding: 0 16px;
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+}
+body[data-page="home"] .calendar-all-events {
+  color: #fff;
+  background: var(--blue);
+  box-shadow: 0 7px 18px rgba(47,69,255,.22);
+}
+body[data-page="home"] .calendar-share-link {
+  color: var(--blue);
+  background: rgba(255,255,255,.82);
+  border: 1px solid rgba(47,69,255,.2);
+}
+body[data-page="home"] .calendar-all-events:hover,
+body[data-page="home"] .calendar-share-link:hover {
+  transform: translateY(-1px);
+}
+body[data-page="home"] .calendar-all-events:focus-visible,
+body[data-page="home"] .calendar-share-link:focus-visible {
+  outline: 3px solid var(--sun);
+  outline-offset: 3px;
+}
+@media (max-width: 380px) {
+  body[data-page="home"] .calendar-actions { gap: 8px; }
+  body[data-page="home"] .calendar-all-events,
+  body[data-page="home"] .calendar-share-link { padding: 0 12px; font-size: .82rem; }
+}
