@@ -1594,3 +1594,56 @@ body[data-page="event"] .site-footer{padding-bottom:7rem}
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* Desktop stacked-carousel correction: preserve complete poster artwork and balance the deck. */
+#next-up .featured-carousel {
+  min-height:clamp(500px, 43vw, 620px);
+  padding:28px 12px 38px;
+}
+#next-up .featured-card {
+  width:min(64%, 340px);
+  max-width:340px;
+}
+#next-up .featured-poster-wrap {
+  aspect-ratio:4 / 5;
+  background:#e8f1eb;
+}
+#next-up .featured-poster {
+  aspect-ratio:4 / 5;
+  background:#e8f1eb;
+}
+#next-up .featured-poster img {
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+}
+#next-up .featured-card.stack-next {
+  transform:translateX(88px) translateY(12px) scale(.91);
+}
+#next-up .featured-card.stack-prev {
+  transform:translateX(-88px) translateY(12px) scale(.91);
+}
+#next-up .featured-card.stack-next-2 {
+  transform:translateX(148px) translateY(25px) scale(.82);
+}
+#next-up .featured-card.stack-prev-2 {
+  transform:translateX(-148px) translateY(25px) scale(.82);
+}
+@media (min-width:1200px) {
+  #next-up .featured-card { width:min(58%, 330px); max-width:330px; }
+  #next-up .featured-card.stack-next { transform:translateX(96px) translateY(12px) scale(.91); }
+  #next-up .featured-card.stack-prev { transform:translateX(-96px) translateY(12px) scale(.91); }
+  #next-up .featured-card.stack-next-2 { transform:translateX(162px) translateY(25px) scale(.82); }
+  #next-up .featured-card.stack-prev-2 { transform:translateX(-162px) translateY(25px) scale(.82); }
+}
+@media (max-width:899px) {
+  #next-up .featured-carousel { min-height:450px; padding:20px 8px 28px; }
+  #next-up .featured-card { width:min(76%, 320px); max-width:320px; }
+  #next-up .featured-poster-wrap, #next-up .featured-poster { aspect-ratio:4 / 5; }
+  #next-up .featured-card.stack-next { transform:translateX(38px) translateY(9px) scale(.92); }
+  #next-up .featured-card.stack-prev { transform:translateX(-38px) translateY(9px) scale(.92); }
+  #next-up .featured-card.stack-next-2 { transform:translateX(66px) translateY(19px) scale(.84); }
+  #next-up .featured-card.stack-prev-2 { transform:translateX(-66px) translateY(19px) scale(.84); }
+}
