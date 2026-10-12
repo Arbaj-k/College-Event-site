@@ -1583,3 +1583,14 @@ body[data-page="event"] .site-footer{padding-bottom:7rem}
  body[data-page="event"] .detail-cta::before{left:1.5rem}
 }
 @media(max-width:380px){body[data-page="event"] .detail-quick-actions{grid-template-columns:1fr}body[data-page="event"] .info-list{padding-inline:.85rem}body[data-page="event"] .info-list .info-icon{flex-basis:42px;width:42px;height:42px}}
+
+
+/* Performance and accessibility: avoid expensive motion for users who request less animation. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
