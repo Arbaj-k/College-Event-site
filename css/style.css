@@ -1647,3 +1647,77 @@ body[data-page="event"] .site-footer{padding-bottom:7rem}
   #next-up .featured-card.stack-next-2 { transform:translateX(66px) translateY(19px) scale(.84); }
   #next-up .featured-card.stack-prev-2 { transform:translateX(-66px) translateY(19px) scale(.84); }
 }
+
+
+/* Desktop layout balance: give the featured event deck more visual weight. */
+@media (min-width: 900px) {
+  .featured-section {
+    padding: 1.25rem 0 2.25rem;
+  }
+  #next-up {
+    width: 100%;
+    max-width: 1180px;
+    margin-inline: auto;
+  }
+  #next-up .featured-head {
+    max-width: 1180px;
+    margin-inline: auto;
+    margin-bottom: .5rem;
+  }
+  #next-up .featured-carousel {
+    min-height: 600px;
+    padding: 22px 0 36px;
+    gap: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+  #next-up .featured-card {
+    flex: 0 0 430px;
+    width: 430px;
+    max-width: 430px;
+  }
+  #next-up .featured-card.is-active {
+    transform: scale(1.04);
+  }
+  #next-up .featured-card.stack-next {
+    transform: translateX(118px) translateY(14px) scale(.88);
+  }
+  #next-up .featured-card.stack-prev {
+    transform: translateX(-118px) translateY(14px) scale(.88);
+  }
+  #next-up .featured-card.stack-next-2 {
+    transform: translateX(220px) translateY(30px) scale(.76);
+  }
+  #next-up .featured-card.stack-prev-2 {
+    transform: translateX(-220px) translateY(30px) scale(.76);
+  }
+  #next-up .featured-poster {
+    aspect-ratio: 3 / 4;
+  }
+  #next-up .featured-poster img {
+    object-fit: contain;
+    background: #edf5f0;
+  }
+  #next-up .featured-copy {
+    min-height: 125px;
+  }
+}
+@media (min-width: 1400px) {
+  #next-up .featured-card {
+    flex-basis: 460px;
+    width: 460px;
+    max-width: 460px;
+  }
+  #next-up .featured-card.stack-next {
+    transform: translateX(132px) translateY(14px) scale(.88);
+  }
+  #next-up .featured-card.stack-prev {
+    transform: translateX(-132px) translateY(14px) scale(.88);
+  }
+  #next-up .featured-card.stack-next-2 {
+    transform: translateX(245px) translateY(30px) scale(.76);
+  }
+  #next-up .featured-card.stack-prev-2 {
+    transform: translateX(-245px) translateY(30px) scale(.76);
+  }
+}
