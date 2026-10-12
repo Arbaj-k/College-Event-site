@@ -40,7 +40,7 @@
       '<article class="event-card reveal' + (status !== 'upcoming' ? ' is-past' : '') + '" ' + stagger + '>' +
         '<div class="card-poster-wrap">' +
           '<a class="card-poster" href="' + detailUrl + '" tabindex="-1" aria-hidden="true">' +
-            '<img class="poster-img" src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="" loading="lazy" width="800" height="500">' +
+            '<img class="poster-img" src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="" loading="' + (index === 0 ? 'eager' : 'lazy') + '" decoding="async" fetchpriority="' + (index === 0 ? 'high' : 'auto') + '" width="800" height="500">' +
             '<span class="badge">' + CE.esc(ev.category) + '</span>' +
             (posterDateValid ? '<span class="poster-date-overlay"><strong>' + CE.esc(posterDay) + '</strong><span class="poster-date-side"><span>' + CE.esc(posterMonth) + '</span></span></span>' : '') +
             (status !== 'upcoming' ? '<span class="badge badge-ended">Ended</span>' : '') +
@@ -87,14 +87,6 @@
       return;
     }
     grid.innerHTML = list.map(cardHtml).join('');
-    // Restart the reveal animation each time the list changes (search/filter).
-    requestAnimationFrame(() => {
-      grid.querySelectorAll('.event-card.reveal').forEach((card) => {
-        card.style.animation = 'none';
-        void card.offsetWidth;
-        card.style.animation = '';
-      });
-    });
     count.textContent = list.length + (list.length === 1 ? ' event' : ' events');
   }
 
@@ -192,7 +184,7 @@
         return '<article class="featured-card' + (index === 0 ? ' is-active' : '') + '" data-slide-index="' + index + '">' +
           '<div class="featured-poster-wrap">' +
             '<a class="featured-poster" href="' + eventUrl + '" aria-label="View ' + CE.esc(ev.title) + '">' +
-              '<img src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="' + CE.esc(ev.title) + ' poster" loading="' + (index < 2 ? 'eager' : 'lazy') + '" width="800" height="450">' +
+              '<img src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="' + CE.esc(ev.title) + ' poster" loading="' + (index === 0 ? 'eager' : 'lazy') + '" decoding="async" fetchpriority="' + (index === 0 ? 'high' : 'auto') + '" width="800" height="450">' +
             '</a>' +
             '<span class="featured-poster-badge">' + CE.esc(ev.category || 'College event') + '</span>' +
             (validDate ? '<span class="poster-date-overlay carousel-poster-date"><strong>' + CE.esc(posterDay) + '</strong><span class="poster-date-side"><span>' + CE.esc(posterMonth) + '</span></span></span>' : '') +
@@ -359,7 +351,7 @@
 
     return '' +
       '<div class="detail">' +
-        '<div class="detail-poster detail-poster-wrap"><img class="poster-img" src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="Poster for ' + CE.esc(ev.title) + '"><button class="poster-share-button share-button" type="button" data-share-url="event-' + encodeURIComponent(ev.id) + '.html" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '" title="Share event"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button></div>' +
+        '<div class="detail-poster detail-poster-wrap"><img class="poster-img" src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="Poster for ' + CE.esc(ev.title) + '" loading="eager" decoding="async" fetchpriority="high" width="800" height="1000"><button class="poster-share-button share-button" type="button" data-share-url="event-' + encodeURIComponent(ev.id) + '.html" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '" title="Share event"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button></div>' +
         '<div class="detail-info">' +
           '<div class="detail-pills"><span class="pill">' + CE.esc(ev.category || 'College event') + '</span>' + (status !== 'upcoming' ? '<span class="pill pill-ended">Ended</span>' : (ev.date ? (function(){ const d=new Date(String(ev.date).slice(0,10)+'T00:00:00'); const t=new Date(); t.setHours(0,0,0,0); const n=Math.ceil((d-t)/86400000); return '<span class="pill pill-countdown">' + (n > 0 ? 'Starts in ' + n + (n===1?' day':' days') : (n===0?'Today':'Upcoming')) + '</span>'; })() : '')) + '</div>' +
           '<h1>' + CE.esc(ev.title) + '</h1>' +
