@@ -1880,3 +1880,30 @@ body[data-page="home"] .hero-share-icon:focus-visible { outline: 3px solid var(-
   body[data-page="home"] .hero-view-events { min-height: 50px; padding: 8px 12px; gap: 7px; font-size: .88rem; }
   body[data-page="home"] .hero-share-icon { flex-basis: 50px; width: 50px; height: 50px; }
 }
+
+
+/* Event detail poster: show the entire uploaded image without cropping. */
+body[data-page="event"] .detail-poster {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+body[data-page="event"] .detail-poster img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: auto;
+  max-height: min(78vh, 900px);
+  object-fit: contain;
+  object-position: center;
+}
+@media (min-width: 900px) {
+  body[data-page="event"] .detail-poster img {
+    max-height: calc(100vh - 130px);
+    aspect-ratio: auto;
+  }
+}
+@media (max-width: 899px) {
+  body[data-page="event"] .detail-poster img {
+    max-height: 78vh;
+  }
+}
