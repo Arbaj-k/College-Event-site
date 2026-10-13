@@ -1907,3 +1907,43 @@ body[data-page="event"] .detail-poster img {
     max-height: 78vh;
   }
 }
+
+
+/* Responsive event detail poster sizing: compact on desktop and mobile. */
+body[data-page="event"] #event-detail {
+  max-width: 1000px;
+}
+body[data-page="event"] .detail {
+  grid-template-columns: minmax(0, .88fr) minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2.25rem);
+}
+body[data-page="event"] .detail-poster {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  margin-inline: auto;
+  border-radius: 20px;
+}
+body[data-page="event"] .detail-poster img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: min(68vh, 680px);
+  object-fit: contain;
+  object-position: center;
+}
+@media (min-width: 900px) {
+  body[data-page="event"] #event-detail { max-width: 1000px; }
+  body[data-page="event"] .detail { grid-template-columns: minmax(0, .82fr) minmax(0, 1fr); }
+  body[data-page="event"] .detail-poster { position: sticky; top: 90px; max-width: 420px; }
+  body[data-page="event"] .detail-poster img { max-height: min(72vh, 700px); }
+}
+@media (max-width: 899px) {
+  body[data-page="event"] .detail { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+  body[data-page="event"] .detail-poster { max-width: min(100%, 430px); border-radius: 18px; }
+  body[data-page="event"] .detail-poster img { max-height: 62vh; }
+}
+@media (max-width: 480px) {
+  body[data-page="event"] .detail-poster { max-width: min(100%, 360px); border-radius: 16px; }
+  body[data-page="event"] .detail-poster img { max-height: 54vh; }
+}
