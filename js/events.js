@@ -287,6 +287,35 @@
       if (dot) goTo(Number(dot.dataset.slideTo));
     });
 
+    // Auto-advance the stacked event carousel every 3 seconds.
+    // Pause while the user hovers, focuses, or interacts with it.
+    let autoAdvance = null;
+    const stopAutoAdvance = () => {
+      if (autoAdvance !== null) {
+        window.clearInterval(autoAdvance);
+        autoAdvance = null;
+      }
+    };
+    const startAutoAdvance = () => {
+      stopAutoAdvance();
+      if (cards.length < 2) return;
+      autoAdvance = window.setInterval(() => {
+        if (!document.hidden) goTo(activeIndex + 1);
+      }, 3000);
+    };
+    box.addEventListener('mouseenter', stopAutoAdvance);
+    box.addEventListener('mouseleave', startAutoAdvance);
+    box.addEventListener('focusin', stopAutoAdvance);
+    box.addEventListener('focusout', (e) => {
+      if (!box.contains(e.relatedTarget)) startAutoAdvance();
+    });
+    box.addEventListener('pointerdown', stopAutoAdvance, { passive: true });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopAutoAdvance();
+      else if (!box.matches(':hover') && !box.contains(document.activeElement)) startAutoAdvance();
+    });
+    startAutoAdvance();
+
     // Native touch scrolling preserves vertical page scroll while enabling horizontal swipes.
     box.hidden = false;
     box.classList.add('ticket-ready');
