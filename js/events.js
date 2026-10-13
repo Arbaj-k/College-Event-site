@@ -24,7 +24,7 @@
   function cardHtml(ev, index) {
     const status = CE.eventStatus(ev);
     const link = CE.httpsUrl(ev.registration_link);
-    const detailUrl = 'event-' + encodeURIComponent(ev.id) + '.html';
+    const detailUrl = 'event.html?id=' + encodeURIComponent(ev.id);
     const canRegister = CE.registrationOpen(ev) && link;
     const posterDate = ev.date ? new Date(String(ev.date).slice(0, 10) + 'T12:00:00') : null;
     const posterDateValid = posterDate && !Number.isNaN(posterDate.getTime());
@@ -178,7 +178,7 @@
       '</div>' +
       '<div class="featured-carousel" role="region" aria-label="Upcoming college events" tabindex="0">' +
       picks.map((ev, index) => {
-        const eventUrl = 'event-' + encodeURIComponent(ev.id) + '.html';
+        const eventUrl = 'event.html?id=' + encodeURIComponent(ev.id);
         const description = String(ev.short_description || '').trim();
         const dateValue = ev.date ? new Date(String(ev.date).slice(0, 10) + 'T12:00:00') : null;
         const validDate = dateValue && !Number.isNaN(dateValue.getTime());
