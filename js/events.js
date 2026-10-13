@@ -310,6 +310,18 @@
       if (!box.contains(e.relatedTarget)) startAutoAdvance();
     });
     box.addEventListener('pointerdown', stopAutoAdvance, { passive: true });
+    // Touch devices do not fire mouseleave after a swipe, so restart autoplay
+    // after the user lifts their finger. Keep it paused briefly to avoid fighting the swipe.
+    let resumeAutoAdvanceTimer = null;
+    const resumeAutoAdvance = () => {
+      if (resumeAutoAdvanceTimer !== null) window.clearTimeout(resumeAutoAdvanceTimer);
+      resumeAutoAdvanceTimer = window.setTimeout(() => {
+        resumeAutoAdvanceTimer = null;
+        if (!document.hidden && !box.contains(document.activeElement)) startAutoAdvance();
+      }, 900);
+    };
+    rail.addEventListener('pointerup', resumeAutoAdvance, { passive: true });
+    rail.addEventListener('pointercancel', resumeAutoAdvance, { passive: true });
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) stopAutoAdvance();
       else if (!box.matches(':hover') && !box.contains(document.activeElement)) startAutoAdvance();
