@@ -2034,3 +2034,33 @@ h1, h2, h3 { font-weight: 650; letter-spacing: -0.035em; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+
+/* Mobile scroll seam fix: keep the sticky header and dropdown on a solid,
+   pixel-aligned layer so scrolling cannot reveal a hairline gap. */
+@media (max-width: 767px) {
+  html { overflow-x: clip; }
+  body { overflow-x: clip; }
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    isolation: isolate;
+    transform: translateZ(0);
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+  }
+  .header-inner { background: #fff; }
+  .nav {
+    top: 100%;
+    margin-top: 0;
+    transform: none;
+    background: #fff;
+    border-top: 0;
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 12px 20px -14px rgba(17, 25, 54, .3);
+    backface-visibility: hidden;
+  }
+  .nav.open { transform: none; }
+  .nav-toggle:active { transform: none; }
+}
