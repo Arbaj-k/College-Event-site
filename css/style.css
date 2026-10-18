@@ -1999,7 +1999,7 @@ h1, h2, h3 { font-weight: 650; letter-spacing: -0.035em; }
   text-wrap: balance;
   margin-bottom: 1.1rem;
 }
-.hero h1 span { color: #ffe17a; }
+.hero h1 span { display: inline-block; color: #111936; background: #d7ff68; padding: .02em .12em .06em; border-radius: .18em; }
 .hero p {
   max-width: 33rem;
   color: rgba(255,255,255,.86);
