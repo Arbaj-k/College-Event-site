@@ -35,18 +35,15 @@ jobs:
           mkdir -p _site
           rsync -a --exclude=".git/" --exclude=".github/" --exclude="_site/" ./ _site/
           test -f sitemap.xml
-          event_count=$(find . -maxdepth 1 -type f -name "event-*.html" | wc -l)
-          echo "Generated event pages: $event_count"
-          test "$event_count" -gt 0
           sitemap_event_count=$(grep -c '<loc>https://hapn.info/event-' sitemap.xml || true)
           echo "Sitemap event URLs: $sitemap_event_count"
-          test "$sitemap_event_count" -eq "$event_count"
+          test "$sitemap_event_count" -gt 0
           cp sitemap.xml _site/sitemap.xml
           find . -maxdepth 1 -type f -name "event-*.html" -exec cp {} _site/ \;
           test -f _site/index.html
           site_event_count=$(find _site -maxdepth 1 -type f -name "event-*.html" | wc -l)
           echo "Pages artifact event pages: $site_event_count"
-          test "$site_event_count" -eq "$event_count"
+          test "$site_event_count" -eq "$sitemap_event_count"
           echo "Pages output contains:"
           ls -la _site | sed -n "1,80p"
 
