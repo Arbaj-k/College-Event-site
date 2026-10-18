@@ -2064,3 +2064,22 @@ h1, h2, h3 { font-weight: 650; letter-spacing: -0.035em; }
   .nav.open { transform: none; }
   .nav-toggle:active { transform: none; }
 }
+
+
+/* Submit an Event navigation CTA */
+.nav a.nav-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .58rem 1rem;
+  border-radius: 999px;
+  background: var(--sun);
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.nav a.nav-submit:hover { background: #ffbb0d; text-decoration: none; }
+@media (max-width: 767px) {
+  .nav a.nav-submit { align-self: flex-start; margin-top: .25rem; }
+}
