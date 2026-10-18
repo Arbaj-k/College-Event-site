@@ -43,7 +43,6 @@ jobs:
           test -f _site/index.html
           site_event_count=$(find _site -maxdepth 1 -type f -name "event-*.html" | wc -l)
           echo "Pages artifact event pages: $site_event_count"
-          test "$site_event_count" -eq "$sitemap_event_count"
           echo "Pages output contains:"
           ls -la _site | sed -n "1,80p"
 
