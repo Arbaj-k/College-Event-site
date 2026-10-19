@@ -2083,3 +2083,36 @@ h1, h2, h3 { font-weight: 650; letter-spacing: -0.035em; }
 @media (max-width: 767px) {
   .nav a.nav-submit { align-self: flex-start; margin-top: .25rem; }
 }
+
+
+/* ---------- PageSpeed: reserve space to prevent mobile layout shifts ---------- */
+/* The calendar is populated asynchronously after the events request. Keep its
+   day row stable so the hero does not change height when the buttons appear. */
+.calendar-days {
+  min-height: 4.75rem;
+}
+
+/* The featured carousel is inserted after Supabase returns event data. Reserve
+   a modest slot for it on phones so the page below does not jump on first load. */
+@media (max-width: 899px) {
+  .featured-section {
+    min-height: 18rem;
+  }
+}
+
+/* Do not promote every event card to its own compositor layer; this avoids
+   unnecessary memory use on lower-end mobile devices. */
+.event-card {
+  will-change: auto;
+}
+
+/* Keep image geometry predictable while posters download. */
+.card-poster,
+.featured-poster {
+  contain: layout paint;
+}
+.card-poster img,
+.featured-poster img {
+  display: block;
+  width: 100%;
+  height: 100%;}
