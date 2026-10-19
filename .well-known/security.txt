@@ -1,0 +1,4 @@
+Contact: mailto:security@hapn.info
+Preferred-Languages: en, hi
+Canonical: https://hapn.info/.well-known/security.txt
+Policy: https://hapn.info/terms.html
