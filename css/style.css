@@ -2197,4 +2197,18 @@ button, .btn, .chip, .calendar-all-events, .nav-toggle {
 .fest-event h3 a { color:var(--ink); }
 .fest-event p { color:var(--muted); font-size:.9rem; margin:.35rem 0; }
 @media (min-width:600px) { .fest-carousel-track { grid-auto-columns:minmax(230px, 32%); } .fest-gallery { grid-template-columns:repeat(3,minmax(0,1fr)); } .fest-gallery figure:first-child { grid-column:span 2; grid-row:span 2; } }
+.activity-editor { display:grid; gap:1rem; margin:.75rem 0 1rem; }
+.activity-row { min-width:0; border:1px solid var(--line); border-radius:14px; padding:1rem; background:#fafbff; }
+.activity-row legend { padding:0 .4rem; font-weight:800; }
+.activity-fields { display:grid; gap:0 .8rem; }
+.activity-fields .field { margin-bottom:.8rem; }
+.activity-fields input,.activity-fields textarea { min-width:0; }
+.optional-event-links { border:1px solid var(--line); border-radius:12px; padding:.8rem 1rem; background:#fff; }
+.optional-event-links summary { cursor:pointer; font-weight:700; }
+.optional-event-links > p { margin-top:.75rem; }
+.activity-card-top { display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin-bottom:.55rem; }
+.activity-number { display:inline-flex; align-items:center; justify-content:center; width:2rem; height:2rem; border-radius:10px; background:var(--blue-soft); color:var(--blue); font-weight:800; font-size:.85rem; }
+.activity-category { display:inline-block; border-radius:999px; padding:.15rem .6rem; background:var(--blue-soft); color:var(--blue); font-size:.78rem; font-weight:700; }
+.activity-description { white-space:pre-line; }
+@media (min-width:720px) { .activity-fields { grid-template-columns:1fr 1fr; } .activity-fields .field.full { grid-column:1/-1; } }
 @media (prefers-reduced-motion:reduce) { .fest-card-cover img { transition:none; } }
