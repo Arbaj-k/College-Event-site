@@ -41,7 +41,7 @@
       '<article class="event-card reveal' + (status !== 'upcoming' ? ' is-past' : '') + '" ' + stagger + '>' +
         '<div class="card-poster-wrap">' +
           '<a class="card-poster" href="' + detailUrl + '" tabindex="-1" aria-hidden="true">' +
-            '<img class="poster-img" src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="" loading="' + (index === 0 ? 'eager' : 'lazy') + '" decoding="async" fetchpriority="' + (index === 0 ? 'high' : 'auto') + '" width="800" height="500">' +
+            '<img class="poster-img" src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="" loading="' + (prioritizeCard ? 'eager' : 'lazy') + '" decoding="async" fetchpriority="' + (prioritizeCard ? 'high' : 'low') + '" width="800" height="500">' +
             '<span class="badge">' + CE.esc(ev.category) + '</span>' +
             (posterDateValid ? '<span class="poster-date-overlay"><strong>' + CE.esc(posterDay) + '</strong><span class="poster-date-side"><span>' + CE.esc(posterMonth) + '</span></span></span>' : '') +
             (status !== 'upcoming' ? '<span class="badge badge-ended">Ended</span>' : '') +
