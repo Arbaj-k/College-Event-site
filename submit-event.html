@@ -23,6 +23,8 @@
   <p>Your event will be reviewed by the Hapn admin. It will not appear publicly unless approved.</p>
   <div id="submit-notice" role="status" hidden></div>
   <form id="submit-form" class="card">
+    <input type="hidden" id="form-started-at" name="form_started_at" value="">
+    <div class="field" aria-hidden="true" style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden"><label for="website">Leave this field empty</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
     <div class="form-grid">
       <div class="field full"><label for="title">Event Name</label><input id="title" name="title" type="text" maxlength="120" required></div>
       <div class="field full"><label for="poster">Event Poster</label><input id="poster" name="poster" type="file" accept="image/jpeg,image/png,image/webp"><span class="hint">JPG, PNG or WebP, up to 5 MB. Wide images (16:10) look best. Without a poster a placeholder is shown.</span><img class="poster-preview" id="poster-preview" alt="Poster preview" hidden></div>
