@@ -36,7 +36,8 @@
       : (link ? '<span class="btn btn-block btn-disabled" aria-disabled="true">' + (status !== 'upcoming' ? 'Event Ended' : 'Registration Closed') + '</span>' : '');
 
     const stagger = 'style="--i:' + (index % 12) + '"';
-    const prioritizeCard = document.body.getAttribute('data-page') === 'events' && index === 0;
+    const page = document.body.getAttribute('data-page');
+    const prioritizeCard = (page === 'home' || page === 'events') && index === 0;
     return '' +
       '<article class="event-card reveal' + (status !== 'upcoming' ? ' is-past' : '') + '" ' + stagger + '>' +
         '<div class="card-poster-wrap">' +
