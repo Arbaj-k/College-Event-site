@@ -2144,3 +2144,25 @@ button, .btn, .chip, .calendar-all-events, .nav-toggle {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* Mobile-first performance: reserve space for asynchronous event content. */
+.featured-section {
+  min-height: 18rem;
+}
+#next-up {
+  min-height: 1px;
+}
+.events-grid .skeleton {
+  min-height: 18rem;
+}
+@media (max-width: 767px) {
+  /* Avoid delayed, staggered motion on low-power phones; keep the same layout. */
+  .event-card.reveal {
+    animation: none;
+    animation-delay: 0ms;
+  }
+  #next-up.ticket-ready {
+    animation: none;
+  }
+}
