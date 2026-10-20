@@ -1,0 +1,1 @@
+alter table public.fests add column if not exists registration_link text check (registration_link is null or registration_link ~* '^https://'::text);
