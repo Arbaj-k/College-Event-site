@@ -15,7 +15,7 @@
   }
   sb.from('fests').select('id,title,college_name,start_date,end_date,photo_urls').eq('is_published',true).order('start_date',{ascending:true}).limit(12).then(({data,error}) => {
     if (error) { root.innerHTML = '<p class="muted">College fests will appear here soon.</p>'; console.warn('Fest carousel:',error.message); return; }
-    if (!data || !data.length) { root.innerHTML = '<div class="fest-empty"><strong>College fests are coming soon.</strong><p>Verified multi-photo fest posts will appear here.</p></div>'; return; }
+    if (!data || !data.length) { root.innerHTML = '<div class="fest-empty"><strong>No fests featured yet</strong><p>Check back soon for upcoming college fests.</p></div>'; return; }
     root.innerHTML = '<div class="fest-carousel-track">' + data.map(card).join('') + '</div>';
   });
 })();
