@@ -17,9 +17,23 @@ async function start(){
  const user=await CE.auth.requireAdmin();if(!user)return;const id=new URLSearchParams(location.search).get('id');if(!id){notice('Fest ID missing. Open this page after creating a fest.');return;}
  const {data,error}=await sb.from('fests').select('id,title,college_name,is_published,activities').eq('id',id).maybeSingle();if(error||!data){notice(error?.message||'Fest not found, or you do not have permission to manage it.');return;}
  fest=data;document.title=fest.title+' activities | Hapn Admin';$('page-title').textContent='Manage activities: '+fest.title;render();setForm();
+ $('delete-main-fest').addEventListener('click',deleteMainFest);
  $('activity-form').addEventListener('submit',saveActivity);$('cancel-edit').addEventListener('click',()=>{editingIndex=-1;editingId=null;setForm();});
  $('activity-photo').addEventListener('change',()=>{const f=$('activity-photo').files[0];if(!f)return;if(!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>5*1024*1024){notice('Poster must be JPG, PNG or WebP and no larger than 5 MB.');$('activity-photo').value='';return;}$('activity-photo-preview').innerHTML='<img class="activity-poster-preview" src="'+URL.createObjectURL(f)+'" alt="Selected poster preview">';});
  $('activity-list').addEventListener('click',async e=>{const edit=e.target.closest('[data-edit]'),del=e.target.closest('[data-delete]');if(edit){editingIndex=Number(edit.dataset.edit);editingId=(fest.activities[editingIndex]||{}).id||null;setForm(fest.activities[editingIndex]||{});$('activity-form').scrollIntoView({behavior:'smooth',block:'start'});return;}if(del){const i=Number(del.dataset.delete);if(!Number.isInteger(i)||!fest.activities[i])return;if(!confirm('Delete this activity from the fest?'))return;try{const next=fest.activities.filter((_,idx)=>idx!==i);await persist(next);if(editingIndex===i){editingIndex=-1;editingId=null;setForm();}else if(editingIndex>i)editingIndex--;CE.toast('Activity deleted.');}catch(ex){notice(ex.message||'Could not delete activity.');}}});
+}
+async function deleteMainFest(){
+ if(!fest)return;
+ if(!confirm('Delete the entire fest "'+fest.title+'" permanently? All activities will also be deleted. This cannot be undone.'))return;
+ const btn=$('delete-main-fest');btn.disabled=true;btn.textContent='Deleting fest…';
+ try{
+  const {data,error:readError}=await sb.from('fests').select('photo_urls,activities').eq('id',fest.id).maybeSingle();if(readError)throw readError;
+  const {error}=await sb.from('fests').delete().eq('id',fest.id);if(error)throw error;
+  const urls=[...(data?.photo_urls||[]),...((data?.activities||[]).map(a=>a.photo_url).filter(Boolean))];
+  const marker='/storage/v1/object/public/'+CE.BUCKET+'/';const paths=urls.map(url=>{try{return decodeURIComponent(new URL(url).pathname.split(marker)[1]||'')}catch(_){return ''}}).filter(Boolean);
+  if(paths.length){const {error:storageError}=await sb.storage.from(CE.BUCKET).remove(paths);if(storageError)console.warn('Fest deleted but some poster files may remain:',storageError.message);}
+  alert('Fest deleted.');location.href='create-fest.html';
+ }catch(ex){console.error(ex);notice(ex.message||'Could not delete fest.');btn.disabled=false;btn.textContent='Delete entire fest';}
 }
 async function saveActivity(e){
  e.preventDefault();$('manager-notice').hidden=true;const title=getField('title');if(!title){notice('Activity name is required.');return;}const link=getField('registration_link');if(link){try{const u=new URL(link);if(u.protocol!=='https:')throw new Error();}catch(_){notice('Registration link must be a valid https:// URL.');return;}}
