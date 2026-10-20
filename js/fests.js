@@ -12,7 +12,7 @@
  }
  function renderActivity(a,i){
   const meta=activityDate(a.date,a.time);
-  return '<article class="fest-event"><div class="activity-card-top"><span class="activity-number">'+String(i+1).padStart(2,'0')+'</span>'+(a.category?'<span class="activity-category">'+esc(a.category)+'</span>':'')+'</div><h3>'+esc(a.title)+'</h3>'+(meta?'<p>'+esc(meta)+'</p>':'')+(a.venue?'<p>'+esc(a.venue)+'</p>':'')+(a.description?'<p class="activity-description">'+esc(a.description)+'</p>':'')+(a.registration_link?'<a class="btn btn-primary btn-sm" href="'+esc(a.registration_link)+'" target="_blank" rel="noopener noreferrer">Register</a>':'')+'</article>';
+  return '<article class="fest-event">'+(a.photo_url?'<img class="activity-poster" loading="lazy" decoding="async" src="'+esc(a.photo_url)+'" alt="'+esc(a.title||'Activity poster')+'">':'')+'<div class="activity-card-top"><span class="activity-number">'+String(i+1).padStart(2,'0')+'</span>'+(a.category?'<span class="activity-category">'+esc(a.category)+'</span>':'')+'</div><h3>'+esc(a.title)+'</h3>'+(meta?'<p>'+esc(meta)+'</p>':'')+(a.venue?'<p>'+esc(a.venue)+'</p>':'')+(a.description?'<p class="activity-description">'+esc(a.description)+'</p>':'')+(a.registration_link?'<a class="btn btn-primary btn-sm" href="'+esc(a.registration_link)+'" target="_blank" rel="noopener noreferrer">Register</a>':'')+'</article>';
  }
  async function loadDetail() {
   if(!detailRoot||!window.sb)return;
@@ -34,7 +34,7 @@
   }else{
    schedule='<section class="section fest-schedule"><h2>Fest activities & events</h2><p class="muted">Activity schedule will be announced soon.</p></section>';
   }
-  detailRoot.innerHTML='<header class="fest-detail-head"><p class="fest-college">'+esc(f.college_name)+'</p><h1>'+esc(f.title)+'</h1><p>'+esc(dateLabel(f.start_date,f.end_date))+'</p>'+(f.venue?'<p>'+esc(f.venue)+'</p>':'')+(f.description?'<p>'+esc(f.description)+'</p>':'')+'</header>'+gallery+schedule;
+  detailRoot.innerHTML='<header class="fest-detail-head"><p class="fest-college">'+esc(f.college_name)+'</p><h1>'+esc(f.title)+'</h1><p>'+esc(dateLabel(f.start_date,f.end_date))+'</p>'+(f.venue?'<p>'+esc(f.venue)+'</p>':'')+(f.description?'<p>'+esc(f.description)+'</p>':'')+(f.registration_link?'<p><a class="btn btn-primary" href="'+esc(f.registration_link)+'" target="_blank" rel="noopener noreferrer">Register for the fest</a></p>':'')+'</header>'+gallery+schedule;
  }
  loadList();loadDetail();
 })();
