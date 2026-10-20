@@ -106,14 +106,44 @@
     el.hidden = false;
   };
 
-  /* Mobile menu */
+  /* Accessible mobile menu: keyboard escape, outside click and clear labels. */
   const toggle = document.querySelector('.nav-toggle');
   const nav = document.getElementById('site-nav');
   if (toggle && nav) {
-    toggle.addEventListener('click', function () {
-      const open = nav.classList.toggle('open');
+    function setMenuOpen(open, returnFocus) {
+      nav.classList.toggle('open', open);
       toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
       toggle.textContent = open ? '✕' : '☰';
+      if (!open && returnFocus) toggle.focus();
+    }
+
+    toggle.setAttribute('aria-label', 'Open menu');
+    toggle.addEventListener('click', function () {
+      setMenuOpen(toggle.getAttribute('aria-expanded') !== 'true', false);
+    });
+
+    nav.addEventListener('click', function (event) {
+      if (event.target.closest('a') && window.matchMedia('(max-width: 767px)').matches) {
+        setMenuOpen(false, false);
+      }
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        setMenuOpen(false, true);
+      }
+    });
+
+    document.addEventListener('click', function (event) {
+      if (toggle.getAttribute('aria-expanded') === 'true' &&
+          !nav.contains(event.target) && !toggle.contains(event.target)) {
+        setMenuOpen(false, false);
+      }
+    });
+
+    window.addEventListener('resize', function () {
+      if (window.matchMedia('(min-width: 768px)').matches) setMenuOpen(false, false);
     });
   }
 
