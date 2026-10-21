@@ -3,6 +3,10 @@
  const esc = (value) => String(value == null ? '' : value).replace(/[&<>"']/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const dateLabel = (start,end) => { if(!start) return 'Date to be announced'; const f=s=>new Date(String(s).slice(0,10)+'T12:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}); return f(start)+(end&&end!==start?' – '+f(end):''); };
  const activityDate = (date,time) => {const d=date?new Date(String(date).slice(0,10)+'T12:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'';const t=time?String(time).slice(0,5):'';return [d,t].filter(Boolean).join(' · ');};
+ const calendarDate = (value) => String(value||'').replace(/-/g,'');
+ const calendarUrl = (f) => {if(!f.start_date)return '';const start=calendarDate(f.start_date),end=calendarDate(f.end_date||f.start_date);const nextDay=(iso)=>{const d=new Date(String(iso).slice(0,10)+'T12:00:00');d.setDate(d.getDate()+1);return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')};return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(f.title)+'&dates='+start+'/'+nextDay(f.end_date||f.start_date)+'&details='+encodeURIComponent(f.description||'College fest on Hapn')+'&location='+encodeURIComponent([f.venue,f.college_name].filter(Boolean).join(', '));};
+ const directionsUrl = (f) => {const place=[f.venue,f.college_name].filter(Boolean).join(', ');return place?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(place):'';};
+ const festActions = (f) => '<div class="fest-action-row">'+(f.registration_link?'<a class="btn btn-primary" href="'+esc(f.registration_link)+'" target="_blank" rel="noopener noreferrer">Register for the fest</a>':'')+(directionsUrl(f)?'<a class="btn btn-outline" href="'+esc(directionsUrl(f))+'" target="_blank" rel="noopener noreferrer">Get directions</a>':'')+(calendarUrl(f)?'<a class="btn btn-outline" href="'+esc(calendarUrl(f))+'" target="_blank" rel="noopener noreferrer">Add to calendar</a>':'')+'</div>';
  const listRoot=document.getElementById('all-fests'), detailRoot=document.getElementById('fest-detail');
  async function loadList() {
   if(!listRoot||!window.sb)return;
@@ -34,7 +38,7 @@
   }else{
    schedule='<section class="section fest-schedule"><h2>Fest activities & events</h2><p class="muted">Activity schedule will be announced soon.</p></section>';
   }
-  detailRoot.innerHTML='<header class="fest-detail-head"><p class="fest-college">'+esc(f.college_name)+'</p><h1>'+esc(f.title)+'</h1><p>'+esc(dateLabel(f.start_date,f.end_date))+'</p>'+(f.venue?'<p>'+esc(f.venue)+'</p>':'')+(f.description?'<p>'+esc(f.description)+'</p>':'')+(f.registration_link?'<p><a class="btn btn-primary" href="'+esc(f.registration_link)+'" target="_blank" rel="noopener noreferrer">Register for the fest</a></p>':'')+'</header>'+gallery+schedule;
+  detailRoot.innerHTML='<header class="fest-detail-head"><p class="fest-college">'+esc(f.college_name)+'</p><h1>'+esc(f.title)+'</h1><p>'+esc(dateLabel(f.start_date,f.end_date))+'</p>'+(f.venue?'<p>'+esc(f.venue)+'</p>':'')+(f.description?'<p>'+esc(f.description)+'</p>':'')+'</header>'+gallery+festActions(f)+schedule;
  }
  loadList();loadDetail();
 })();
