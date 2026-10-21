@@ -26,7 +26,7 @@ async function manageExistingFests(e){
  button.disabled=true;button.textContent='Deleting…';
  try{
   const {data,error:readError}=await sb.from('fests').select('photo_urls,activities').eq('id',id).maybeSingle();if(readError)throw readError;
-  const {error}=await sb.from('fests').delete().eq('id',id);if(error)throw error;
+  const {data:deleted,error}=await sb.from('fests').delete().eq('id',id).select('id').maybeSingle();if(error)throw error;if(!deleted)throw new Error('The fest was not deleted. Check admin permissions and refresh the page.');
   const urls=[...(data?.photo_urls||[]),...((data?.activities||[]).map(a=>a.photo_url).filter(Boolean))];
   const marker='/storage/v1/object/public/'+CE.BUCKET+'/';const paths=urls.map(url=>{try{return decodeURIComponent(new URL(url).pathname.split(marker)[1]||'')}catch(_){return ''}}).filter(Boolean);
   if(paths.length){const {error:storageError}=await sb.storage.from(CE.BUCKET).remove(paths);if(storageError)console.warn('Fest deleted but some poster files may remain in storage:',storageError.message);}
