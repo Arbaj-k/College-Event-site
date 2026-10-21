@@ -16,11 +16,12 @@
     return String(value == null ? '' : value).replace(/[&<>"']/g, function (c) { return map[c]; });
   };
 
-  /* Returns a clean https:// URL, or null if the value is not a valid https link. */
+  /* Returns a safe external HTTPS URL, rejecting credentials and non-HTTPS schemes. */
   CE.httpsUrl = function (value) {
     try {
       const u = new URL(String(value || '').trim());
-      return u.protocol === 'https:' ? u.href : null;
+      if (u.protocol !== 'https:' || !u.hostname || u.username || u.password) return null;
+      return u.href;
     } catch (e) { return null; }
   };
 
