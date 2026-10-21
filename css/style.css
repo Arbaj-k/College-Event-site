@@ -2214,7 +2214,11 @@ button, .btn, .chip, .calendar-all-events, .nav-toggle {
 @media (prefers-reduced-motion:reduce) { .fest-card-cover img { transition:none; } }
 
 /* Fest activity poster and admin activity manager */
-.activity-poster { display:block; width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:10px; margin-bottom:.8rem; background:#eef0f8; }
+.activity-poster { display:block; width:100%; height:auto; max-height:520px; aspect-ratio:auto; object-fit:contain; object-position:center; border-radius:10px; margin:0 auto .8rem; background:#f2f3f8; }
+.fest-action-row { display:flex; flex-wrap:wrap; gap:.65rem; margin:0 0 1.5rem; }
+.fest-action-row .btn { min-height:44px; }
+.fest-event { min-width:0; }
+.fest-event .activity-poster { max-width:100%; }
 .activity-manager-card { margin-top:1rem; padding:clamp(1rem,3vw,1.5rem); }
 .activity-manager-card h2 { margin-top:0; }
 .activity-manager-list { display:grid; gap:1rem; }
