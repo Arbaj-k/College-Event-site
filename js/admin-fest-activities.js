@@ -11,7 +11,7 @@ function render(){
  if(!activities.length){$('activity-list').innerHTML='<div class="fest-empty"><strong>No activities added yet.</strong><p>Use the form above to add the first activity and its poster.</p></div>';return;}
  $('activity-list').innerHTML=activities.map((a,i)=>'<article class="activity-manager-item">'+(a.photo_url?'<img class="activity-manager-poster" src="'+esc(a.photo_url)+'" alt="'+esc(a.title)+' poster" loading="lazy">':'<div class="activity-manager-poster activity-manager-no-poster">No poster</div>')+'<div class="activity-manager-copy"><div class="activity-card-top"><span class="activity-number">'+String(i+1).padStart(2,'0')+'</span>'+(a.category?'<span class="activity-category">'+esc(a.category)+'</span>':'')+'</div><h3>'+esc(a.title)+'</h3><p>'+esc([a.date,a.time,a.venue].filter(Boolean).join(' · ')||'Schedule to be announced')+'</p>'+(a.registration_link?'<p><a href="'+esc(a.registration_link)+'" target="_blank" rel="noopener noreferrer">Registration link</a></p>':'')+(a.description?'<p>'+esc(a.description)+'</p>':'')+'<div class="form-actions"><button class="btn btn-outline btn-sm" type="button" data-edit="'+i+'">Edit</button><button class="btn btn-danger-outline btn-sm" type="button" data-delete="'+i+'">Delete</button></div></div></article>').join('');
 }
-async function persist(next){const {error}=await sb.from('fests').update({activities:next}).eq('id',fest.id);if(error)throw error;fest.activities=next;render();}
+async function persist(next){const {data,error}=await sb.from('fests').update({activities:next,updated_at:new Date().toISOString()}).eq('id',fest.id).select('id,activities').single();if(error)throw error;if(!data)throw new Error('The fest was not updated. Refresh the page and confirm you are still signed in as an admin.');fest.activities=Array.isArray(data.activities)?data.activities:next;render();}
 function notice(message){CE.showNotice($('manager-notice'),message);}
 async function start(){
  const user=await CE.auth.requireAdmin();if(!user)return;const id=new URLSearchParams(location.search).get('id');if(!id){notice('Fest ID missing. Open this page after creating a fest.');return;}
@@ -28,7 +28,7 @@ async function deleteMainFest(){
  const btn=$('delete-main-fest');btn.disabled=true;btn.textContent='Deleting fest…';
  try{
   const {data,error:readError}=await sb.from('fests').select('photo_urls,activities').eq('id',fest.id).maybeSingle();if(readError)throw readError;
-  const {error}=await sb.from('fests').delete().eq('id',fest.id);if(error)throw error;
+  const {data:deleted,error}=await sb.from('fests').delete().eq('id',fest.id).select('id').maybeSingle();if(error)throw error;if(!deleted)throw new Error('The fest was not deleted. Check admin permissions and refresh the page.');
   const urls=[...(data?.photo_urls||[]),...((data?.activities||[]).map(a=>a.photo_url).filter(Boolean))];
   const marker='/storage/v1/object/public/'+CE.BUCKET+'/';const paths=urls.map(url=>{try{return decodeURIComponent(new URL(url).pathname.split(marker)[1]||'')}catch(_){return ''}}).filter(Boolean);
   if(paths.length){const {error:storageError}=await sb.storage.from(CE.BUCKET).remove(paths);if(storageError)console.warn('Fest deleted but some poster files may remain:',storageError.message);}
