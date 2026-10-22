@@ -951,8 +951,8 @@ p { margin: 0 0 1rem; }
   --font:Inter, "Avenir Next", Avenir, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 body { background:#edf5f0; color:var(--ink); }
-.site-header { background:#edf5f0; border-bottom:0; }
-.header-inner { height:88px; }
+.site-header { background:#fff; border-bottom:0; }
+.header-inner { height:76px; background:#fff; }
 .brand { gap:.8rem; font-size:1.75rem; letter-spacing:-.055em; font-weight:900; }
 .brand img {
   width:56px; height:56px; padding:12px; border-radius:17px;
@@ -960,53 +960,44 @@ body { background:#edf5f0; color:var(--ink); }
 }
 /* Refined mobile menu control: high-contrast forest circle with a crisp
    three-line icon, a larger touch target, and clear keyboard focus. */
+/* Minimal mobile menu: two clean dark strokes, no circle or button fill. */
 .nav-toggle {
   position:relative;
-  flex:0 0 52px;
-  width:52px;
-  height:52px;
-  min-width:52px;
-  min-height:52px;
+  flex:0 0 44px;
+  width:44px;
+  height:44px;
+  min-width:44px;
+  min-height:44px;
   padding:0;
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  border:1px solid #101d19;
-  border-radius:50%;
-  background:#101d19;
-  color:#c9f36a;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  color:#101d19;
   font-size:0;
   line-height:1;
-  box-shadow:0 5px 14px rgba(16,29,25,.14);
-  transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease;
+  box-shadow:none;
+  transition:opacity .18s ease,transform .18s ease;
 }
-.nav-toggle::before {
+.nav-toggle::before,
+.nav-toggle::after {
   content:"";
-  display:block;
-  width:20px;
-  height:2px;
-  border-radius:2px;
-  background:#c9f36a;
-  box-shadow:0 -6px 0 #c9f36a,0 6px 0 #c9f36a;
-  transition:width .18s ease,background-color .18s ease,box-shadow .18s ease;
+  position:absolute;
+  right:5px;
+  height:3px;
+  border-radius:3px;
+  background:#101d19;
+  transition:width .18s ease,background-color .18s ease;
 }
-.nav-toggle:hover {
-  background:#176d52;
-  border-color:#176d52;
-  box-shadow:0 7px 18px rgba(16,29,25,.2);
-}
-.nav-toggle:hover::before {
-  width:22px;
-  background:#fff;
-  box-shadow:0 -6px 0 #fff,0 6px 0 #fff;
-}
+.nav-toggle::before { top:15px; width:25px; }
+.nav-toggle::after { top:25px; width:17px; }
+.nav-toggle:hover { background:transparent; box-shadow:none; opacity:.72; }
 .nav-toggle:active { transform:scale(.96); }
-.nav-toggle:focus-visible {
-  outline:3px solid #c9f36a;
-  outline-offset:3px;
-}
+.nav-toggle:focus-visible { outline:2px solid #176d52; outline-offset:1px; border-radius:6px; }
 @media (prefers-reduced-motion:reduce) {
-  .nav-toggle,.nav-toggle::before { transition:none; }
+  .nav-toggle,.nav-toggle::before,.nav-toggle::after { transition:none; }
 }
 .hero { padding:32px 0 20px; background:#edf5f0; color:#101d19; }
 .hero-inner { display:flex; flex-direction:column; align-items:stretch; gap:36px; }
@@ -1095,7 +1086,7 @@ body { background:#edf5f0; color:var(--ink); }
 .event-card .card-actions .btn { border-radius:999px; background:#101d19; color:#fff; border-color:#101d19; min-height:42px; font-size:.84rem; }
 .site-footer { background:#101d19; }
 @media (min-width:768px) {
-  .header-inner { height:94px; }
+  .header-inner { height:76px; }
   .brand img { width:58px; height:58px; }
   .hero { padding:46px 0 30px; }
   .hero-inner { max-width:720px; margin:0 auto; gap:34px; }
