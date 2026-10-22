@@ -958,9 +958,55 @@ body { background:#edf5f0; color:var(--ink); }
   width:56px; height:56px; padding:12px; border-radius:17px;
   background:#101d19; filter:none;
 }
+/* Refined mobile menu control: high-contrast forest circle with a crisp
+   three-line icon, a larger touch target, and clear keyboard focus. */
 .nav-toggle {
-  width:58px; height:58px; border:2px solid #101d19; border-radius:50%;
-  background:transparent; color:#101d19; font-size:1.45rem;
+  position:relative;
+  flex:0 0 52px;
+  width:52px;
+  height:52px;
+  min-width:52px;
+  min-height:52px;
+  padding:0;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid #101d19;
+  border-radius:50%;
+  background:#101d19;
+  color:#c9f36a;
+  font-size:0;
+  line-height:1;
+  box-shadow:0 5px 14px rgba(16,29,25,.14);
+  transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease;
+}
+.nav-toggle::before {
+  content:"";
+  display:block;
+  width:20px;
+  height:2px;
+  border-radius:2px;
+  background:#c9f36a;
+  box-shadow:0 -6px 0 #c9f36a,0 6px 0 #c9f36a;
+  transition:width .18s ease,background-color .18s ease,box-shadow .18s ease;
+}
+.nav-toggle:hover {
+  background:#176d52;
+  border-color:#176d52;
+  box-shadow:0 7px 18px rgba(16,29,25,.2);
+}
+.nav-toggle:hover::before {
+  width:22px;
+  background:#fff;
+  box-shadow:0 -6px 0 #fff,0 6px 0 #fff;
+}
+.nav-toggle:active { transform:scale(.96); }
+.nav-toggle:focus-visible {
+  outline:3px solid #c9f36a;
+  outline-offset:3px;
+}
+@media (prefers-reduced-motion:reduce) {
+  .nav-toggle,.nav-toggle::before { transition:none; }
 }
 .hero { padding:32px 0 20px; background:#edf5f0; color:#101d19; }
 .hero-inner { display:flex; flex-direction:column; align-items:stretch; gap:36px; }
