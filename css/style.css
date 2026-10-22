@@ -2267,3 +2267,8 @@ button, .btn, .chip, .calendar-all-events, .nav-toggle {
 .activity-manager-copy p { overflow-wrap:anywhere; }
 .activity-poster-preview { display:block; width:min(100%,360px); max-height:240px; object-fit:contain; margin-top:.75rem; border-radius:10px; background:#f2f3f8; }
 @media(max-width:560px) { .activity-manager-item { grid-template-columns:1fr; } .activity-manager-poster { max-height:230px; aspect-ratio:16/9; } }
+
+/* The compact two-line menu is mobile-only; desktop uses the full navigation. */
+@media (min-width: 768px) {
+  .site-header .nav-toggle { display: none !important; }
+}
