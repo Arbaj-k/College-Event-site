@@ -2,6 +2,11 @@
 (function () {
   'use strict';
 
+  // Normalize the homepage URL so visitors see/share the clean domain root.
+  if (location.pathname === '/index.html') {
+    history.replaceState(null, document.title, '/' + location.search + location.hash);
+  }
+
   const CE = (window.CE = window.CE || {});
   const ROOT = document.body.getAttribute('data-root') || '';   // "" on public pages, "../" in /admin
 
