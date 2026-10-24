@@ -433,7 +433,7 @@
     document.title = data.title + ' – Hapn';
 
     const canonical = document.getElementById('canonical-link');
-    if (canonical) canonical.href = location.origin + (location.pathname.match(/\/event-[0-9a-f-]+\.html$/i) ? location.pathname : '/event.html?id=' + encodeURIComponent(data.id));
+    if (canonical) canonical.href = location.origin + (location.pathname.match(/\/event-[0-9a-f-]+\.html$/i) ? location.pathname : '/event/?id=' + encodeURIComponent(data.id));
 
     let description = document.querySelector('meta[name="description"]');
     if (!description) {
