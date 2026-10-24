@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://analytics.google.com; form-action 'self' https:">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="index,follow">
+  <link rel="icon" href="/assets/images/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/style.css?v=20261022desktopmenu1">
+  <link rel="stylesheet" href="/css/admin.css">
+  <title>Submit an Event – Hapn</title>
+</head>
+<body data-root="" data-page="submit-event">
+<header class="site-header"><div class="container header-inner">
+  <a class="brand" href="/"><img src="/assets/images/logo.svg" alt="" width="34" height="34"><span>Hapn</span></a>
+  <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="site-nav">☰</button>
+  <nav class="nav" id="site-nav" aria-label="Main"><a href="/">Home</a><a href="/events/">Events</a><a href="/about/">About</a><a class="nav-submit" href="/submit-event/" aria-current="page">Submit an Event</a></nav>
+</div></header>
+<main class="container admin-main narrow">
+  <a class="back-link" href="/">Back to Hapn</a>
+  <h1>Submit an Event</h1>
+  <p>Your event will be reviewed by the Hapn admin. It will not appear publicly unless approved.</p>
+  <div id="submit-notice" role="status" hidden></div>
+  <form id="submit-form" class="card">
+    <input type="hidden" id="form-started-at" name="form_started_at" value="">
+    <div class="field" aria-hidden="true" style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden"><label for="website">Leave this field empty</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+    <div class="form-grid">
+      <div class="field full"><label for="title">Event Name</label><input id="title" name="title" type="text" maxlength="120" required></div>
+      <div class="field full"><label for="poster">Event Poster</label><input id="poster" name="poster" type="file" accept="image/jpeg,image/png,image/webp"><span class="hint">JPG, PNG or WebP, up to 5 MB. Wide images (16:10) look best. Without a poster a placeholder is shown.</span><img class="poster-preview" id="poster-preview" alt="Poster preview" hidden></div>
+      <div class="field"><label for="date">From date</label><input id="date" name="date" type="date"></div>
+      <div class="field"><label for="time">From time</label><input id="time" name="time" type="time"></div>
+      <div class="field"><label for="end_date">To date</label><input id="end_date" name="end_date" type="date"><span class="hint">Optional. Leave blank if the event date is not confirmed.</span></div>
+      <div class="field"><label for="end_time">To time</label><input id="end_time" name="end_time" type="time"><span class="hint">Optional. If provided, registration closes automatically after the event ends.</span></div>
+      <div class="field"><label for="venue">Venue</label><input id="venue" name="venue" type="text" maxlength="120"></div>
+      <div class="field"><label for="organizer">Organizer</label><input id="organizer" name="organizer" type="text" maxlength="120"></div>
+      <div class="field full"><span class="field-label">Categories</span><div class="category-options">
+        <label class="check"><input type="checkbox" name="category" value="Technical"> Technical</label>
+        <label class="check"><input type="checkbox" name="category" value="Workshop"> Workshop</label>
+        <label class="check"><input type="checkbox" name="category" value="Hackathon"> Hackathon</label>
+        <label class="check"><input type="checkbox" name="category" value="Cultural"> Cultural</label>
+        <label class="check"><input type="checkbox" name="category" value="Sports"> Sports</label>
+        <label class="check"><input type="checkbox" name="category" value="Career"> Career</label>
+        <label class="check"><input type="checkbox" name="category" value="Other"> Other</label>
+      </div><div class="field" id="other-wrap" hidden><label for="other_category">Specify other category (optional)</label><input id="other_category" name="other_category" type="text" maxlength="60" placeholder="e.g. Entrepreneurship"></div><span class="hint">Optional. Select one or more categories. If you select Other, enter its name only if you want to.</span></div>
+      <div class="field"><label for="registration_deadline">Registration Deadline</label><input id="registration_deadline" name="registration_deadline" type="date"><span class="hint">Optional. After this date the Register Now button is turned off.</span></div>
+      <div class="field full"><label for="short_description">Short Description</label><textarea id="short_description" name="short_description" rows="2" maxlength="200"></textarea><span class="hint">Shown on the event card. Up to 200 characters.</span></div>
+      <div class="field full"><label for="description">Full Description</label><textarea id="description" name="description" rows="6" maxlength="5000"></textarea><span class="hint">Shown on the event details page. Line breaks are kept.</span></div>
+      <div class="field full"><label for="registration_link">Registration Link</label><input id="registration_link" name="registration_link" type="url" placeholder="https://..."><span class="hint">Optional. Leave blank to publish without a registration button.</span></div>
+    </div>
+    <div class="field full" style="margin-top:1rem"><label for="submitter_name">Your Name</label><input id="submitter_name" name="submitter_name" type="text" maxlength="100" required></div>
+    <div class="field full"><label for="submitter_email">Your Email</label><input id="submitter_email" name="submitter_email" type="email" maxlength="254" required></div>
+    <p class="hint">Submitting this form sends your event for admin review. It is not published automatically.</p>
+    <div class="form-actions"><button type="submit" class="btn btn-primary btn-lg" id="submit-btn">Submit for Review</button><a class="btn btn-outline btn-lg" href="/">Cancel</a></div>
+  </form>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script><script src="/js/config.js"></script><script src="/js/supabase.js"></script><script src="/js/common.js"></script><script src="/js/submit-event.js?v=20261020emailfix2"></script>
+</body></html>
