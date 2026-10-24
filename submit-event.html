@@ -7,18 +7,18 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="index,follow">
   <link rel="icon" href="assets/images/logo.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="css/style.css?v=20261022desktopmenu1">
+  <link rel="stylesheet" href="css/style.css?v=20261024cleanroutes1">
   <link rel="stylesheet" href="css/admin.css">
   <title>Submit an Event – Hapn</title>
 </head>
 <body data-root="" data-page="submit-event">
 <header class="site-header"><div class="container header-inner">
-  <a class="brand" href="index.html"><img src="assets/images/logo.svg" alt="" width="34" height="34"><span>Hapn</span></a>
+  <a class="brand" href="/"><img src="assets/images/logo.svg" alt="" width="34" height="34"><span>Hapn</span></a>
   <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="site-nav">☰</button>
-  <nav class="nav" id="site-nav" aria-label="Main"><a href="index.html">Home</a><a href="events.html">Events</a><a href="about.html">About</a><a class="nav-submit" href="submit-event.html" aria-current="page">Submit an Event</a></nav>
+  <nav class="nav" id="site-nav" aria-label="Main"><a href="/">Home</a><a href="/events/">Events</a><a href="/about/">About</a><a class="nav-submit" href="/submit-event/" aria-current="page">Submit an Event</a></nav>
 </div></header>
 <main class="container admin-main narrow">
-  <a class="back-link" href="index.html">Back to Hapn</a>
+  <a class="back-link" href="/">Back to Hapn</a>
   <h1>Submit an Event</h1>
   <p>Your event will be reviewed by the Hapn admin. It will not appear publicly unless approved.</p>
   <div id="submit-notice" role="status" hidden></div>
@@ -51,7 +51,7 @@
     <div class="field full" style="margin-top:1rem"><label for="submitter_name">Your Name</label><input id="submitter_name" name="submitter_name" type="text" maxlength="100" required></div>
     <div class="field full"><label for="submitter_email">Your Email</label><input id="submitter_email" name="submitter_email" type="email" maxlength="254" required></div>
     <p class="hint">Submitting this form sends your event for admin review. It is not published automatically.</p>
-    <div class="form-actions"><button type="submit" class="btn btn-primary btn-lg" id="submit-btn">Submit for Review</button><a class="btn btn-outline btn-lg" href="index.html">Cancel</a></div>
+    <div class="form-actions"><button type="submit" class="btn btn-primary btn-lg" id="submit-btn">Submit for Review</button><a class="btn btn-outline btn-lg" href="/">Cancel</a></div>
   </form>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script><script src="js/config.js"></script><script src="js/supabase.js"></script><script src="js/common.js"></script><script src="js/submit-event.js?v=20261020emailfix2"></script>
