@@ -2,10 +2,35 @@
 (function () {
   'use strict';
 
-  // Normalize the homepage URL so visitors see/share the clean domain root.
-  if (location.pathname === '/index.html') {
-    history.replaceState(null, document.title, '/' + location.search + location.hash);
-  }
+  // Normalize public page URLs so links and shares never expose .html.
+  (function normalizePublicUrl() {
+    const path = location.pathname;
+    const routes = {
+      '/index.html': '/',
+      '/events.html': '/events/',
+      '/about.html': '/about/',
+      '/help.html': '/help/',
+      '/terms.html': '/terms/',
+      '/submit-event.html': '/submit-event/',
+      '/fests.html': '/fests/'
+    };
+    let cleanPath = routes[path];
+    const eventFile = path.match(/^\/event-([0-9a-f-]{36})\.html$/i);
+    if (eventFile) {
+      cleanPath = '/event/';
+      const params = new URLSearchParams(location.search);
+      params.set('id', eventFile[1]);
+      const query = params.toString();
+      history.replaceState(null, document.title, cleanPath + (query ? '?' + query : '') + location.hash);
+      return;
+    }
+    if (path === '/event.html' || path === '/fest.html') {
+      cleanPath = path === '/event.html' ? '/event/' : '/fest/';
+    }
+    if (cleanPath && cleanPath !== path) {
+      history.replaceState(null, document.title, cleanPath + location.search + location.hash);
+    }
+  })();
 
   const CE = (window.CE = window.CE || {});
   const ROOT = document.body.getAttribute('data-root') || '';   // "" on public pages, "../" in /admin
