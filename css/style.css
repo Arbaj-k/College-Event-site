@@ -2272,3 +2272,39 @@ button, .btn, .chip, .calendar-all-events, .nav-toggle {
 @media (min-width: 768px) {
   .site-header .nav-toggle { display: none !important; }
 }
+
+
+/* Mobile spacing tune: keep fest posters compact and tighten the featured-events rail. */
+@media (max-width: 599px) {
+  .fest-carousel-track {
+    grid-auto-columns: minmax(0, 62%);
+    gap: .75rem;
+    padding: .15rem .05rem .65rem;
+  }
+  .fest-card { border-radius: 15px; }
+  .fest-card-cover { aspect-ratio: 4 / 4.6; }
+  .fest-card-body { padding: .75rem; }
+  .fest-card-body h3, .fest-card-body h2 { font-size: .98rem; line-height: 1.25; }
+  .fest-college { font-size: .76rem; }
+  .fest-date { font-size: .82rem; margin: .25rem 0 .65rem; }
+  .fest-card-body .btn { min-height: 38px; padding: .55rem .65rem; font-size: .82rem; }
+
+  #next-up .featured-carousel {
+    padding: 4px 12px 8px;
+  }
+  #next-up .featured-card {
+    width: min(100%, 228px);
+    max-width: 228px;
+  }
+  #next-up .featured-poster-wrap {
+    aspect-ratio: 4 / 5;
+  }
+  #next-up .featured-copy {
+    min-height: 0;
+    padding: 8px 2px 0;
+    gap: 5px;
+  }
+  #next-up .featured-actions { margin-top: 8px; }
+  #next-up .featured-actions .btn { min-height: 38px; }
+  #next-up .carousel-dots { padding: 0 1rem .15rem; }
+}
