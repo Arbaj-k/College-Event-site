@@ -2308,3 +2308,15 @@ button, .btn, .chip, .calendar-all-events, .nav-toggle {
   #next-up .featured-actions .btn { min-height: 38px; }
   #next-up .carousel-dots { padding: 0 1rem .15rem; }
 }
+
+/* ---------- Hapn on-site notification prompt ---------- */
+.hapn-notice { position:fixed; z-index:120; right:max(16px,env(safe-area-inset-right)); bottom:max(16px,env(safe-area-inset-bottom)); width:min(390px,calc(100vw - 32px)); padding:22px; border:1px solid #dfe2ee; border-radius:20px; background:#fff; color:var(--ink); box-shadow:0 18px 60px rgba(17,25,54,.22); opacity:0; transform:translateY(12px); pointer-events:none; transition:opacity .2s ease,transform .2s ease; }
+.hapn-notice.is-visible { opacity:1; transform:translateY(0); pointer-events:auto; }
+.hapn-notice-eyebrow { display:block; margin-bottom:7px; color:var(--blue); font-size:.75rem; font-weight:850; letter-spacing:.12em; }
+.hapn-notice h2 { margin:0 28px 8px 0; font-size:1.25rem; }
+.hapn-notice p { margin:0 0 16px; color:var(--muted); font-size:.92rem; line-height:1.55; }
+.hapn-notice-close { position:absolute; top:10px; right:12px; width:36px; height:36px; border:0; border-radius:50%; background:#f1f2f8; color:var(--ink); font-size:1.4rem; cursor:pointer; }
+.hapn-notice-actions { display:flex; flex-wrap:wrap; gap:8px; }
+.hapn-notice-actions .btn { min-height:42px; padding:.65rem .85rem; font-size:.88rem; }
+@media(max-width:420px) { .hapn-notice { right:10px; bottom:10px; width:calc(100vw - 20px); padding:18px; } .hapn-notice-actions { display:grid; grid-template-columns:1fr; } }
+@media(prefers-reduced-motion:reduce) { .hapn-notice { transition:none; transform:none; } }

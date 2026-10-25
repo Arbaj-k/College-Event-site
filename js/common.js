@@ -213,4 +213,53 @@
       el.src = CE.PLACEHOLDER;
     }
   }, true);
+  /* ---------- OneSignal web push + lightweight Hapn popup ---------- */
+  function initHapnNotifications() {
+    if (location.pathname.startsWith('/admin/')) return;
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    window.OneSignalDeferred.push(async function (OneSignal) {
+      try {
+        await OneSignal.init({
+          appId: '876e30fb-b69f-49da-a8aa-e90bf0240723',
+          serviceWorkerPath: '/OneSignalSDKWorker.js',
+          serviceWorkerParam: { scope: '/' },
+          notifyButton: { enable: false }
+        });
+        window.HapnOneSignal = OneSignal;
+      } catch (error) { console.warn('Hapn notifications could not initialize.', error); }
+    });
+    if (!document.querySelector('script[data-hapn-onesignal]')) {
+      const sdk = document.createElement('script');
+      sdk.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
+      sdk.defer = true; sdk.dataset.hapnOnesignal = 'true'; document.head.appendChild(sdk);
+    }
+    let dismissedUntil = 0;
+    try { dismissedUntil = Number(localStorage.getItem('hapn-notice-dismissed-until') || 0); } catch (_) {}
+    if (dismissedUntil > Date.now()) return;
+    const popup = document.createElement('aside');
+    popup.className = 'hapn-notice'; popup.setAttribute('aria-label', 'Hapn notifications');
+    popup.innerHTML = '<button class="hapn-notice-close" type="button" aria-label="Close notification">×</button><span class="hapn-notice-eyebrow">HAPN UPDATES</span><h2>Never miss a campus event</h2><p>Get new event alerts from Hapn. You can enable browser notifications whenever you’re ready.</p><div class="hapn-notice-actions"><button class="btn btn-primary hapn-enable-push" type="button">Enable notifications</button><a class="btn btn-outline" href="/events/">Explore events</a></div>';
+    document.body.appendChild(popup);
+    function closePopup() {
+      popup.classList.remove('is-visible');
+      try { localStorage.setItem('hapn-notice-dismissed-until', String(Date.now() + 7 * 86400000)); } catch (_) {}
+      setTimeout(function () { popup.remove(); }, 180);
+    }
+    popup.querySelector('.hapn-notice-close').addEventListener('click', closePopup);
+    popup.querySelector('.hapn-enable-push').addEventListener('click', async function () {
+      const button = this; button.disabled = true;
+      try {
+        const OneSignal = window.HapnOneSignal;
+        if (!OneSignal) { CE.toast('Notifications are still loading. Please try again in a moment.', 'error'); return; }
+        await OneSignal.Notifications.requestPermission();
+        if (OneSignal.Notifications.permission) { CE.toast('Hapn notifications enabled!', 'success'); closePopup(); }
+        else CE.toast('Notifications were not enabled. You can change this in your browser settings.', 'error');
+      } catch (_) { CE.toast('Could not enable notifications in this browser.', 'error'); }
+      finally { button.disabled = false; }
+    });
+    setTimeout(function () { if (popup.isConnected) popup.classList.add('is-visible'); }, 4500);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initHapnNotifications, { once: true });
+  else initHapnNotifications();
+
 })();
