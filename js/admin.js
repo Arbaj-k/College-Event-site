@@ -236,9 +236,29 @@
         if (uploaded) await removePoster(editing.poster_url);   // replace old poster
         CE.toast('Event updated successfully!');
       } else {
-        const { error } = await sb.from('events').insert(payload);
+        const { data: insertedEvent, error } = await sb.from('events').insert(payload).select('id').single();
         if (error) throw error;
         CE.toast('Event published successfully!');
+
+        // Notify subscribers for important published categories. Push failure must
+        // never undo a successful event publication.
+        if (values.is_published && insertedEvent && insertedEvent.id) {
+          try {
+            const { data: sessionData } = await sb.auth.getSession();
+            const accessToken = sessionData && sessionData.session && sessionData.session.access_token;
+            if (accessToken) {
+              const { data: pushResult, error: pushError } = await sb.functions.invoke('send-event-push', {
+                body: { eventId: insertedEvent.id },
+                headers: { Authorization: 'Bearer ' + accessToken }
+              });
+              if (pushError) console.warn('Event was published, but push notification failed:', pushError);
+              else if (pushResult && pushResult.sent) CE.toast('Push notification sent to subscribers!', 'success');
+              else if (pushResult && pushResult.error) console.warn('Event was published, but push notification was not sent:', pushResult.error);
+            }
+          } catch (pushError) {
+            console.warn('Event was published, but push notification could not be triggered:', pushError);
+          }
+        }
       }
       setTimeout(() => { location.href = 'dashboard.html'; }, 1200);
     } catch (err) {
