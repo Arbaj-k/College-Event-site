@@ -114,7 +114,8 @@ p { margin: 0 0 1rem; }
   animation: fadeSlideUp .5s cubic-bezier(.2,.7,.3,1) both;
   animation-delay: calc(var(--i, 0) * 55ms);
 }
-.event-card { will-change: transform; }
+/* Avoid reserving a compositor layer for every event card; promote only during active transitions. */
+.event-card { will-change: auto; }
 .event-card:hover .card-poster img { transform: scale(1.035); }
 .card-poster img { transition: transform .35s ease; }
 .event-card .card-actions .btn-primary { transition: background-color .15s ease, transform .15s ease; }
