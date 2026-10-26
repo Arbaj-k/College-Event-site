@@ -257,7 +257,7 @@
     const popup = document.createElement('aside');
     popup.className = 'hapn-notice';
     popup.setAttribute('aria-label', 'Hapn notifications');
-    popup.innerHTML = '<button class="hapn-notice-close" type="button" aria-label="Close notification">×</button><span class="hapn-notice-eyebrow">HAPN UPDATES</span><h2>Never miss a campus event</h2><p>Get new event alerts from Hapn. You can enable browser notifications whenever you’re ready.</p><div class="hapn-notice-actions"><button class="btn btn-primary hapn-enable-push" type="button">Enable notifications</button><a class="btn btn-outline" href="/events/">Explore events</a></div>';
+    popup.innerHTML = '<span class="hapn-notice-eyebrow">HAPN UPDATES</span><h2>Turn on notifications?</h2><p>Get alerts for important fests, hackathons and workshops. You can choose now.</p><div class="hapn-notice-actions"><button class="btn btn-primary hapn-enable-push" type="button">Turn ON</button><button class="btn btn-outline hapn-notice-off" type="button">Turn OFF</button></div>';
     document.body.appendChild(popup);
 
     function closePopup() {
@@ -265,7 +265,7 @@
       try { localStorage.setItem('hapn-notice-dismissed-until', String(Date.now() + 3 * 86400000)); } catch (_) {}
       setTimeout(function () { popup.remove(); }, 180);
     }
-    popup.querySelector('.hapn-notice-close').addEventListener('click', closePopup);
+    popup.querySelector('.hapn-notice-off').addEventListener('click', closePopup);
     popup.querySelector('.hapn-enable-push').addEventListener('click', async function () {
       const button = this;
       if (button.disabled) return;
@@ -296,7 +296,7 @@
         button.textContent = originalText;
       }
     });
-    setTimeout(function () { if (popup.isConnected) popup.classList.add('is-visible'); }, 4500);
+    if (popup.isConnected) popup.classList.add('is-visible');
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initHapnNotifications, { once: true });
   else initHapnNotifications();
