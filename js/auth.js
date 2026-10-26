@@ -13,6 +13,48 @@
 
   const CE = (window.CE = window.CE || {});
   const DENIED_MESSAGE = 'Access Denied — You do not have administrator permission.';
+  // Defense in depth: end an unattended admin session after 15 minutes.
+  // This does not replace server-side authorization or protect against active XSS.
+  const IDLE_TIMEOUT_MS = 15 * 60 * 1000;
+  let idleTimer = null;
+  let lastActivityAt = 0;
+  let idleListenersBound = false;
+
+  function endIdleSession() {
+    if (Date.now() - lastActivityAt < IDLE_TIMEOUT_MS) {
+      scheduleIdleCheck();
+      return;
+    }
+    void signOut().finally(() => location.replace('login.html'));
+  }
+
+  function scheduleIdleCheck() {
+    if (idleTimer) clearTimeout(idleTimer);
+    idleTimer = setTimeout(endIdleSession, IDLE_TIMEOUT_MS);
+  }
+
+  function recordActivity() {
+    lastActivityAt = Date.now();
+    scheduleIdleCheck();
+  }
+
+  function startIdleTimeout() {
+    lastActivityAt = Date.now();
+    scheduleIdleCheck();
+    if (idleListenersBound) return;
+    idleListenersBound = true;
+    ['pointerdown', 'keydown', 'scroll', 'touchstart'].forEach((eventName) => {
+      document.addEventListener(eventName, recordActivity, { passive: true });
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && Date.now() - lastActivityAt >= IDLE_TIMEOUT_MS) endIdleSession();
+    });
+  }
+
+  function stopIdleTimeout() {
+    if (idleTimer) clearTimeout(idleTimer);
+    idleTimer = null;
+  }
 
   /* Is this user listed in the admins table? (RLS lets a user read only their own row.) */
   async function isAdmin(userId) {
@@ -22,6 +64,7 @@
   }
 
   async function signOut() {
+    stopIdleTimeout();
     try { await sb.auth.signOut(); } catch (e) { console.error(e); }
   }
 
@@ -78,6 +121,7 @@
     if (content) content.hidden = false;
     const emailEl = document.getElementById('admin-email');
     if (emailEl) emailEl.textContent = user.email || '';
+    startIdleTimeout();
     return user;
   }
 
