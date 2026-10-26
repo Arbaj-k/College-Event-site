@@ -262,7 +262,7 @@
 
     function closePopup() {
       popup.classList.remove('is-visible');
-      try { localStorage.setItem('hapn-notice-dismissed-until', String(Date.now() + 7 * 86400000)); } catch (_) {}
+      try { localStorage.setItem('hapn-notice-dismissed-until', String(Date.now() + 3 * 86400000)); } catch (_) {}
       setTimeout(function () { popup.remove(); }, 180);
     }
     popup.querySelector('.hapn-notice-close').addEventListener('click', closePopup);
