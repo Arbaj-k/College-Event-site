@@ -197,6 +197,7 @@ To remove all sample events at once, run this in the SQL Editor (this also remov
 ## How the security works
 
 - **Supabase Auth** handles the login. No passwords are stored in the code or in your own tables.
+- **Admin idle timeout:** the browser signs out an admin after 15 minutes without interaction. This limits unattended-session exposure; it is defense in depth, not a substitute for server-managed `HttpOnly` cookies.
 - **Admin check:** after login, the site looks for the user's ID in the `admins` table. If it is missing, the user sees *"Access Denied — You do not have administrator permission."* and is signed out.
 - **The database enforces it:** inserts, updates, deletes and poster uploads are rejected by RLS unless `public.is_admin()` is true. Hiding buttons is only a courtesy.
 - The `admins` table has no write policies, so nobody can promote themselves. Only you, in the SQL Editor, can add admins.
@@ -228,6 +229,8 @@ You should get an error like *permission denied* or *row-level security policy*.
 ---
 
 ## Notes for developers
+
+- **Session-storage limitation:** the current static frontend stores the Supabase session in `sessionStorage`. JavaScript running on the same origin can still read/use that session, so an XSS flaw could expose it. The 15-minute idle timeout reduces the unattended window but does not prevent token theft while the page is active. Removing JavaScript access requires a larger architecture change: server-managed `HttpOnly; Secure; SameSite` cookies plus server-side endpoints/Netlify Functions for admin database and Storage operations. Do not simply switch to in-memory storage: this multi-page site reloads between admin pages and would lose the session.
 
 - The Supabase JS library is loaded from the jsDelivr CDN (`@supabase/supabase-js@2`). For stricter control, pin an exact version in each HTML file.
 - Dates are compared using the visitor's local date. An event counts as "past" the day after its date. A registration deadline is inclusive (open through the end of that day).
