@@ -149,8 +149,9 @@ language plpgsql
 security definer
 set search_path = ''
 as $$
-declare v_uid uuid := auth.uid();
-declare v_conversation uuid;
+declare
+  v_uid uuid := auth.uid();
+  v_conversation uuid;
 begin
   if v_uid is null or (auth.jwt() ->> 'is_anonymous') <> 'true' then
     raise exception 'Anonymous sign-in required';
