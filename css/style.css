@@ -2340,12 +2340,12 @@ body[data-page="home"] .hero::before {
 body[data-page="home"] .hero::after { content: none; }
 body[data-page="home"] .hero-inner { position: relative; z-index: 1; }
 body[data-page="home"] .hero-intro {
-  padding: clamp(1.1rem, 2.5vw, 2rem);
-  border: 1px solid rgba(255, 255, 255, .16);
-  border-radius: 22px;
-  background: rgba(7, 15, 44, .25);
-  -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 body[data-page="home"] .hero h1 { color: #fff !important; }
 body[data-page="home"] .hero p {
@@ -2353,11 +2353,11 @@ body[data-page="home"] .hero p {
   text-shadow: 0 1px 12px rgba(0, 0, 0, .38);
 }
 body[data-page="home"] .home-calendar {
-  border: 1px solid rgba(255, 255, 255, .72);
-  background: rgba(255, 255, 255, .82);
+  border: 1px solid rgba(255, 255, 255, .55);
+  background: rgba(255, 255, 255, .56);
   box-shadow: 0 24px 60px rgba(5, 12, 36, .28);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
 }
 @media (max-width: 899px) {
   body[data-page="home"] .hero {
@@ -2367,10 +2367,7 @@ body[data-page="home"] .home-calendar {
   body[data-page="home"] .hero::before {
     background: linear-gradient(180deg, rgba(7, 15, 44, .46), rgba(7, 15, 44, .36) 48%, rgba(7, 15, 44, .48));
   }
-  body[data-page="home"] .hero-intro {
-    background: rgba(7, 15, 44, .32);
-  }
   body[data-page="home"] .home-calendar {
-    background: rgba(255, 255, 255, .79);
+    background: rgba(255, 255, 255, .52);
   }
 }
