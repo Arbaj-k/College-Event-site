@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>Hapn Anonymous Chat — Development Preview</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#121a2e;--panel2:#18233b;--line:#2b3856;--text:#f4f7ff;--muted:#a7b4cf;--blue:#6477ff;--green:#43d9a3}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#17264a 0,#0b1020 55%);font:16px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text);min-height:100vh}.wrap{max-width:1100px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}.brand{font-weight:800;font-size:1.5rem;letter-spacing:-.04em}.brand span{color:#8290ff}.badge{border:1px solid #7d6c2b;background:#2a2615;color:#ffe28a;border-radius:99px;padding:6px 12px;font-size:.8rem;font-weight:700}.intro{margin:32px 0 22px}.intro h1{font-size:clamp(2rem,5vw,3.5rem);line-height:1.05;letter-spacing:-.05em;margin:0 0 12px}.intro p{color:var(--muted);max-width:650px;margin:0}.stats{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0}.stat{background:#111b30;border:1px solid var(--line);padding:12px 16px;border-radius:14px;min-width:155px}.stat strong{font-size:1.45rem;display:block}.stat small{color:var(--muted)}.dot{display:inline-block;width:8px;height:8px;background:var(--green);border-radius:50%;margin-right:6px}.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:16px}.card{background:rgba(18,26,46,.94);border:1px solid var(--line);border-radius:20px;overflow:hidden}.rooms{padding:16px}.rooms h2{font-size:.95rem;color:var(--muted);margin:0 0 12px}.room{width:100%;text-align:left;display:block;background:transparent;color:var(--text);border:1px solid transparent;padding:12px;border-radius:12px;cursor:pointer;margin:4px 0}.room.active{background:var(--panel2);border-color:#43558a}.room small{display:block;color:var(--muted);margin-top:2px}.chathead{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;align-items:center}.chathead h2{margin:0;font-size:1.1rem}.chathead p{margin:2px 0 0;color:var(--muted);font-size:.85rem}.messages{padding:20px;min-height:290px;display:flex;flex-direction:column;gap:14px}.msg{max-width:80%;background:var(--panel2);border:1px solid #2c3a5b;border-radius:4px 16px 16px 16px;padding:11px 13px}.msg.mine{align-self:flex-end;background:#29356b;border-color:#4656a2;border-radius:16px 4px 16px 16px}.msg small{display:block;color:#aebce0;font-size:.75rem;margin-bottom:4px}.empty{color:var(--muted);text-align:center;margin:auto}.compose{border-top:1px solid var(--line);padding:14px;display:flex;gap:10px}.compose input{min-width:0;flex:1;background:#0b1326;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px;font:inherit}.compose button,.action{background:var(--blue);color:white;border:0;border-radius:12px;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer}.tools{padding:14px 18px;border-top:1px solid var(--line);display:flex;gap:14px;flex-wrap:wrap}.tools button{background:transparent;border:0;color:#c2cbee;text-decoration:underline;cursor:pointer}.notice{margin-top:18px;background:#211f18;border:1px solid #63572d;color:#f6df9a;border-radius:14px;padding:13px 16px;font-size:.9rem}.foot{color:var(--muted);font-size:.82rem;margin:22px 0}.disabled{opacity:.6;cursor:not-allowed!important}@media(max-width:720px){.wrap{padding:16px}.layout{grid-template-columns:1fr}.rooms{display:grid;grid-template-columns:1fr 1fr;gap:4px}.rooms h2{grid-column:1/-1}.messages{min-height:240px}.msg{max-width:92%}.chathead{align-items:flex-start;flex-direction:column}.stat{flex:1;min-width:125px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><div class="brand">hapn<span>.info</span> <span style="color:#f4f7ff">/ anonymous chat</span></div><span class="badge">DEVELOPMENT PREVIEW · NOT LIVE</span></header>
+<section class="intro"><h1>Your campus.<br><span style="color:#8793ff">Your conversations.</span></h1><p>Meet people around college events, find teammates, and join conversations without displaying your real name.</p></section>
+<section class="stats" aria-label="Activity counters">
+<div class="stat"><strong><span class="dot"></span><span id="online">—</span></strong><small>Online now</small></div>
+<div class="stat"><strong><span id="active">—</span></strong><small>Active in last 5 min</small></div>
+<div class="stat"><strong><span id="roomCount">—</span></strong><small>Rooms in preview</small></div>
+</section>
+<div class="layout">
+<aside class="card rooms"><h2>CHAT ROOMS</h2>
+<button class="room active" data-room="campus">🏫 Campus Lounge <small>General college chat</small></button>
+<button class="room" data-room="fest">🎉 Fest & Events <small>Meet event attendees</small></button>
+<button class="room" data-room="teams">🧩 Find a Team <small>Projects and hackathons</small></button>
+<button class="room" data-room="help">🙋 Ask the Community <small>Questions and advice</small></button>
+</aside>
+<section class="card" aria-label="Chat preview">
+<div class="chathead"><div><h2 id="roomTitle">🏫 Campus Lounge</h2><p>Anonymous identities · Be respectful</p></div><span class="badge">Preview mode</span></div>
+<div class="messages" id="messages"><div class="msg"><small>BlueMango · example message</small>Anyone going to the next campus fest?</div><div class="msg"><small>QuietComet · example message</small>Looking for teammates for a hackathon 👋</div><div class="empty">Messages above are sample content, not live user messages.</div></div>
+<form class="compose" id="compose"><input id="message" maxlength="500" placeholder="Messaging is disabled in this UI preview" aria-label="Message" disabled><button class="disabled" type="button" disabled>Send</button></form>
+<div class="tools"><button type="button" id="report">Report a message (demo)</button><button type="button" id="block">Block a user (demo)</button></div>
+</section>
+</div>
+<div class="notice"><strong>Development status:</strong> This is a UI prototype. The online/active counters and messages are not connected to a live service yet, so no fake live-user count is shown. Real-time Supabase Presence, secure chat storage, report/block actions and rate limits must be wired and tested before launch.</div>
+<p class="foot">Private development work-in-progress · No links added to Hapn's public navigation · Do not use for real conversations.</p>
+</div>
+<script>
+const roomNames={campus:'🏫 Campus Lounge',fest:'🎉 Fest & Events',teams:'🧩 Find a Team',help:'🙋 Ask the Community'};
+document.getElementById('roomCount').textContent=Object.keys(roomNames).length;
+document.querySelectorAll('.room').forEach(button=>button.addEventListener('click',()=>{
+ document.querySelectorAll('.room').forEach(b=>b.classList.remove('active'));
+ button.classList.add('active');
+ document.getElementById('roomTitle').textContent=roomNames[button.dataset.room];
+}));
+document.getElementById('report').addEventListener('click',()=>alert('Demo only: reporting will be connected after moderation workflow and database policies are implemented.'));
+document.getElementById('block').addEventListener('click',()=>alert('Demo only: blocking will be connected after user identity and access rules are implemented.'));
+</script>
+</body>
+</html>
