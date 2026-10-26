@@ -33,8 +33,8 @@
 <button class="room" data-room="help" aria-pressed="false"><span class="room-icon">🙋</span><span class="room-copy"><strong>Ask the Community</strong><small>Questions, help and advice</small></span></button>
 </div>
 <div class="chat-layout"><section class="chat-card" aria-label="Chat room preview">
-<div class="chat-head"><div class="room-title"><span class="room-icon" id="currentIcon">🏫</span><div><h2 id="roomTitle">Campus Lounge</h2><p id="roomDescription">General college conversations</p></div></div><span class="status">Preview mode</span></div>
-<div class="messages" id="messages" aria-live="polite"><div class="message"><div class="message-meta">BlueMango · sample</div><div class="bubble">Anyone going to the next campus fest?</div></div><div class="message mine"><div class="message-meta">You · sample</div><div class="bubble">I’m thinking about it! What time does it start?</div></div><div class="sample-note">Sample messages only — no real users or conversations.</div></div>
+<div class="chat-head"><div class="room-title"><span class="room-icon" id="currentIcon">🏫</span><div><h2 id="roomTitle">Campus Lounge</h2><p id="roomDescription">General college conversations</p></div></div><span class="status" aria-live="polite">Connecting…</span></div>
+<div class="messages" id="messages" aria-live="polite"><div class="sample-note">Connecting to chat…</div></div>
 <form class="compose" onsubmit="return false"><label for="message" class="visually-hidden"></label><input id="message" maxlength="500" placeholder="Your anonymous nickname is assigned automatically" disabled><button type="submit" id="sendButton">Send ↗</button></form>
 </section>
 <aside class="side-card"><h3>Keep Hapn friendly 💙</h3><p>Anonymous does not mean consequence-free. Help keep conversations useful and respectful.</p><div class="rule"><b>✓</b><span>Be respectful to everyone.</span></div><div class="rule"><b>✓</b><span>Never share passwords, phone numbers or private information.</span></div><div class="rule"><b>✓</b><span>Report spam, harassment or unsafe content.</span></div><div class="side-divider"></div><h3>Privacy & safety</h3><p>You can report messages now. Reports are stored for review; block/mute and the admin review screen still need testing before launch.</p><button class="safety-link" id="safetyInfo" type="button">Safety controls · coming later</button></aside>
@@ -61,7 +61,7 @@ document.querySelectorAll('.room').forEach(button=>button.addEventListener('clic
  document.querySelectorAll('.room').forEach(b=>{const active=b===button;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));const mark=b.querySelector('.check');if(mark)mark.remove();if(active&&!b.querySelector('.check')){const check=document.createElement('span');check.className='check';check.textContent='✓';b.append(check)}});
  document.getElementById('roomTitle').textContent=room.title;document.getElementById('roomDescription').textContent=room.description;document.getElementById('currentIcon').textContent=room.icon;
  const box=document.getElementById('messages');box.replaceChildren();
- const note=document.createElement('div');note.className='sample-note';note.textContent=currentUser?'Loading messages…':'Connecting to chat…';box.append(note); if(currentUser) await loadMessages();
+ const note=document.createElement('div');note.className='sample-note';note.textContent=currentUser?'Loading messages…':'Connecting to chat…';box.append(note); }
 }));
 
 document.getElementById('safetyInfo').addEventListener('click',()=>alert('Your nickname is generated automatically. Never share personal details. Use Report on a message if you see spam, harassment, hate or private information. Reports are stored for admin review; block/mute controls are not available yet.'));
