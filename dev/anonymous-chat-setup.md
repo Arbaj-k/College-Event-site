@@ -18,9 +18,10 @@ Open `anonymous-chat-preview.html` from this branch to inspect the visual protot
 1. In Supabase Dashboard > Authentication > Sign In / Providers, confirm **Anonymous Sign-Ins** is enabled. This setting has not been verified through the available project tools.
 2. Open `anonymous-chat-connected-preview.html` from a local web server or hosted branch preview (not via `file://`, since ES modules may be blocked). Test anonymous auth, loading/sending messages, switching rooms, and two-browser Realtime Presence counts.
 3. Add a trusted moderation workflow for reviewing reports and deleting messages; do not expose moderation privileges to chat users.
-4. Complete reporting, block/mute controls, user-facing community rules, accessible error/loading states, and abuse protection before launch.
-5. Verify security, accessibility, mobile layout, server-side spam controls, and actual concurrent online counts.
-6. Only after explicit approval, plan a separate reviewed merge/deployment.
+4. Reporting UI now uses the database's allowed reason values. Admin-only RLS policies have been added so existing Hapn admins can review/update reports and moderate message rows; test these using an admin session before launch.
+5. Complete block/mute controls, user-facing community rules, accessible error/loading states, and abuse protection before launch.
+6. Verify security, accessibility, mobile layout, server-side spam controls, and actual concurrent online counts.
+7. Only after explicit approval, plan a separate reviewed merge/deployment.
 
 ## Important limitations
 - A browser-only counter cannot reliably count all users. Use Supabase Realtime Presence and account for disconnects/heartbeats.
