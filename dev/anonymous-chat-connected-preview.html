@@ -61,8 +61,7 @@ document.querySelectorAll('.room').forEach(button=>button.addEventListener('clic
  document.querySelectorAll('.room').forEach(b=>{const active=b===button;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));const mark=b.querySelector('.check');if(mark)mark.remove();if(active&&!b.querySelector('.check')){const check=document.createElement('span');check.className='check';check.textContent='✓';b.append(check)}});
  document.getElementById('roomTitle').textContent=room.title;document.getElementById('roomDescription').textContent=room.description;document.getElementById('currentIcon').textContent=room.icon;
  const box=document.getElementById('messages');box.replaceChildren();
- room.messages.forEach(([name,body],i)=>{const article=document.createElement('div');article.className='message'+(name==='You'?' mine':'');const meta=document.createElement('div');meta.className='message-meta';meta.textContent=name+' · sample';const bubble=document.createElement('div');bubble.className='bubble';bubble.textContent=body;article.append(meta,bubble);box.append(article)});
- const note=document.createElement('div');note.className='sample-note';note.textContent='Loading messages…';box.append(note); if(currentUser) await loadMessages();
+ const note=document.createElement('div');note.className='sample-note';note.textContent=currentUser?'Loading messages…':'Connecting to chat…';box.append(note); if(currentUser) await loadMessages();
 }));
 
 document.getElementById('safetyInfo').addEventListener('click',()=>alert('Development preview: nickname is generated automatically. Do not share personal information. Report/block tools are still being completed.'));
