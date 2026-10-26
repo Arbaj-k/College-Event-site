@@ -5,7 +5,8 @@
 - Do not merge or deploy until the user has reviewed the preview and explicitly approved.
 - `anonymous-chat-preview.html` is a UI-only prototype. `anonymous-chat-connected-preview.html` connects to Hapn's Supabase backend and has not yet passed browser end-to-end testing.
 - The chat tables, RLS policies, rate-limit trigger, and Realtime publication were applied to Hapn's existing Supabase project `xeablvxtlxdwuiiawsgq`. This is a backend change on the existing project even though the website UI is not live.
-- The admin dashboard is `anonymous-chat-moderation.html`. The admin-only `SELECT` policy `chat_admin_read_messages` was applied to Supabase and verified in `pg_policies`. Browser-level admin moderation is still untested.
+- The admin dashboard is `anonymous-chat-moderation.html`. The admin-only `SELECT` policy `chat_admin_read_messages` was applied to Supabase and verified in `pg_policies`. Report reasons/statuses and message/nickname limits were checked against live database constraints. Browser-level admin moderation is still untested.
+- The connected preview now rejects an existing non-anonymous session in its isolated auth store and requests a fresh anonymous session. This guard is code-reviewed but not browser-tested.
 - Never put Supabase service-role/secret keys, passwords, or private user data in this public repository. The frontend should only use the publishable key from the existing Hapn config.
 
 ## Correct Supabase project
@@ -25,7 +26,7 @@ The files are in the development branch, not the live site. A local web server o
 1. In Supabase Dashboard → Authentication → Sign In / Providers, confirm **Anonymous Sign-Ins** is enabled. This has not been verified through available project tools.
 2. The `chat_admin_read_messages` policy is applied and verified. Confirm `public.is_admin()` returns true only for authorized Hapn admins; the existing dashboard also calls this function before displaying moderation tools.
 3. Test in a browser with two separate browser profiles: anonymous auth, automatic nickname persistence, room switching, sending/receiving messages, and Realtime online counts.
-4. Test reporting and admin moderation with an actual Hapn admin account. Confirm non-admins cannot read reports, list all messages for moderation, or hide messages.
+4. Test reporting and admin moderation with an actual Hapn admin account. Confirm non-admins cannot read reports, list all messages for moderation, or hide messages. Report reasons in the UI match the database constraint: `spam`, `harassment`, `hate`, `personal_information`, `other`.
 5. Verify message reason constraints match the database, plus empty/loading/error states, keyboard/accessibility, mobile layout, and spam controls.
 6. Test reconnect/disconnect and check that presence counts recover correctly. A displayed online count is approximate and should not be presented as an exact census.
 7. Only after the user reviews and explicitly approves, prepare a separate reviewed merge/deployment.
