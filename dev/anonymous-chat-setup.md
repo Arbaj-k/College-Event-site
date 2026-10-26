@@ -3,8 +3,8 @@
 ## Safety status
 - This feature is isolated on branch `anonymous-chat-dev`.
 - Do not merge this branch into `main` until reviewed and explicitly approved.
-- The current HTML is a UI-only preview. Sample messages are not real, and online counters intentionally show no fake numbers.
-- The SQL file is a draft only and has NOT been applied to any Supabase project.
+- `anonymous-chat-preview.html` is the UI-only prototype. `anonymous-chat-connected-preview.html` is the backend-connected test page; it uses automatic nicknames and background anonymous Supabase auth. It has not yet been end-to-end tested in a browser.
+- The chat tables and RLS policies have been applied to Hapn's existing Supabase project `xeablvxtlxdwuiiawsgq`. `public.chat_messages` is also present in the `supabase_realtime` publication. Do not re-run the SQL draft as a migration.
 - The repository is public, so files committed to this branch are publicly viewable. Do not add secrets, service-role keys, passwords, or private user data.
 
 ## Projects checked
@@ -14,14 +14,13 @@ Project `tcthrfpkydcmenxwajfg` contains a separate student workspace schema. Do 
 ## Safe preview
 Open `anonymous-chat-preview.html` from this branch to inspect the visual prototype. For local interaction, download the file and open it in a browser. This is not a hosted preview URL and does not connect to a live chat backend.
 
-## Before enabling a real backend
-1. Choose an isolated development Supabase environment. Do not run the draft SQL against production.
-2. Confirm whether Supabase anonymous sign-in is enabled or implement a suitable sign-in flow. Anonymous identities must be authenticated so RLS can tie each message to `auth.uid()`.
-3. Review and test the SQL policies in the isolated environment. Add moderation-only deletion, rate limiting, and report review via trusted server-side logic before launch.
-4. Enable Realtime Presence for a dedicated chat channel. Publish only a random session identifier and minimal presence metadata; never send message bodies or personal details through presence.
-5. Add UI for consent/rules, nickname selection, posting, reporting, blocking, and error/loading states. Test with multiple browser sessions.
-6. Verify security, accessibility, mobile layout, spam controls, and actual concurrent online counts.
-7. Only after explicit approval, plan a separate reviewed merge/deployment.
+## Remaining verification before launch
+1. In Supabase Dashboard > Authentication > Sign In / Providers, confirm **Anonymous Sign-Ins** is enabled. This setting has not been verified through the available project tools.
+2. Open `anonymous-chat-connected-preview.html` from a local web server or hosted branch preview (not via `file://`, since ES modules may be blocked). Test anonymous auth, loading/sending messages, switching rooms, and two-browser Realtime Presence counts.
+3. Add a trusted moderation workflow for reviewing reports and deleting messages; do not expose moderation privileges to chat users.
+4. Complete reporting, block/mute controls, user-facing community rules, accessible error/loading states, and abuse protection before launch.
+5. Verify security, accessibility, mobile layout, server-side spam controls, and actual concurrent online counts.
+6. Only after explicit approval, plan a separate reviewed merge/deployment.
 
 ## Important limitations
 - A browser-only counter cannot reliably count all users. Use Supabase Realtime Presence and account for disconnects/heartbeats.
