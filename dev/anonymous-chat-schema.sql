@@ -4,14 +4,13 @@
 create extension if not exists pgcrypto;
 
 create table if not exists public.chat_rooms (
-  id text primary key check (id in ('campus','fest','teams','help')),
+  id text primary key check (id in ('campus','group','help')),
   title text not null check (char_length(title) between 1 and 80),
   is_open boolean not null default true,
   created_at timestamptz not null default now()
 );
 insert into public.chat_rooms (id,title) values
- ('campus','Campus Lounge'), ('fest','Fest & Events'),
- ('teams','Find a Team'), ('help','Ask the Community')
+ ('campus','Campus Lounge'), ('group','Group Chat'), ('help','Ask the Community')
 on conflict (id) do nothing;
 
 create table if not exists public.chat_messages (
