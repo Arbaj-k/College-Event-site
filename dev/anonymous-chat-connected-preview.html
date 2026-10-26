@@ -57,13 +57,12 @@ const rooms={
  help:{title:'Ask the Community',description:'Questions, help and advice',icon:'🙋',messages:[['CuriousPanda','Any tips for preparing for the first hackathon?'],['HelpfulFox','Start with a small idea and find teammates with different skills.']]}
 };
 document.querySelectorAll('.room').forEach(button=>button.addEventListener('click',async()=>{
- const key=button.dataset.room,room=rooms[key]; currentRoom=key; if(currentUser) await joinRoom();
- document.querySelectorAll('.room').forEach(b=>{const active=b===button;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));const mark=b.querySelector('.check');if(mark)mark.remove();if(active&&!b.querySelector('.check')){const check=document.createElement('span');check.className='check';check.textContent='✓';b.append(check)}});
+ const key=button.dataset.room,room=rooms[key]; currentRoom=key;
+ document.querySelectorAll('.room').forEach(b=>{const active=b===button;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));const mark=b.querySelector('.check');if(mark)mark.remove();if(active){const check=document.createElement('span');check.className='check';check.textContent='✓';b.append(check)}});
  document.getElementById('roomTitle').textContent=room.title;document.getElementById('roomDescription').textContent=room.description;document.getElementById('currentIcon').textContent=room.icon;
- const box=document.getElementById('messages');box.replaceChildren();
- const note=document.createElement('div');note.className='sample-note';note.textContent=currentUser?'Loading messages…':'Connecting to chat…';box.append(note); }
+ const box=document.getElementById('messages');box.replaceChildren();const note=document.createElement('div');note.className='sample-note';note.textContent=currentUser?'Loading messages…':'Connecting to chat…';box.append(note);
+ if(currentUser) await joinRoom();
 }));
-
 document.getElementById('safetyInfo').addEventListener('click',()=>alert('Your nickname is generated automatically. Never share personal details. Use Report on a message if you see spam, harassment, hate or private information. Reports are stored for admin review; block/mute controls are not available yet.'));
 const form=document.querySelector('.compose'), input=document.getElementById('message'), sendButton=document.getElementById('sendButton'), status=document.querySelector('.status');
 input.disabled=true;sendButton.disabled=true;input.placeholder='Connecting to anonymous chat…';
