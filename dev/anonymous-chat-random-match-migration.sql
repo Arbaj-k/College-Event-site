@@ -37,6 +37,11 @@ create table if not exists public.chat_private_messages (
 alter table public.chat_private_messages enable row level security;
 alter table public.chat_match_queue enable row level security;
 
+-- Explicit grants are still constrained by the RLS policies below.
+grant select on public.chat_private_conversations to authenticated;
+grant select, insert, update on public.chat_private_messages to authenticated;
+grant select on public.chat_match_queue to authenticated;
+
 drop policy if exists chat_private_participant_read on public.chat_private_conversations;
 create policy chat_private_participant_read on public.chat_private_conversations
 for select to authenticated using (
@@ -46,10 +51,10 @@ for select to authenticated using (
 drop policy if exists chat_private_messages_participant_read on public.chat_private_messages;
 create policy chat_private_messages_participant_read on public.chat_private_messages
 for select to authenticated using (
-  deleted_at is null and exists (
+  (deleted_at is null and exists (
     select 1 from public.chat_private_conversations c
     where c.id = conversation_id and auth.uid() in (c.user_a, c.user_b)
-  )
+  ))
   or public.is_admin()
 );
 
@@ -126,7 +131,7 @@ begin
     return;
   end if;
 
-  v_conversation := gen_random_uuid();
+  v_conversation := pg_catalog.gen_random_uuid();
   insert into public.chat_private_conversations(id,user_a,user_b)
   values(v_conversation,v_partner.user_id,v_uid);
 
@@ -171,8 +176,8 @@ begin
 end;
 $$;
 
-revoke all on function public.chat_match_start(text) from public;
-revoke all on function public.chat_match_leave() from public;
+revoke all on function public.chat_match_start(text) from public, anon;
+revoke all on function public.chat_match_leave() from public, anon;
 grant execute on function public.chat_match_start(text) to authenticated;
 grant execute on function public.chat_match_leave() to authenticated;
 
