@@ -64,6 +64,7 @@ body{background:radial-gradient(ellipse at 50% -15%,#343a46 0,transparent 45%),#
 .compose{background:#191d26;border-color:#303642}.side-card p,.rule{color:#c0c6d2}.rule b{background:#1e352d;color:#8de0b7}.side-divider{background:#303642}.safety-link{background:#222731;color:#e7ebf2;border-color:#3b414d}
 .notice{background:#2b2618;border-color:#675626;color:#f1d98d}.footer{background:#0d1016;border-color:#303642;color:#929bad}.footer-links a,.footer-safety{color:#a5adbd}
 @media(max-width:520px){.hero:before,.hero:after{right:-125px;opacity:.7}.fight-quote{font-size:.83rem;margin-top:15px}.room.active{border-width:1.5px}}
+.typing-indicator{display:flex;align-items:center;gap:9px;padding:0 20px 12px;background:#141821;color:#a5adbd;font-size:.78rem}.typing-indicator[hidden]{display:none}.typing-dots{display:inline-flex;gap:3px}.typing-dots i{width:5px;height:5px;background:#f5c542;border-radius:50%;animation:typingPulse 1s infinite ease-in-out}.typing-dots i:nth-child(2){animation-delay:.15s}.typing-dots i:nth-child(3){animation-delay:.3s}@keyframes typingPulse{0%,60%,100%{opacity:.35;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
 </style>
 </head>
 <body>
@@ -83,6 +84,7 @@ body{background:radial-gradient(ellipse at 50% -15%,#343a46 0,transparent 45%),#
 <div class="chat-layout"><section class="chat-card" aria-label="Chat room preview">
 <div class="chat-head"><div class="room-title"><span class="room-icon" id="currentIcon">🏫</span><div><h2 id="roomTitle">Campus Lounge</h2><p id="roomDescription">General college conversations</p></div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end"><span class="status" aria-live="polite">Connecting…</span><button type="button" id="startRandom" class="safety-link" style="display:none">Start Chatting</button><button type="button" id="nextRandom" class="safety-link" style="display:none">Next</button><button type="button" id="endRandom" class="safety-link" style="display:none">End Chat</button></div></div>
 <div class="community-tools" id="communityTools" hidden><input id="postTitle" maxlength="140" placeholder="What do you need help with? (title)" aria-label="Post title"><textarea id="postBody" maxlength="2000" placeholder="Share your question, advice request or campus update…" aria-label="Post details"></textarea><div class="post-actions"><span>Be kind. Don’t share private information.</span><button type="button" id="publishPost">Publish post</button></div></div><div class="community-list" id="communityList" hidden aria-live="polite"></div><div class="messages" id="messages" aria-live="polite"><div class="sample-note">Connecting to chat…</div></div>
+<div id="typingIndicator" class="typing-indicator" aria-live="polite" hidden><span class="typing-dots"><i></i><i></i><i></i></span><span id="typingText">Someone is typing…</span></div>
 <form class="compose" data-chat-compose><label for="message" class="visually-hidden"></label><input id="message" maxlength="500" placeholder="Your anonymous nickname is assigned automatically" disabled><button type="submit" id="sendButton">Send ↗</button></form>
 </section>
 
