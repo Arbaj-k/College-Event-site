@@ -1,4 +1,4 @@
-(function(){if(window.__HAPN_CHAT_SCRIPT_INITIALIZED__)return;window.__HAPN_CHAT_SCRIPT_INITIALIZED__=true;
+(function(){
 
 const cfg=window.CE_CONFIG;
 if(!cfg||!cfg.SUPABASE_URL||!cfg.SUPABASE_ANON_KEY){const n=document.getElementById("connectionNotice");if(n)n.textContent="Chat configuration did not load. Check js/config.js.";throw new Error("Hapn chat config missing");}
