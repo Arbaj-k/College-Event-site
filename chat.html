@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22%232f45ff%22/%3E%3Ctext x=%2232%22 y=%2245%22 font-size=%2240%22 font-weight=%22800%22 text-anchor=%22middle%22 fill=%22white%22%3EH%3C/text%3E%3C/svg%3E">
 <meta name="robots" content="noindex,nofollow,noarchive">
-<meta name="theme-color" content="#2f45ff">
+<meta name="theme-color" content="#10131b">
 <title>Hapn Chat — Anonymous Campus Chat</title>
 <style>
 :root{--ink:#111936;--blue:#2f45ff;--blue-dark:#2233d6;--blue-soft:#e9ecff;--sun:#ffc935;--paper:#f5f6fb;--white:#fff;--muted:#5b6482;--line:#dfe2ee;--green:#12805c;--radius:18px;--shadow:0 12px 28px -16px rgba(17,25,54,.24);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
@@ -45,6 +45,25 @@ body{background:radial-gradient(ellipse at 50% -12%,#e9edff 0,transparent 42%),v
 .footer-inner{align-items:center}.footer-links{display:flex;align-items:center;gap:16px}.footer-links a,.footer-safety{font:inherit;color:var(--muted);text-decoration:none;background:none;border:0;padding:5px 0;cursor:pointer}.footer-links a:hover,.footer-safety:hover{color:var(--blue)}
 @media(max-width:800px){.chat-layout{grid-template-columns:minmax(0,1fr)}.side-card{display:none!important}.chat-card{width:100%}.messages{min-height:390px}.main{padding-bottom:24px}}
 @media(max-width:520px){.messages{min-height:clamp(380px,58vh,620px)}.footer-inner{align-items:flex-start;flex-direction:column;gap:8px}.footer-links{gap:18px}.footer{padding:14px 0 20px}}
+
+/* Gotham-inspired noir theme */
+:root{--ink:#e9edf5;--blue:#f5c542;--blue-dark:#d6a91e;--blue-soft:#272a31;--sun:#f5c542;--paper:#10131b;--white:#191d26;--muted:#a5adbd;--line:#303642;--green:#71d6a4;--shadow:0 18px 44px -26px rgba(0,0,0,.8)}
+body{background:radial-gradient(ellipse at 50% -15%,#343a46 0,transparent 45%),#10131b;color:var(--ink)}
+.header{background:rgba(15,18,25,.94);border-color:#303642;backdrop-filter:blur(14px)}
+.brand{color:#f3f4f7}.brand span{color:var(--sun)}.nav a{color:#d9deea}.nav .current{color:var(--sun);background:#292a2b}
+.preview-tag{color:#f6d56a;background:#29251a;border-color:#655224}
+.hero{background:linear-gradient(112deg,#0a0c11 0%,#191e28 56%,#343943 100%);border-bottom:1px solid #46402d;position:relative;overflow:hidden}
+.hero:before{content:"";position:absolute;width:240px;height:240px;right:9%;top:-90px;background:linear-gradient(145deg,#f5c5421c,#f5c54200 70%);clip-path:polygon(50% 0,100% 35%,75% 100%,50% 76%,25% 100%,0 35%);filter:blur(2px);pointer-events:none}
+.hero:after{content:"";position:absolute;width:240px;height:240px;right:7%;top:-90px;border:1px solid #f5c54222;border-radius:50%;box-shadow:0 0 0 25px #f5c54208,0 0 0 50px #f5c54206;pointer-events:none}
+.hero-grid{position:relative;z-index:1}.eyebrow{color:#f5c542}.hero h1{color:#f6f7fb;text-transform:uppercase;letter-spacing:-.055em;text-shadow:0 4px 24px #0008}.hero p{color:#bfc6d3}.hero-pill{background:#f5c542;color:#14171e;box-shadow:0 8px 28px #0007}.hero-pill b{background:#171b23;color:#f5c542}
+.fight-quote{max-width:600px;margin:20px 0 0;padding:12px 0 0 14px;border-left:3px solid var(--sun);color:#e4c96e;font-size:.91rem;font-weight:650;font-style:italic}.fight-quote cite{display:block;margin-top:5px;color:#8992a3;font-size:.73rem;font-style:normal;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.main{background:transparent}.section-heading h2{color:#f1f3f8}.section-heading p{color:#a5adbd}
+.room{background:#191d26;border-color:#303642;color:#eef1f6}.room:hover{border-color:#62552a}.room.active{background:linear-gradient(135deg,#242832,#1b2029);border-color:#f5c542;box-shadow:0 0 0 3px #f5c54218}.room-icon{background:#2b2d31;color:#f5c542}.room:nth-child(2) .room-icon{background:#302a1c}.room:nth-child(3) .room-icon{background:#1d302b}.room-copy small{color:#a5adbd}
+.chat-card,.side-card{background:#191d26;border-color:#303642}.chat-head{background:#1b2029;border-color:#303642}.room-title p{color:#a5adbd}.status{color:#8de0b7}.messages{background:linear-gradient(180deg,#151922,#11151d)}.bubble{background:#242a35;border-color:#343b48;color:#edf0f6}.mine .bubble{background:#80651a;border-color:#a9882a;color:#fff8dc}.mine .message-meta span{color:#f5c542}
+.community-tools{background:#171b24;border-color:#303642}.community-tools input,.community-tools textarea,.comment-form input,.compose input{background:#11151d;color:#f1f3f8;border-color:#343b48}.community-tools input::placeholder,.community-tools textarea::placeholder,.comment-form input::placeholder,.compose input::placeholder{color:#7f899b}.community-tools button,.comment-form button,.compose button{background:#f5c542;color:#161920;box-shadow:0 5px 14px #0004}.community-list{background:#141821}.community-post{background:#1b2029;border-color:#303642}.community-post h3{color:#f2f4f8}.community-post .post-meta{color:#a5adbd}.community-comment{background:#252a34;border:1px solid #353c49;color:#e6eaf1}.community-comment small{color:#a5adbd}.community-empty{background:#1b2029;border-color:#3a414e;color:#a5adbd}
+.compose{background:#191d26;border-color:#303642}.side-card p,.rule{color:#c0c6d2}.rule b{background:#1e352d;color:#8de0b7}.side-divider{background:#303642}.safety-link{background:#222731;color:#e7ebf2;border-color:#3b414d}
+.notice{background:#2b2618;border-color:#675626;color:#f1d98d}.footer{background:#0d1016;border-color:#303642;color:#929bad}.footer-links a,.footer-safety{color:#a5adbd}
+@media(max-width:520px){.hero:before,.hero:after{right:-125px;opacity:.7}.fight-quote{font-size:.83rem;margin-top:15px}.room.active{border-width:1.5px}}
 </style>
 </head>
 <body>
@@ -53,7 +72,7 @@ body{background:radial-gradient(ellipse at 50% -12%,#e9edff 0,transparent 42%),v
 <nav class="nav" aria-label="Preview navigation"><a href="/">Home</a><a href="/events/">Events</a><a href="/fests/">Fests</a><a class="current" href="#" aria-current="page">Chat</a></nav>
 <span class="preview-tag">HAPN CHAT · BETA</span>
 </div></header>
-<section class="hero"><div class="container hero-grid"><div><p class="eyebrow">A new way to connect</p><h1>Your campus.<br>More connected.</h1><p>Talk with your campus community, ask questions, and join the conversation — without displaying your real name.</p></div><div class="hero-pill"><b>✦</b> Anonymous by design</div></div></section>
+<section class="hero"><div class="container hero-grid"><div><p class="eyebrow">A new way to connect</p><h1>Your campus.<br>More connected.</h1><p>Talk with your campus community, ask questions, and join the conversation — without displaying your real name.</p><blockquote class="fight-quote">“It’s only after we’ve lost everything that we’re free to do anything.”<cite>— Fight Club</cite></blockquote></div><div class="hero-pill"><b>✦</b> Anonymous by design</div></div></section>
 <main class="main"><div class="container">
 <div class="section-heading"><div><h2>Choose your chat room</h2><p>Campus Lounge matches you privately with another student. Group Chat and Ask the Community remain shared rooms.</p></div></div>
 <div class="room-grid" role="group" aria-label="Chat rooms">
