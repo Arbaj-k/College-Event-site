@@ -65,6 +65,8 @@ body{background:radial-gradient(ellipse at 50% -15%,#343a46 0,transparent 45%),#
 .notice{background:#2b2618;border-color:#675626;color:#f1d98d}.footer{background:#0d1016;border-color:#303642;color:#929bad}.footer-links a,.footer-safety{color:#a5adbd}
 @media(max-width:520px){.hero:before,.hero:after{right:-125px;opacity:.7}.fight-quote{font-size:.83rem;margin-top:15px}.room.active{border-width:1.5px}}
 .typing-indicator{display:flex;align-items:center;gap:9px;padding:0 20px 12px;background:#141821;color:#a5adbd;font-size:.78rem}.typing-indicator[hidden]{display:none}.typing-dots{display:inline-flex;gap:3px}.typing-dots i{width:5px;height:5px;background:#f5c542;border-radius:50%;animation:typingPulse 1s infinite ease-in-out}.typing-dots i:nth-child(2){animation-delay:.15s}.typing-dots i:nth-child(3){animation-delay:.3s}@keyframes typingPulse{0%,60%,100%{opacity:.35;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+.messages{height:clamp(360px,55vh,560px)!important;max-height:none!important;overflow-y:auto!important;display:flex;flex-direction:column;scroll-behavior:auto!important;overscroll-behavior:contain;}
+@media(max-width:520px){.messages{height:clamp(360px,55vh,600px)!important;max-height:none!important;overflow-y:auto!important;}}
 </style>
 </head>
 <body>
