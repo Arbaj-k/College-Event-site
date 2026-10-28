@@ -91,7 +91,7 @@ declare
   v_partner public.chat_match_queue%rowtype;
   v_conversation uuid;
 begin
-  if v_uid is null or (auth.jwt() ->> 'is_anonymous') <> 'true' then
+  if v_uid is null or coalesce(auth.jwt() ->> 'is_anonymous','false') <> 'true' then
     raise exception 'Anonymous sign-in required';
   end if;
   if p_nickname !~ '^[A-Za-z][A-Za-z0-9_-]{2,19}$' then
@@ -119,8 +119,8 @@ begin
   from public.chat_match_queue q
   where q.status = 'waiting' and q.user_id <> v_uid
   order by q.queued_at
-  for update skip locked
-  limit 1;
+  limit 1
+  for update skip locked;
 
   if not found then
     insert into public.chat_match_queue(user_id,nickname,status,queued_at)
