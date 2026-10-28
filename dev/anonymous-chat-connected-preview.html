@@ -26,14 +26,14 @@
 </div></header>
 <section class="hero"><div class="container hero-grid"><div><p class="eyebrow">A new way to connect</p><h1>Your campus.<br>More connected.</h1><p>Talk with your campus community, ask questions, and join the conversation — without displaying your real name.</p></div><div class="hero-pill"><b>✦</b> Anonymous by design</div></div></section>
 <main class="main"><div class="container">
-<div class="section-heading"><div><h2>Choose your chat room</h2><p>Pick a space and join the conversation.</p></div></div>
+<div class="section-heading"><div><h2>Choose your chat room</h2><p>Campus Lounge matches you privately with another student. Group Chat and Ask the Community remain shared rooms.</p></div></div>
 <div class="room-grid" role="group" aria-label="Chat rooms">
-<button class="room active" data-room="campus" aria-pressed="true"><span class="room-icon">🏫</span><span class="room-copy"><strong>Campus Lounge</strong><small>General college conversations</small></span><span class="check">✓</span></button>
+<button class="room active" data-room="campus" aria-pressed="true"><span class="room-icon">🏫</span><span class="room-copy"><strong>Campus Lounge</strong><small>Random private one-to-one chat</small></span><span class="check">✓</span></button>
 <button class="room" data-room="group" aria-pressed="false"><span class="room-icon">👥</span><span class="room-copy"><strong>Group Chat</strong><small>Everyone in one shared room</small></span></button>
 <button class="room" data-room="help" aria-pressed="false"><span class="room-icon">🙋</span><span class="room-copy"><strong>Ask the Community</strong><small>Questions, help and advice</small></span></button>
 </div>
 <div class="chat-layout"><section class="chat-card" aria-label="Chat room preview">
-<div class="chat-head"><div class="room-title"><span class="room-icon" id="currentIcon">🏫</span><div><h2 id="roomTitle">Campus Lounge</h2><p id="roomDescription">General college conversations</p></div></div><span class="status" aria-live="polite">Connecting…</span></div>
+<div class="chat-head"><div class="room-title"><span class="room-icon" id="currentIcon">🏫</span><div><h2 id="roomTitle">Campus Lounge</h2><p id="roomDescription">General college conversations</p></div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end"><span class="status" aria-live="polite">Connecting…</span><button type="button" id="startRandom" class="safety-link" style="display:none">Start Chatting</button><button type="button" id="nextRandom" class="safety-link" style="display:none">Next</button><button type="button" id="endRandom" class="safety-link" style="display:none">End Chat</button></div></div>
 <div class="messages" id="messages" aria-live="polite"><div class="sample-note">Connecting to chat…</div></div>
 <form class="compose" onsubmit="return false"><label for="message" class="visually-hidden"></label><input id="message" maxlength="500" placeholder="Your anonymous nickname is assigned automatically" disabled><button type="submit" id="sendButton">Send ↗</button></form>
 </section>
@@ -47,12 +47,12 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 const cfg=window.CE_CONFIG;
 const supabase=createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY,{auth:{storageKey:'hapn-chat-preview-auth-v1',persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
-let currentUser=null, nickname="", currentRoom="campus", channel=null, sending=false;
-const roomIds={campus:"campus",group:"group",help:"help"};
+let currentUser=null, nickname="", currentRoom="campus", channel=null, sending=false, privateConversation=null, matchTimer=null, matching=false;
+const roomIds={group:"group",help:"help"};
 function makeNickname(){const a=["Blue","Quiet","Happy","Swift","Bright","Cosmic","Silver","Sunny","Clever","Misty"];const b=["Mango","Tiger","Comet","Panda","Fox","Falcon","Pixel","Cedar","Otter","Star"];return a[Math.floor(Math.random()*a.length)]+b[Math.floor(Math.random()*b.length)]+String(Math.floor(10+Math.random()*90));}
 nickname=localStorage.getItem('hapn_chat_nickname')||makeNickname();localStorage.setItem('hapn_chat_nickname',nickname);
 const rooms={
- campus:{title:'Campus Lounge',description:'General college conversations',icon:'🏫',messages:[['BlueMango','Anyone going to the next campus fest?'],['You','I’m thinking about it! What time does it start?']]},
+ campus:{title:'Campus Lounge',description:'Random private one-to-one chat',icon:'🏫',messages:[['BlueMango','Anyone going to the next campus fest?'],['You','I’m thinking about it! What time does it start?']]},
  group:{title:'Group Chat',description:'Everyone in one shared room',icon:'👥',messages:[['QuietComet','Welcome to the group chat 👋'],['BlueMango','Keep it friendly and include everyone.']]},
  help:{title:'Ask the Community',description:'Questions, help and advice',icon:'🙋',messages:[['CuriousPanda','Any tips for preparing for the first hackathon?'],['HelpfulFox','Start with a small idea and find teammates with different skills.']]}
 };
