@@ -42,11 +42,13 @@
 <div class="notice" id="connectionNotice"><strong>Hapn Chat beta:</strong> Please be respectful. Do not share personal information.</div>
 </div></main>
 <footer class="footer"><div class="container footer-inner"><span>© 2026 Hapn · Know What’s Happening</span><span>Built to match Hapn’s blue, white and yellow design.</span></div></footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
 <script src="js/config.js"></script>
-<script type="module">
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+<script>
 const cfg=window.CE_CONFIG;
-const supabase=createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY,{auth:{storageKey:'hapn-chat-preview-auth-v1',persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+if(!cfg||!cfg.SUPABASE_URL||!cfg.SUPABASE_ANON_KEY){document.querySelector(".status").textContent="Configuration missing";document.getElementById("connectionNotice").textContent="Chat configuration did not load. Check that js/config.js is reachable.";throw new Error("Hapn chat config missing");}
+if(!window.supabase||typeof window.supabase.createClient!=="function"){document.querySelector(".status").textContent="Chat library failed";document.getElementById("connectionNotice").textContent="Chat library failed to load. Check your connection and reload.";throw new Error("Supabase JS library missing");}
+const supabase=window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY,{auth:{storageKey:'hapn-chat-preview-auth-v1',persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 let currentUser=null, nickname="", currentRoom="campus", channel=null, sending=false, privateConversation=null, matchTimer=null, privateEndTimer=null, matching=false;
 const roomIds={group:"group",help:"help"};
 function makeNickname(){const a=["Blue","Quiet","Happy","Swift","Bright","Cosmic","Silver","Sunny","Clever","Misty"];const b=["Mango","Tiger","Comet","Panda","Fox","Falcon","Pixel","Cedar","Otter","Star"];return a[Math.floor(Math.random()*a.length)]+b[Math.floor(Math.random()*b.length)]+String(Math.floor(10+Math.random()*90));}
