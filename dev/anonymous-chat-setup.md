@@ -21,6 +21,7 @@ Branch source: https://github.com/Arbaj-k/College-Event-site/tree/anonymous-chat
 - Connected test page: `dev/anonymous-chat-connected-preview.html`
 - Random private-chat test page: `dev/anonymous-chat-random-match-preview.html`
 - Integrated connected room-selector test page: `dev/anonymous-chat-connected-preview.html`
+- Admin moderation preview (includes private reports): `dev/anonymous-chat-moderation.html`
 - Random private-chat migration draft: `dev/anonymous-chat-random-match-migration.sql`
 - Admin moderation page: `dev/anonymous-chat-moderation.html`
 - Admin read policy SQL: `dev/anonymous-chat-admin-read-policy.sql`
@@ -38,7 +39,8 @@ The files are in the development branch, not the live site. A local web server o
 
 ## Current limitations
 - Actual browser end-to-end tests have not been run in this environment. Do not claim the chat is fully working until tested.
-- The connected test page now routes Campus Lounge to `chat_match_start`, `chat_match_leave`, `chat_private_messages`, and `chat_private_reports`; Group Chat and Ask the Community continue using the public `chat_messages` table. This frontend integration is committed on `anonymous-chat-dev`, but has not passed browser end-to-end testing.
+- The connected test page now routes Campus Lounge to `chat_match_start`, `chat_match_leave`, `chat_private_messages`, and `chat_private_reports`; Group Chat and Ask the Community continue using the public `chat_messages` table. Queue cleanup on room-switch was added. This frontend integration is committed on `anonymous-chat-dev`, but has not passed browser end-to-end testing.
+- Admin moderation preview now includes a separate private Campus Lounge reports panel. It loads private report/message data, lets an admin update report status, and soft-hide reported private messages. This is code-only and still needs testing with a real authorized admin account.
 - Supabase anonymous sign-in availability is unconfirmed.
 - The admin message SELECT policy is applied, but moderation message listing/hiding has not been tested in a browser.
 - Complete block/mute controls, visible community rules, and a moderation escalation process still need review before public launch.
