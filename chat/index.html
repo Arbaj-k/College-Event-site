@@ -30,7 +30,7 @@ body{background:radial-gradient(ellipse at 50% -12%,#e9edff 0,transparent 42%),v
 .main{padding-top:30px}.section-heading h2{font-size:1.5rem}.section-heading p{font-size:.93rem}
 .room-grid{gap:14px;margin-bottom:22px}.room{border-radius:19px;padding:17px;border-color:#e3e7f5;box-shadow:0 5px 16px #18234b06}.room.active{border:1.5px solid var(--blue);padding:16.5px;background:linear-gradient(135deg,#fff,#f6f7ff);box-shadow:0 8px 24px #3048f51a}.room-icon{border-radius:15px;background:#edf0ff}.room:nth-child(2) .room-icon{background:#fff4d4}.room:nth-child(3) .room-icon{background:#e2f7ee}
 .chat-card,.side-card{border-radius:22px;border-color:#e4e8f4;box-shadow:0 18px 45px -32px #15214f55}.chat-head{padding:19px 21px;background:linear-gradient(180deg,#fff,#fcfcff)}.room-title h2{font-size:1.12rem;letter-spacing:-.02em}.status{background:#ecfaf3;padding:6px 10px;border-radius:999px;font-size:.72rem}.status:before{box-shadow:0 0 0 3px #20a87820}
-.messages{background:linear-gradient(180deg,#fbfcff,#f7f8ff);min-height:330px}.bubble{box-shadow:0 3px 8px #17213d08}.mine .bubble{box-shadow:0 5px 15px #3048f52a}
+.messages{background:linear-gradient(180deg,#fbfcff,#f7f8ff);min-height:330px;max-height:58vh;overflow-y:auto;overscroll-behavior:contain;scroll-behavior:smooth}.bubble{box-shadow:0 3px 8px #17213d08}.mine .bubble{box-shadow:0 5px 15px #3048f52a}
 .community-tools{padding:20px;background:linear-gradient(180deg,#fbfcff,#f5f7ff)}.community-tools input,.community-tools textarea,.comment-form input{background:white;border-color:#dfe4f4;border-radius:13px}.community-tools input:focus,.community-tools textarea:focus,.comment-form input:focus,.compose input:focus{border-color:var(--blue);outline:3px solid #3048f51b}
 .community-tools button,.comment-form button,.compose button{background:linear-gradient(135deg,#3048f5,#5265ff);box-shadow:0 5px 12px #3048f526;transition:transform .15s,box-shadow .15s}.community-tools button:hover,.comment-form button:hover,.compose button:hover{transform:translateY(-1px);box-shadow:0 8px 16px #3048f533}
 .community-list{padding:18px;background:#fafbff}.community-post{padding:18px;border-radius:18px;border-color:#e3e7f5;box-shadow:0 5px 18px #17213d08}.community-post h3{font-size:1.08rem;letter-spacing:-.015em}.community-post .post-meta{display:flex;align-items:center;gap:6px}.community-comment{background:#f0f3ff;border:1px solid #e7ebff;border-radius:12px;padding:11px 12px}
@@ -44,7 +44,7 @@ body{background:radial-gradient(ellipse at 50% -12%,#e9edff 0,transparent 42%),v
 
 .footer-inner{align-items:center}.footer-links{display:flex;align-items:center;gap:16px}.footer-links a,.footer-safety{font:inherit;color:var(--muted);text-decoration:none;background:none;border:0;padding:5px 0;cursor:pointer}.footer-links a:hover,.footer-safety:hover{color:var(--blue)}
 @media(max-width:800px){.chat-layout{grid-template-columns:minmax(0,1fr)}.side-card{display:none!important}.chat-card{width:100%}.messages{min-height:390px}.main{padding-bottom:24px}}
-@media(max-width:520px){.messages{min-height:clamp(380px,58vh,620px)}.footer-inner{align-items:flex-start;flex-direction:column;gap:8px}.footer-links{gap:18px}.footer{padding:14px 0 20px}}
+@media(max-width:520px){.messages{min-height:clamp(380px,58vh,620px);max-height:62vh;overflow-y:auto;overscroll-behavior:contain;scroll-behavior:smooth}.footer-inner{align-items:flex-start;flex-direction:column;gap:8px}.footer-links{gap:18px}.footer{padding:14px 0 20px}}
 
 /* Gotham-inspired noir theme */
 :root{--ink:#e9edf5;--blue:#f5c542;--blue-dark:#d6a91e;--blue-soft:#272a31;--sun:#f5c542;--paper:#10131b;--white:#191d26;--muted:#a5adbd;--line:#303642;--green:#71d6a4;--shadow:0 18px 44px -26px rgba(0,0,0,.8)}
@@ -65,6 +65,10 @@ body{background:radial-gradient(ellipse at 50% -15%,#343a46 0,transparent 45%),#
 .notice{background:#2b2618;border-color:#675626;color:#f1d98d}.footer{background:#0d1016;border-color:#303642;color:#929bad}.footer-links a,.footer-safety{color:#a5adbd}
 @media(max-width:520px){.hero:before,.hero:after{right:-125px;opacity:.7}.fight-quote{font-size:.83rem;margin-top:15px}.room.active{border-width:1.5px}}
 .typing-indicator{display:flex;align-items:center;gap:9px;padding:0 20px 12px;background:#141821;color:#a5adbd;font-size:.78rem}.typing-indicator[hidden]{display:none}.typing-dots{display:inline-flex;gap:3px}.typing-dots i{width:5px;height:5px;background:#f5c542;border-radius:50%;animation:typingPulse 1s infinite ease-in-out}.typing-dots i:nth-child(2){animation-delay:.15s}.typing-dots i:nth-child(3){animation-delay:.3s}@keyframes typingPulse{0%,60%,100%{opacity:.35;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+.messages{height:clamp(360px,55vh,560px)!important;max-height:none!important;overflow-y:auto!important;display:flex;flex-direction:column;scroll-behavior:auto!important;overscroll-behavior:contain;}
+@media(max-width:520px){.messages{height:clamp(360px,55vh,600px)!important;max-height:none!important;overflow-y:auto!important;}}
+.chat-card{display:flex;flex-direction:column;min-height:0}.messages{flex:1 1 auto;min-height:220px;overscroll-behavior:contain}.compose{position:sticky;bottom:0;z-index:5;flex:0 0 auto;padding-bottom:max(12px,env(safe-area-inset-bottom));background:#191d26;border-top:1px solid #303642}.compose input{min-width:0;width:100%}.compose button{flex-shrink:0}
+@media(max-width:520px){.hero{padding:17px 0 15px}.hero h1{font-size:1.65rem;line-height:1.05}.hero p{margin:8px 0;font-size:.85rem}.fight-quote{margin-top:8px;padding-top:6px;font-size:.72rem;line-height:1.3}.fight-quote cite{font-size:.65rem}.hero-pill{display:none}.main{padding-top:13px}.chat-card{min-height:0}.messages{height:clamp(270px,42vh,460px)!important;min-height:270px!important;max-height:none!important;flex:1 1 auto}.compose{display:flex!important;gap:7px;position:sticky;bottom:0;padding:10px 9px max(12px,env(safe-area-inset-bottom));z-index:10}.compose[hidden]{display:none!important}.compose input{font-size:16px;min-height:42px}.compose button{min-height:42px;white-space:nowrap}}
 </style>
 </head>
 <body>
@@ -73,26 +77,26 @@ body{background:radial-gradient(ellipse at 50% -15%,#343a46 0,transparent 45%),#
 <nav class="nav" aria-label="Preview navigation"><a href="/">Home</a><a href="/events/">Events</a><a href="/fests/">Fests</a><a class="current" href="#" aria-current="page">Chat</a></nav>
 <span class="preview-tag">HAPN CHAT · BETA</span>
 </div></header>
-<section class="hero"><div class="container hero-grid"><div><p class="eyebrow">A new way to connect</p><h1>Your campus.<br>More connected.</h1><p>Talk with your campus community, ask questions, and join the conversation — without displaying your real name.</p><blockquote class="fight-quote">“It’s only after we’ve lost everything that we’re free to do anything.”<cite>— Fight Club</cite></blockquote></div><div class="hero-pill"><b>✦</b> Anonymous by design</div></div></section>
+<section class="hero"><div class="container hero-grid"><div><p class="eyebrow">HAPN ANONYMOUS CHAT</p><h1>Talk freely.<br>Stay anonymous.</h1><p>Chat. Ask. Help each other.</p><blockquote class="fight-quote">“It’s only after we’ve lost everything that we’re free to do anything.”<cite>— Fight Club</cite></blockquote></div></div></section>
 <main class="main"><div class="container">
-<div class="section-heading"><div><h2>Choose your chat room</h2><p>Campus Lounge matches you privately with another student. Group Chat and Ask the Community remain shared rooms.</p></div></div>
+<div class="section-heading"><div><h2>Choose a room</h2></div></div>
 <div class="room-grid" role="group" aria-label="Chat rooms">
-<button class="room active" data-room="campus" aria-pressed="true"><span class="room-icon">🏫</span><span class="room-copy"><strong>Campus Lounge</strong><small>Random private one-to-one chat</small></span><span class="check">✓</span></button>
-<button class="room" data-room="group" aria-pressed="false"><span class="room-icon">👥</span><span class="room-copy"><strong>Group Chat</strong><small>Everyone in one shared room</small></span></button>
-<button class="room" data-room="help" aria-pressed="false"><span class="room-icon">🙋</span><span class="room-copy"><strong>Ask the Community</strong><small>Questions, help and advice</small></span></button>
+<button class="room active" data-room="campus" aria-pressed="true"><span class="room-icon">🏫</span><span class="room-copy"><strong>Campus Lounge</strong><small>1-to-1 anonymous chat</small></span><span class="check">✓</span></button>
+<button class="room" data-room="group" aria-pressed="false"><span class="room-icon">👥</span><span class="room-copy"><strong>Group Chat</strong><small>Chat together · 12h history</small></span></button>
+<button class="room" data-room="help" aria-pressed="false"><span class="room-icon">🙋</span><span class="room-copy"><strong>Ask the Community</strong><small>Ask, post and advise</small></span></button>
 </div>
 <div class="chat-layout"><section class="chat-card" aria-label="Chat room preview">
-<div class="chat-head"><div class="room-title"><span class="room-icon" id="currentIcon">🏫</span><div><h2 id="roomTitle">Campus Lounge</h2><p id="roomDescription">General college conversations</p></div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end"><span class="status" aria-live="polite">Connecting…</span><button type="button" id="startRandom" class="safety-link" style="display:none">Start Chatting</button><button type="button" id="nextRandom" class="safety-link" style="display:none">Next</button><button type="button" id="endRandom" class="safety-link" style="display:none">End Chat</button></div></div>
+<div class="chat-head"><div class="room-title"><span class="room-icon" id="currentIcon">🏫</span><div><h2 id="roomTitle">Campus Lounge</h2><p id="roomDescription">Chat anonymously</p></div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end"><span class="status" aria-live="polite">Connecting…</span><button type="button" id="startRandom" class="safety-link" style="display:none">Start Chatting</button><button type="button" id="nextRandom" class="safety-link" style="display:none">Next</button><button type="button" id="endRandom" class="safety-link" style="display:none">End Chat</button></div></div>
 <div class="community-tools" id="communityTools" hidden><input id="postTitle" maxlength="140" placeholder="What do you need help with? (title)" aria-label="Post title"><textarea id="postBody" maxlength="2000" placeholder="Share your question, advice request or campus update…" aria-label="Post details"></textarea><div class="post-actions"><span>Be kind. Don’t share private information.</span><button type="button" id="publishPost">Publish post</button></div></div><div class="community-list" id="communityList" hidden aria-live="polite"></div><div class="messages" id="messages" aria-live="polite"><div class="sample-note">Connecting to chat…</div></div>
 <div id="typingIndicator" class="typing-indicator" aria-live="polite" hidden><span class="typing-dots"><i></i><i></i><i></i></span><span id="typingText">Someone is typing…</span></div>
-<form class="compose" data-chat-compose><label for="message" class="visually-hidden"></label><input id="message" maxlength="500" placeholder="Your anonymous nickname is assigned automatically" disabled><button type="submit" id="sendButton">Send ↗</button></form>
+<form class="compose" data-chat-compose><label for="message" class="visually-hidden"></label><input id="message" maxlength="500" placeholder="Type a message…" disabled><button type="submit" id="sendButton">Send ↗</button></form>
 </section>
 
 </div>
-<div class="notice" id="connectionNotice"><strong>Hapn Chat beta:</strong> Please be respectful. Do not share personal information.</div>
+<div class="notice" id="connectionNotice">Be respectful. Keep personal details private.</div>
 </div></main>
 <footer class="footer"><div class="container footer-inner"><span>© 2026 Hapn · Know What’s Happening</span><nav class="footer-links" aria-label="Privacy and safety"><button class="footer-safety" id="safetyInfo" type="button">Privacy &amp; Safety</button><a href="/terms.html">Terms</a><a href="/help.html">Help</a></nav></div></footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
-<script src="/js/config.js"></script>
-<script src="/js/anonymous-chat-v3.js?v=6" defer></script>
+<script src="js/config.js"></script>
+<script src="js/anonymous-chat-v3.js?v=8" defer></script>
 </body></html>
