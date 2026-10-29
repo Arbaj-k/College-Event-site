@@ -2,9 +2,8 @@
 (function () {
   'use strict';
 
-  // Normalize public page URLs so links and shares never expose .html.
+  // Keep public page URLs extensionless, including old bookmarks and generated event links.
   (function normalizePublicUrl() {
-    const path = location.pathname;
     const routes = {
       '/index.html': '/',
       '/events.html': '/events/',
@@ -12,24 +11,55 @@
       '/help.html': '/help/',
       '/terms.html': '/terms/',
       '/submit-event.html': '/submit-event/',
-      '/fests.html': '/fests/'
+      '/fests.html': '/fests/',
+      '/event.html': '/event/',
+      '/fest.html': '/fest/'
     };
-    let cleanPath = routes[path];
+    const path = location.pathname;
     const eventFile = path.match(/^\/event-([0-9a-f-]{36})\.html$/i);
+    let cleanPath = routes[path];
+    let query = location.search;
     if (eventFile) {
       cleanPath = '/event/';
-      const params = new URLSearchParams(location.search);
+      const params = new URLSearchParams(query);
       params.set('id', eventFile[1]);
-      const query = params.toString();
-      history.replaceState(null, document.title, cleanPath + (query ? '?' + query : '') + location.hash);
-      return;
-    }
-    if (path === '/event.html' || path === '/fest.html') {
-      cleanPath = path === '/event.html' ? '/event/' : '/fest/';
+      query = params.toString() ? '?' + params.toString() : '';
     }
     if (cleanPath && cleanPath !== path) {
-      history.replaceState(null, document.title, cleanPath + location.search + location.hash);
+      history.replaceState(null, document.title, cleanPath + query + location.hash);
     }
+
+    // Rewrite legacy public links before users click them; leave admin tools/assets untouched.
+    const cleanHref = (anchor) => {
+      if (!anchor || !anchor.getAttribute) return;
+      const raw = anchor.getAttribute('href');
+      if (!raw || raw.startsWith('#') || /^(mailto:|tel:|javascript:)/i.test(raw)) return;
+      let url;
+      try { url = new URL(raw, location.href); } catch (_) { return; }
+      if (url.origin !== location.origin) return;
+      const p = url.pathname;
+      if (routes[p]) {
+        url.pathname = routes[p];
+      } else {
+        const match = p.match(/^\/event-([0-9a-f-]{36})\.html$/i);
+        if (match) {
+          url.pathname = '/event/';
+          const params = url.searchParams;
+          params.set('id', match[1]);
+          url.search = params.toString();
+        }
+      }
+      if (url.pathname !== p) anchor.setAttribute('href', url.pathname + url.search + url.hash);
+    };
+    document.querySelectorAll('a[href]').forEach(cleanHref);
+    const observer = new MutationObserver((records) => records.forEach((record) =>
+      record.addedNodes.forEach((node) => {
+        if (node.nodeType !== 1) return;
+        if (node.matches && node.matches('a[href]')) cleanHref(node);
+        if (node.querySelectorAll) node.querySelectorAll('a[href]').forEach(cleanHref);
+      })
+    ));
+    if (document.documentElement) observer.observe(document.documentElement, { childList: true, subtree: true });
   })();
 
   const CE = (window.CE = window.CE || {});
