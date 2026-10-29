@@ -8,12 +8,33 @@
 <form id="login"><label for="email">Admin email</label><input id="email" type="email" autocomplete="username" required><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required><div style="margin-top:12px" class="row"><button>Sign in</button></div></form><div id="session" class="hidden row" style="margin-top:12px"><span id="who"></span><button class="secondary" id="refresh">Refresh moderation data</button><button class="danger" id="logout">Sign out</button></div></section>
 <section id="dashboard" class="hidden"><section class="card"><div class="row"><div><h2 style="margin:0">Pending reports</h2><p>Reports are visible only if the signed-in account passes the database's existing public.is_admin() check.</p></div><span id="counts"></span></div><div id="reports"><div class="empty">Loading…</div></div></section>
 <section class="card"><h2>Private Campus Lounge reports</h2><p>Reports from one-to-one random chats. Only authorized admins can review or update these reports.</p><div id="privateReports"><div class="empty">Loading…</div></div></section><section class="card"><h2>Recent chat messages</h2><p>Soft-delete hides a message from normal chat queries while retaining its report history.</p><div id="messages"><div class="empty">Loading…</div></div></section></section></main>
-<script src="../js/config.js"></script><script type="module">
-import {createClient} from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-const cfg=window.CE_CONFIG;const db=createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY);
-const $=id=>document.getElementById(id);const note=t=>{$('notice').textContent=t;};let me=null;
-$('login').addEventListener('submit',async e=>{e.preventDefault();note('Signing in…');const {data,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error){note('Sign-in failed. Check your existing Hapn admin credentials.');return;}me=data.user;await checkAdmin();});
-async function checkAdmin(){const {data,error}=await db.rpc('is_admin');if(error||data!==true){await db.auth.signOut();me=null;note('Access denied. This account is not recognized as a Hapn admin.');return;} $('login').classList.add('hidden');$('session').classList.remove('hidden');$('dashboard').classList.remove('hidden');$('who').textContent='Signed in as '+(me.email||'admin');note('Admin access confirmed by database.');await refresh();}
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script><script src="../js/config.js"></script><script>
+const cfg=window.CE_CONFIG;
+const $=id=>document.getElementById(id);
+const note=t=>{$('notice').textContent=t;};
+if(!cfg||!cfg.SUPABASE_URL||!cfg.SUPABASE_ANON_KEY||!window.supabase){note('Could not initialize login. Refresh the page; if it continues, check the Supabase CDN and js/config.js.');throw new Error('Supabase client/config missing');}
+const db=window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+
+let me=null;
+$('login').addEventListener('submit',async e=>{
+ e.preventDefault();
+ const button=$('login').querySelector('button[type="submit"]');
+ button.disabled=true;button.textContent='Signing in…';note('Connecting to Hapn securely…');
+ try{
+  const {data,error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});
+  if(error){note('Sign-in failed: '+error.message);return;}
+  me=data.user;await checkAdmin();
+ }catch(err){note('Login error: '+(err&&err.message?err.message:'Please refresh and try again.'));}
+ finally{button.disabled=false;button.textContent='Sign in';}
+});
+async function checkAdmin(){
+ try{
+  const {data,error}=await db.rpc('is_admin');
+  if(error){await db.auth.signOut();me=null;note('Login worked, but admin verification failed: '+error.message+' (is_admin() function/policy needs checking).');return;}
+  if(data!==true){await db.auth.signOut();me=null;note('Access denied: this account is signed in but is_admin() did not approve it.');return;}
+  $('login').classList.add('hidden');$('session').classList.remove('hidden');$('dashboard').classList.remove('hidden');$('who').textContent='Signed in as '+(me.email||'admin');note('Admin access confirmed. Loading reports…');await refresh();
+ }catch(err){note('Admin verification error: '+(err&&err.message?err.message:'Please try again.'));}
+}
 $('refresh').addEventListener('click',refresh);$('logout').addEventListener('click',async()=>{await db.auth.signOut();me=null;$('dashboard').classList.add('hidden');$('session').classList.add('hidden');$('login').classList.remove('hidden');note('Signed out.');});
 function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;}
 async function refresh(){if(!me)return;const [r,m,pr,pm]=await Promise.all([db.from('chat_reports').select('id,reporter_id,message_id,reason,details,status,created_at').order('created_at',{ascending:false}).limit(100),db.from('chat_messages').select('id,room_id,user_id,nickname,body,created_at,deleted_at').order('created_at',{ascending:false}).limit(100),db.from('chat_private_reports').select('id,reporter_id,message_id,reason,details,status,created_at').order('created_at',{ascending:false}).limit(100),db.from('chat_private_messages').select('id,conversation_id,sender_id,nickname,body,created_at,deleted_at').order('created_at',{ascending:false}).limit(200)]);if(r.error||m.error||pr.error||pm.error){note('Could not load moderation data. Check admin RLS policies and table permissions.');return;}const pending=r.data.filter(x=>x.status==='pending');$('counts').textContent=pending.length+' pending';const rb=$('reports');rb.replaceChildren();if(!r.data.length)rb.append(el('div','empty','No reports yet.'));for(const report of r.data){const card=el('article','item');card.append(el('div','meta',report.reason+' · '+new Date(report.created_at).toLocaleString()+' · '+report.status));card.append(el('p','meta','Message ID: '+report.message_id));if(report.details)card.append(el('p','meta','Reporter note: '+report.details));const select=el('select');[['pending','Pending'],['reviewed','Reviewed'],['actioned','Actioned'],['dismissed','Dismissed']].forEach(([v,t])=>{const o=el('option','',t);o.value=v;select.append(o)});select.value=report.status;const save=el('button','secondary','Save status');save.addEventListener('click',async()=>{save.disabled=true;const {error}=await db.from('chat_reports').update({status:select.value}).eq('id',report.id);save.disabled=false;if(error){note('Could not update report status.');return;}note('Report status updated.');await refresh();});const row=el('div','row');row.append(select,save);card.append(row);const msg=m.data.find(x=>x.id===report.message_id);if(msg){const body=el('div','body',msg.nickname+': '+msg.body);card.append(body);const del=el('button','danger',msg.deleted_at?'Already hidden':'Hide message');del.disabled=!!msg.deleted_at;del.addEventListener('click',async()=>{if(!confirm('Hide this message from chat? This does not permanently erase the report history.'))return;del.disabled=true;const {error}=await db.from('chat_messages').update({deleted_at:new Date().toISOString()}).eq('id',msg.id);if(error){del.disabled=false;note('Could not hide message. Check admin moderation policy.');return;}note('Message hidden from normal chat queries.');await refresh();});card.append(del);}rb.append(card);}
