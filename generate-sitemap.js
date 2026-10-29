@@ -7,10 +7,12 @@ const anonKey = (process.env.SUPABASE_ANON_KEY || '').trim();
 
 const staticUrls = [
   { loc: baseUrl + '/' },
-  { loc: baseUrl + '/events.html' },
-  { loc: baseUrl + '/about.html' },
-  { loc: baseUrl + '/help.html' },
-  { loc: baseUrl + '/terms.html' }
+  { loc: baseUrl + '/events/' },
+  { loc: baseUrl + '/about/' },
+  { loc: baseUrl + '/help/' },
+  { loc: baseUrl + '/terms/' },
+  { loc: baseUrl + '/submit-event/' },
+  { loc: baseUrl + '/fests/' }
 ];
 
 function readPublicConfig() {
@@ -51,7 +53,7 @@ function escapeHtml(value) {
 function eventPageHtml(event) {
   const title = escapeHtml(event.title || 'College Event');
   const description = escapeHtml(event.description || event.short_description || 'College event details and registration.');
-  const canonical = baseUrl + '/event-' + encodeURIComponent(event.id) + '.html';
+  const canonical = baseUrl + '/event/?id=' + encodeURIComponent(event.id);
   const image = event.poster_url ? escapeHtml(event.poster_url) : baseUrl + '/assets/images/og-image.png';
   const date = escapeHtml(event.date || '');
   const endDate = escapeHtml(event.end_date || event.date || '');
@@ -123,7 +125,7 @@ function eventPageHtml(event) {
 <body>
 <header class="site-header"><div class="container header-inner">
 <a class="brand" href="${baseUrl}/"><img src="${baseUrl}/assets/images/logo.svg" alt="" width="34" height="34"><span>Hapn</span></a>
-<nav class="nav" aria-label="Main"><a href="${baseUrl}/">Home</a><a href="${baseUrl}/events.html" aria-current="page">Events</a><a href="${baseUrl}/about.html">About</a></nav>
+<nav class="nav" aria-label="Main"><a href="${baseUrl}/">Home</a><a href="${baseUrl}/events/" aria-current="page">Events</a><a href="${baseUrl}/about/">About</a></nav>
 </div></header>
 <main id="main"><section class="section"><div class="container">
 <a class="back-link" href="${baseUrl}/events.html">Back to all events</a>
@@ -187,7 +189,7 @@ async function main() {
   await generateEventPages(events);
 
   const eventUrls = events.map((event) => ({
-    loc: baseUrl + '/event-' + encodeURIComponent(event.id) + '.html',
+    loc: baseUrl + '/event/?id=' + encodeURIComponent(event.id),
     lastmod: event.updated_at ? new Date(event.updated_at).toISOString() : undefined
   }));
 
