@@ -6,6 +6,8 @@ if(!window.supabase||typeof window.supabase.createClient!=="function"){const n=d
 const supabase=window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY,{auth:{storageKey:'hapn-chat-preview-auth-v1',persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
 let currentUser=null, nickname="", currentRoom="campus", channel=null, sending=false, privateConversation=null, matchTimer=null, privateEndTimer=null, matching=false, typingTimer=null, typingHideTimer=null, replyTo=null;
 const roomIds={group:"group",help:"help"};
+// Cache room controls before any room-selection handler can call setRoomView.
+const communityTools=document.getElementById('communityTools'),communityList=document.getElementById('communityList'),postTitle=document.getElementById('postTitle'),postBody=document.getElementById('postBody'),publishPost=document.getElementById('publishPost');
 function makeNickname(){const a=["Blue","Quiet","Happy","Swift","Bright","Cosmic","Silver","Sunny","Clever","Misty"];const b=["Mango","Tiger","Comet","Panda","Fox","Falcon","Pixel","Cedar","Otter","Star"];return a[Math.floor(Math.random()*a.length)]+b[Math.floor(Math.random()*b.length)]+String(Math.floor(10+Math.random()*90));}
 nickname=localStorage.getItem('hapn_chat_nickname')||makeNickname();localStorage.setItem('hapn_chat_nickname',nickname);
 const rooms={
@@ -41,7 +43,6 @@ function showTyping(name,typing){if(!typingIndicator)return;if(typing){typingTex
 function sendTyping(){if(!channel||currentRoom==='help'||!currentUser)return;channel.send({type:'broadcast',event:'typing',payload:{user_id:currentUser.id,nickname,typing:!!input.value.trim()}}).catch(()=>{});}
 input.addEventListener('input',()=>{if(typingTimer)clearTimeout(typingTimer);sendTyping();typingTimer=setTimeout(()=>{if(channel&&currentUser)channel.send({type:'broadcast',event:'typing',payload:{user_id:currentUser.id,nickname,typing:false}}).catch(()=>{})},1200);});
 
-const communityTools=document.getElementById('communityTools'),communityList=document.getElementById('communityList'),postTitle=document.getElementById('postTitle'),postBody=document.getElementById('postBody'),publishPost=document.getElementById('publishPost');
 function setRoomView(){const community=currentRoom==='help';communityTools.hidden=!community;communityList.hidden=!community;document.querySelector('.messages').hidden=community;document.querySelector('.compose').hidden=community;}
 const initialRoom=new URLSearchParams(window.location.search).get('room');if(initialRoom&&rooms[initialRoom]){const initialButton=document.querySelector('.room[data-room="'+initialRoom+'"]');if(initialButton)initialButton.click();}
 function communityComment(c){const el=document.createElement('div');el.className='community-comment';const meta=document.createElement('small');meta.textContent=(c.nickname||'Student')+' · '+new Date(c.created_at).toLocaleString([], {dateStyle:'medium',timeStyle:'short'});const body=document.createElement('div');protectText(body,c.body);el.append(meta,body);return el;}
