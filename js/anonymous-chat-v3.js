@@ -96,29 +96,38 @@ async function loadMessages(){const box=document.getElementById('messages');box.
 async function joinRoom(){showTyping('',false);if(channel){await supabase.removeChannel(channel);channel=null;}const roomId=roomIds[currentRoom];channel=supabase.channel('hapn-chat-'+roomId,{config:{presence:{key:currentUser.id}}});channel.on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_messages',filter:'room_id=eq.'+roomId},payload=>{if(payload.new&&!payload.new.deleted_at)drawMessage(payload.new);}).on('broadcast',{event:'typing'},({payload})=>{if(payload?.user_id!==currentUser.id)showTyping(payload?.nickname,payload?.typing)}).on('presence',{event:'sync'},()=>{status.textContent=Object.keys(channel.presenceState()).length+' online';}).subscribe(async state=>{if(state==='SUBSCRIBED'){await channel.track({online:true});status.textContent='Online';}});await loadMessages();}
 let echoReplyInFlight=false;
 const echoReplyQueue=[];
+function echoShouldReply(){
+ if(currentRoom!=='group'||!channel)return false;
+ return Object.keys(channel.presenceState()).length===1;
+}
 async function maybeEchoReply(studentMessage){
- if(currentRoom!=='group'||!channel)return;
- // Queue messages sent while Echo is already generating a reply instead of silently dropping them.
+ if(!echoShouldReply()){
+  echoReplyQueue.length=0;
+  if(currentRoom==='group'&&channel)showNotice('Echo replies only when you are the only person online in Group Chat.');
+  return;
+ }
  if(echoReplyInFlight){if(echoReplyQueue.length<3)echoReplyQueue.push(studentMessage);return;}
  echoReplyInFlight=true;
  const box=document.getElementById('messages');const typing=document.createElement('div');typing.className='sample-note';typing.textContent='Echo is thinking…';typing.dataset.echoTyping='true';box.append(typing);box.scrollTop=box.scrollHeight;
  try{
   const {data,error}=await supabase.functions.invoke('anonymous-chat-ai',{body:{message:studentMessage}});
   if(error||!data?.reply)throw error||new Error(data?.error||'No AI reply');
+  if(!echoShouldReply()){
+   showNotice('Another person came online, so Echo did not reply.');
+   return;
+  }
   const {data:saved,error:insertError}=await supabase.from('chat_messages').insert({room_id:roomIds.group,user_id:currentUser.id,nickname:'Echo',body:data.reply}).select('id,room_id,user_id,nickname,body,created_at,reply_to_id,reply_to_nickname,reply_to_body').single();
   if(insertError){
    drawMessage({id:'echo-local-'+Date.now(),room_id:roomIds.group,user_id:currentUser.id,nickname:'Echo',body:data.reply,created_at:new Date().toISOString()});
    console.warn('[Hapn Echo] reply generated but not saved',insertError);
    showNotice('Echo replied, but saving the AI message failed. Check chat_messages RLS policies.');
-  }else if(saved){
-   // Realtime INSERT already displays the saved message; only draw manually if it did not arrive.
-   if(!document.querySelector('[data-message-id="'+CSS.escape(String(saved.id))+'"]'))drawMessage(saved);
-  }
+  }else if(saved&&!document.querySelector('[data-message-id="'+CSS.escape(String(saved.id))+'"]'))drawMessage(saved);
  }catch(e){console.warn('[Hapn Echo] reply unavailable',e);showNotice('Echo could not reply: '+(e?.message||'temporary error')+'. Check Supabase Edge Function logs and Gemini quota.');}
  finally{
   typing.remove();echoReplyInFlight=false;
   const next=echoReplyQueue.shift();
-  if(next&&currentRoom==='group'&&channel)void maybeEchoReply(next);
+  if(next&&echoShouldReply())void maybeEchoReply(next);
+  else echoReplyQueue.length=0;
  }
 }
 form.addEventListener('submit',async e=>{e.preventDefault();if(currentRoom==='help')return;if(!currentUser||sending)return;const body=input.value.trim();if(!body)return;if(!checkSafeText(body))return;sending=true;sendButton.disabled=true;let error;if(currentRoom==='campus'){if(!privateConversation){showNotice('Start Chatting and wait for a match first.');sending=false;sendButton.disabled=false;return;}({error}=await supabase.from('chat_private_messages').insert({conversation_id:privateConversation,sender_id:currentUser.id,nickname,body}));}else{({error}=await supabase.from('chat_messages').insert({room_id:roomIds[currentRoom],user_id:currentUser.id,nickname,body,...(currentRoom==='group'&&replyTo?{reply_to_id:replyTo.id,reply_to_nickname:replyTo.nickname,reply_to_body:replyTo.body}:{})}));}sending=false;sendButton.disabled=false;if(error){showNotice(error.code==='23514'?'Message was rejected by chat safety rules.':(error.message&&error.message.toLowerCase().includes('rate')?'Please slow down before sending another message.':'Message not sent. Please wait a moment and try again.'));return;}input.value='';if(currentRoom==='group'){clearReplyTarget();if(nickname!=='Echo')void maybeEchoReply(body);}});
