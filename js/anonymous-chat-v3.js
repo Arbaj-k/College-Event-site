@@ -110,7 +110,7 @@ async function maybeEchoReply(studentMessage){
  echoReplyInFlight=true;
  const box=document.getElementById('messages');const typing=document.createElement('div');typing.className='sample-note';typing.textContent='Echo is thinking…';typing.dataset.echoTyping='true';box.append(typing);box.scrollTop=box.scrollHeight;
  try{
-  const {data,error}=await supabase.functions.invoke('anonymous-chat-ai',{body:{message:studentMessage}});
+  const history=Array.from(document.querySelectorAll('#messages .message')).slice(-8).map(el=>{const meta=el.querySelector('.message-meta')?.textContent||'Student';const body=el.querySelector('.bubble')?.textContent||'';return (meta.includes('Echo')?'Echo':meta.split(' · ')[0])+': '+body.slice(0,300);}).filter(Boolean);\n  const {data,error}=await supabase.functions.invoke('anonymous-chat-ai',{body:{message:studentMessage,history}});
   if(error||!data?.reply)throw error||new Error(data?.error||'No AI reply');
   if(!echoShouldReply()){
    showNotice('Another person came online, so Echo did not reply.');
