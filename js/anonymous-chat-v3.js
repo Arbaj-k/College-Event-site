@@ -94,10 +94,12 @@ function drawMessage(m){
 }
 async function loadMessages(){const box=document.getElementById('messages');box.replaceChildren();const n=document.createElement('div');n.className='sample-note';n.textContent='Loading recent messages…';box.append(n);let query=supabase.from('chat_messages').select('id,room_id,user_id,nickname,body,created_at,reply_to_id,reply_to_nickname,reply_to_body').eq('room_id',roomIds[currentRoom]).is('deleted_at',null);if(currentRoom==='group')query=query.gte('created_at',new Date(Date.now()-12*60*60*1000).toISOString());const {data,error}=await query.order('created_at',{ascending:false}).limit(100);if(error){box.replaceChildren();showNotice('Could not load messages. Check Supabase anonymous sign-in, Realtime and RLS settings.');return;}box.replaceChildren();if(!data||!data.length){n.textContent='No recent messages yet. Be the first to say hello 👋';box.append(n);}else{data.reverse().forEach(drawMessage);const scrollLatest=()=>{box.scrollTop=box.scrollHeight;};requestAnimationFrame(()=>{scrollLatest();requestAnimationFrame(scrollLatest);});setTimeout(scrollLatest,250);} }
 async function joinRoom(){showTyping('',false);if(channel){await supabase.removeChannel(channel);channel=null;}const roomId=roomIds[currentRoom];channel=supabase.channel('hapn-chat-'+roomId,{config:{presence:{key:currentUser.id}}});channel.on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_messages',filter:'room_id=eq.'+roomId},payload=>{if(payload.new&&!payload.new.deleted_at)drawMessage(payload.new);}).on('broadcast',{event:'typing'},({payload})=>{if(payload?.user_id!==currentUser.id)showTyping(payload?.nickname,payload?.typing)}).on('presence',{event:'sync'},()=>{status.textContent=Object.keys(channel.presenceState()).length+' online';}).subscribe(async state=>{if(state==='SUBSCRIBED'){await channel.track({online:true});status.textContent='Online';}});await loadMessages();}
-let echoReplyInFlight=false,lastEchoReplyAt=0;
+let echoReplyInFlight=false;
+const echoReplyQueue=[];
 async function maybeEchoReply(studentMessage){
- if(currentRoom!=='group'||!channel||echoReplyInFlight)return;
- // Echo answers even when other students are online; don't gate replies on flaky presence state.
+ if(currentRoom!=='group'||!channel)return;
+ // Queue messages sent while Echo is already generating a reply instead of silently dropping them.
+ if(echoReplyInFlight){if(echoReplyQueue.length<3)echoReplyQueue.push(studentMessage);return;}
  echoReplyInFlight=true;
  const box=document.getElementById('messages');const typing=document.createElement('div');typing.className='sample-note';typing.textContent='Echo is thinking…';typing.dataset.echoTyping='true';box.append(typing);box.scrollTop=box.scrollHeight;
  try{
@@ -105,13 +107,19 @@ async function maybeEchoReply(studentMessage){
   if(error||!data?.reply)throw error||new Error(data?.error||'No AI reply');
   const {data:saved,error:insertError}=await supabase.from('chat_messages').insert({room_id:roomIds.group,user_id:currentUser.id,nickname:'Echo',body:data.reply}).select('id,room_id,user_id,nickname,body,created_at,reply_to_id,reply_to_nickname,reply_to_body').single();
   if(insertError){
-   // Show the generated reply even if chat-message persistence/RLS fails.
    drawMessage({id:'echo-local-'+Date.now(),room_id:roomIds.group,user_id:currentUser.id,nickname:'Echo',body:data.reply,created_at:new Date().toISOString()});
    console.warn('[Hapn Echo] reply generated but not saved',insertError);
    showNotice('Echo replied, but saving the AI message failed. Check chat_messages RLS policies.');
-  }else if(saved){drawMessage(saved);}
+  }else if(saved){
+   // Realtime INSERT already displays the saved message; only draw manually if it did not arrive.
+   if(!document.querySelector('[data-message-id="'+CSS.escape(String(saved.id))+'"]'))drawMessage(saved);
+  }
  }catch(e){console.warn('[Hapn Echo] reply unavailable',e);showNotice('Echo could not reply: '+(e?.message||'temporary error')+'. Check Supabase Edge Function logs and Gemini quota.');}
- finally{typing.remove();echoReplyInFlight=false;}
+ finally{
+  typing.remove();echoReplyInFlight=false;
+  const next=echoReplyQueue.shift();
+  if(next&&currentRoom==='group'&&channel)void maybeEchoReply(next);
+ }
 }
 form.addEventListener('submit',async e=>{e.preventDefault();if(currentRoom==='help')return;if(!currentUser||sending)return;const body=input.value.trim();if(!body)return;if(!checkSafeText(body))return;sending=true;sendButton.disabled=true;let error;if(currentRoom==='campus'){if(!privateConversation){showNotice('Start Chatting and wait for a match first.');sending=false;sendButton.disabled=false;return;}({error}=await supabase.from('chat_private_messages').insert({conversation_id:privateConversation,sender_id:currentUser.id,nickname,body}));}else{({error}=await supabase.from('chat_messages').insert({room_id:roomIds[currentRoom],user_id:currentUser.id,nickname,body,...(currentRoom==='group'&&replyTo?{reply_to_id:replyTo.id,reply_to_nickname:replyTo.nickname,reply_to_body:replyTo.body}:{})}));}sending=false;sendButton.disabled=false;if(error){showNotice(error.code==='23514'?'Message was rejected by chat safety rules.':(error.message&&error.message.toLowerCase().includes('rate')?'Please slow down before sending another message.':'Message not sent. Please wait a moment and try again.'));return;}input.value='';if(currentRoom==='group'){clearReplyTarget();if(nickname!=='Echo')void maybeEchoReply(body);}});
 (async()=>{try{const {data,error}=await supabase.auth.getSession();if(error)throw error;const existing=data.session;if(existing&&existing.user&&existing.user.is_anonymous===true){currentUser=existing.user;}else{if(existing)await supabase.auth.signOut();const sign=await supabase.auth.signInAnonymously();if(sign.error)throw sign.error;currentUser=sign.data.user;if(!currentUser||currentUser.is_anonymous!==true)throw new Error('Anonymous session was not created');}input.disabled=false;sendButton.disabled=false;input.placeholder='Write a message…';status.textContent='Connecting…';setRoomView();if(currentRoom==='campus'){randomUi();const box=document.getElementById('messages');box.replaceChildren();const n=document.createElement('div');n.className='sample-note';n.textContent='Campus Lounge is private. Press Start Chatting to be matched.';box.append(n);status.textContent='Ready for private matching';}else{await joinRoom();}randomUi();showNotice('Hapn Chat beta connected. Campus Lounge uses private random matching; other rooms remain shared.');}catch(e){console.error('[Hapn Chat] initialization failed:',e);status.textContent='Offline';showNotice('Chat could not connect: '+(e?.message||'unknown error')+'. Check Supabase Anonymous Sign-Ins and js/config.js, then reload.');input.disabled=true;sendButton.disabled=true;startRandomButton.disabled=false;}})();
