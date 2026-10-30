@@ -95,9 +95,13 @@ async function joinRoom(){showTyping('',false);if(channel){await supabase.remove
 let echoReplyInFlight=false,lastEchoReplyAt=0;
 async function maybeEchoReply(studentMessage){
  if(currentRoom!=='group'||!channel||echoReplyInFlight)return;
- const presence=channel.presenceState();let activeUsers=0;
- for(const entries of Object.values(presence))activeUsers+=Array.isArray(entries)?entries.length:1;
- if(activeUsers>1)return;
+ const presence=channel.presenceState();let otherActiveUsers=0;
+ // Presence is keyed by anonymous user ID; ignore this user's own tabs/sessions.
+ for(const [presenceKey,entries] of Object.entries(presence)){
+  if(presenceKey===currentUser.id)continue;
+  otherActiveUsers+=Array.isArray(entries)?entries.length:1;
+ }
+ if(otherActiveUsers>0)return;
  const now=Date.now();if(now-lastEchoReplyAt<15000)return;lastEchoReplyAt=now;echoReplyInFlight=true;
  const box=document.getElementById('messages');const typing=document.createElement('div');typing.className='sample-note';typing.textContent='Echo is thinking…';typing.dataset.echoTyping='true';box.append(typing);box.scrollTop=box.scrollHeight;
  try{
