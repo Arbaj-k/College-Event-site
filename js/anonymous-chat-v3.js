@@ -97,21 +97,20 @@ async function joinRoom(){showTyping('',false);if(channel){await supabase.remove
 let echoReplyInFlight=false,lastEchoReplyAt=0;
 async function maybeEchoReply(studentMessage){
  if(currentRoom!=='group'||!channel||echoReplyInFlight)return;
- const presence=channel.presenceState();let otherActiveUsers=0;
- // Presence is keyed by anonymous user ID; ignore this user's own tabs/sessions.
- for(const [presenceKey,entries] of Object.entries(presence)){
-  if(presenceKey===currentUser.id)continue;
-  otherActiveUsers+=Array.isArray(entries)?entries.length:1;
- }
- if(otherActiveUsers>0)return;
- const now=Date.now();if(now-lastEchoReplyAt<15000)return;lastEchoReplyAt=now;echoReplyInFlight=true;
+ // Echo answers even when other students are online; don't gate replies on flaky presence state.
+ echoReplyInFlight=true;
  const box=document.getElementById('messages');const typing=document.createElement('div');typing.className='sample-note';typing.textContent='Echo is thinking…';typing.dataset.echoTyping='true';box.append(typing);box.scrollTop=box.scrollHeight;
  try{
   const {data,error}=await supabase.functions.invoke('anonymous-chat-ai',{body:{message:studentMessage}});
   if(error||!data?.reply)throw error||new Error(data?.error||'No AI reply');
-  const {error:insertError}=await supabase.from('chat_messages').insert({room_id:roomIds.group,user_id:currentUser.id,nickname:'Echo',body:data.reply});
-  if(insertError)throw insertError;
- }catch(e){console.warn('[Hapn Echo] reply unavailable',e);showNotice('Echo is temporarily unavailable. Your message is still in Group Chat.');}
+  const {data:saved,error:insertError}=await supabase.from('chat_messages').insert({room_id:roomIds.group,user_id:currentUser.id,nickname:'Echo',body:data.reply}).select('id,room_id,user_id,nickname,body,created_at,reply_to_id,reply_to_nickname,reply_to_body').single();
+  if(insertError){
+   // Show the generated reply even if chat-message persistence/RLS fails.
+   drawMessage({id:'echo-local-'+Date.now(),room_id:roomIds.group,user_id:currentUser.id,nickname:'Echo',body:data.reply,created_at:new Date().toISOString()});
+   console.warn('[Hapn Echo] reply generated but not saved',insertError);
+   showNotice('Echo replied, but saving the AI message failed. Check chat_messages RLS policies.');
+  }else if(saved){drawMessage(saved);}
+ }catch(e){console.warn('[Hapn Echo] reply unavailable',e);showNotice('Echo could not reply: '+(e?.message||'temporary error')+'. Check Supabase Edge Function logs and Gemini quota.');}
  finally{typing.remove();echoReplyInFlight=false;}
 }
 form.addEventListener('submit',async e=>{e.preventDefault();if(currentRoom==='help')return;if(!currentUser||sending)return;const body=input.value.trim();if(!body)return;if(!checkSafeText(body))return;sending=true;sendButton.disabled=true;let error;if(currentRoom==='campus'){if(!privateConversation){showNotice('Start Chatting and wait for a match first.');sending=false;sendButton.disabled=false;return;}({error}=await supabase.from('chat_private_messages').insert({conversation_id:privateConversation,sender_id:currentUser.id,nickname,body}));}else{({error}=await supabase.from('chat_messages').insert({room_id:roomIds[currentRoom],user_id:currentUser.id,nickname,body,...(currentRoom==='group'&&replyTo?{reply_to_id:replyTo.id,reply_to_nickname:replyTo.nickname,reply_to_body:replyTo.body}:{})}));}sending=false;sendButton.disabled=false;if(error){showNotice(error.code==='23514'?'Message was rejected by chat safety rules.':(error.message&&error.message.toLowerCase().includes('rate')?'Please slow down before sending another message.':'Message not sent. Please wait a moment and try again.'));return;}input.value='';if(currentRoom==='group'){clearReplyTarget();if(nickname!=='Echo')void maybeEchoReply(body);}});
