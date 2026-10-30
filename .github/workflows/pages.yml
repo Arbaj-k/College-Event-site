@@ -35,7 +35,7 @@ jobs:
           mkdir -p _site
           rsync -a --exclude=".git/" --exclude=".github/" --exclude="_site/" ./ _site/
           test -f sitemap.xml
-          sitemap_event_count=$(grep -c '<loc>https://hapn.info/event-' sitemap.xml || true)
+          sitemap_event_count=$(grep -c '<loc>https://hapn.info/event/?id=' sitemap.xml || true)
           echo "Sitemap event URLs: $sitemap_event_count"
           test "$sitemap_event_count" -gt 0
           cp sitemap.xml _site/sitemap.xml
@@ -51,7 +51,7 @@ jobs:
         run: |
           set -euo pipefail
           echo "Sitemap URL count: $(grep -c '<loc>' sitemap.xml)"
-          grep -q '<loc>https://hapn.info/event-' sitemap.xml
+          grep -q '<loc>https://hapn.info/event/?id=' sitemap.xml
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
