@@ -447,6 +447,14 @@
     if (ogTitle) ogTitle.content = data.title + ' – Hapn';
     const ogDescription = document.querySelector('meta[property="og:description"]');
     if (ogDescription) ogDescription.content = description.content;
+    const ogImage = document.querySelector('meta[property="og:image"]');
+    const twitterImage = document.querySelector('meta[name="twitter:image"]');
+    const sharePoster = data.poster_url ? CE.posterSrc(data.poster_url) : 'https://hapn.info/assets/images/og-image.png';
+    const absoluteSharePoster = new URL(sharePoster, location.origin).href;
+    if (ogImage) ogImage.content = absoluteSharePoster;
+    if (twitterImage) twitterImage.content = absoluteSharePoster;
+    const ogImageAlt = document.querySelector('meta[property="og:image:alt"]');
+    if (ogImageAlt) ogImageAlt.content = data.title + ' event poster';
     const ogUrl = document.querySelector('meta[property="og:url"]');
     if (ogUrl) ogUrl.content = canonical ? canonical.href : location.href;
     const twitterTitle = document.querySelector('meta[name="twitter:title"]');
