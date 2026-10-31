@@ -130,6 +130,19 @@
     const form = document.getElementById('login-form');
     const msg = document.getElementById('login-msg');
     const btn = document.getElementById('login-btn');
+    const forgot = document.getElementById('forgot-password');
+    if (forgot) forgot.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      if (!email) { CE.showNotice(msg, 'Enter your admin email first, then click Forgot password.'); return; }
+      forgot.textContent = 'Sending…';
+      try {
+        const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: 'https://hapn.info/admin/reset-password.html' });
+        if (error) throw error;
+        CE.showNotice(msg, 'If this email is registered, a password reset link has been sent. Check your inbox and spam folder.', 'success');
+      } catch (err) { CE.showNotice(msg, 'Could not send reset email. Please try again later.', 'warn'); }
+      finally { forgot.textContent = 'Forgot password?'; }
+    });
 
     const problem = CE.setupProblem();
     if (problem) {
