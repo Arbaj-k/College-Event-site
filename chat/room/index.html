@@ -123,6 +123,14 @@ body.community-mode .community-plus{margin-left:auto}
 .community-tools input#postTitle{font-weight:700;font-size:1.05rem;padding:14px;border:1px solid #d8dce5;border-radius:10px;color:#171b24;background:#fff}
 .community-tools textarea#postBody{font-size:1rem;line-height:1.5;padding:14px;border:1px solid #d8dce5;border-radius:10px;color:#171b24;background:#fff;min-height:180px;resize:vertical}
 body.community-mode .community-tools{inset:0;z-index:30;overflow:auto}
+
+body.community-mode .chat-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+body.community-mode .chat-head .room-title{display:flex;align-items:center;flex:1;min-width:0;gap:10px}
+body.community-mode .chat-head .room-title>div{min-width:0}
+body.community-mode #roomTitle{margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.community-mode #roomDescription,body.community-mode .chat-head .status{display:none!important}
+body.community-mode .chat-head>div:last-child{display:flex;flex:0 0 auto;align-items:center;margin-left:auto}
+body.community-mode .community-plus{margin-left:0}
 </style>
 </head>
 <body>
