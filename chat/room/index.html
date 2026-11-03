@@ -111,7 +111,7 @@ body.community-mode .chat-head #backToRooms{font-size:0}
 body.community-mode .chat-head #backToRooms:after{content:"Close";font-size:14px}
 @media(max-width:520px){body.community-mode .chat-head{padding:10px 13px}body.community-mode .community-list{padding:10px}}
 
-.community-plus{width:42px;height:42px;flex:0 0 42px;border:0;border-radius:50%;background:#f5c542;color:#161920;font-size:1.65rem;line-height:1;font-weight:800;cursor:pointer;display:grid;place-items:center}
+.community-plus{width:60px;height:60px;flex:0 0 60px;border:0;border-radius:20px;background:#eef0ff;color:#20233a;font-size:2rem;line-height:1;font-weight:500;cursor:pointer;display:grid;place-items:center;box-shadow:none}
 .community-plus[hidden]{display:none!important}
 body.community-mode .chat-head{justify-content:space-between}
 body.community-mode .chat-head>div:last-child{flex:1}
@@ -124,13 +124,13 @@ body.community-mode .community-plus{margin-left:auto}
 .community-tools textarea#postBody{font-size:1rem;line-height:1.5;padding:14px;border:1px solid #d8dce5;border-radius:10px;color:#171b24;background:#fff;min-height:180px;resize:vertical}
 body.community-mode .community-tools{inset:0;z-index:30;overflow:auto}
 
-body.community-mode .chat-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
-body.community-mode .chat-head .room-title{display:flex;align-items:center;flex:1;min-width:0;gap:10px}
+body.community-mode .chat-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px}
+body.community-mode .chat-head .room-title{display:flex;align-items:center;flex:1;min-width:0;gap:10px}body.community-mode .chat-head .room-title .back-rooms{flex:0 0 auto}
 body.community-mode .chat-head .room-title>div{min-width:0}
 body.community-mode #roomTitle{margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 body.community-mode #roomDescription,body.community-mode .chat-head .status{display:none!important}
 body.community-mode .chat-head>div:last-child{display:flex;flex:0 0 auto;align-items:center;margin-left:auto}
-body.community-mode .community-plus{margin-left:0}
+body.community-mode .community-plus{margin-left:0;width:60px;height:60px;border-radius:20px}@media(max-width:520px){body.community-mode .community-plus{width:48px;height:48px;flex-basis:48px;border-radius:15px}body.community-mode .chat-head{padding:10px 12px}}
 </style>
 </head>
 <body>
