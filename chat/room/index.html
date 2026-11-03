@@ -116,6 +116,13 @@ body.community-mode .chat-head #backToRooms:after{content:"Close";font-size:14px
 body.community-mode .chat-head{justify-content:space-between}
 body.community-mode .chat-head>div:last-child{flex:1}
 body.community-mode .community-plus{margin-left:auto}
+
+.community-tools{box-sizing:border-box}
+.community-composer-head{display:flex;align-items:center;justify-content:space-between;color:#171b24;font-size:1.1rem;margin-bottom:8px}
+.community-composer-head button{border:0;background:transparent;font-size:1.8rem;cursor:pointer;color:#596170}
+.community-tools input#postTitle{font-weight:700;font-size:1.05rem;padding:14px;border:1px solid #d8dce5;border-radius:10px;color:#171b24;background:#fff}
+.community-tools textarea#postBody{font-size:1rem;line-height:1.5;padding:14px;border:1px solid #d8dce5;border-radius:10px;color:#171b24;background:#fff;min-height:180px;resize:vertical}
+body.community-mode .community-tools{inset:0;z-index:30;overflow:auto}
 </style>
 </head>
 <body>
@@ -135,7 +142,7 @@ body.community-mode .community-plus{margin-left:auto}
 </div>
 <div class="chat-layout" id="chatLayout" hidden><section class="chat-card" aria-label="Selected chat room">
 <div class="chat-head"><div class="room-title"><button type="button" id="backToRooms" class="safety-link back-rooms">← Rooms</button><span class="room-icon" id="currentIcon">🏫</span><div><h2 id="roomTitle">Campus Lounge</h2><p id="roomDescription">Chat anonymously</p></div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end"><span class="status" aria-live="polite">Connecting…</span><button type="button" id="openCreatePost" class="community-plus" aria-label="Create post" aria-expanded="false" hidden>＋</button><button type="button" id="startRandom" class="safety-link" style="display:none">Start Chatting</button><button type="button" id="nextRandom" class="safety-link" style="display:none">Next</button><button type="button" id="endRandom" class="safety-link" style="display:none">End Chat</button></div></div>
-<div class="community-tools" id="communityTools" hidden><input id="postTitle" maxlength="140" placeholder="What do you need help with? (title)" aria-label="Post title"><textarea id="postBody" maxlength="2000" placeholder="Share your question, advice request or campus update…" aria-label="Post details"></textarea><div class="post-actions"><span>Be kind. Don’t share private information.</span><button type="button" id="publishPost">Publish post</button></div></div><div class="community-list" id="communityList" hidden aria-live="polite"></div><div class="messages" id="messages" aria-live="polite"><div class="sample-note">Connecting to chat…</div></div>
+<div class="community-tools" id="communityTools" hidden><div class="community-composer-head"><strong>Create a post</strong><button type="button" id="closeCreatePost" aria-label="Close post composer">×</button></div><input id="postTitle" maxlength="140" placeholder="Title" aria-label="Post title"><textarea id="postBody" maxlength="2000" placeholder="What’s on your mind?" aria-label="Post body"></textarea><div class="post-actions"><span>Be kind. Don’t share private information.</span><button type="button" id="publishPost">Post</button></div></div><div class="community-list" id="communityList" hidden aria-live="polite"></div><div class="messages" id="messages" aria-live="polite"><div class="sample-note">Connecting to chat…</div></div>
 <div id="typingIndicator" class="typing-indicator" aria-live="polite" hidden><span class="typing-dots"><i></i><i></i><i></i></span><span id="typingText">Someone is typing…</span></div>
 <form class="compose" data-chat-compose><label for="message" class="visually-hidden"></label><input id="message" maxlength="500" placeholder="Type a message…" disabled><button type="submit" id="sendButton">Send ↗</button></form>
 </section>
