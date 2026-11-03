@@ -29,7 +29,8 @@ document.getElementById('backToRooms').addEventListener('click',()=>{window.loca
 document.getElementById('safetyInfo').addEventListener('click',()=>alert('Your nickname is generated automatically. Never share personal details. Use Report on a message if you see spam, harassment, hate or private information. Reports are stored for admin review; block/mute controls are not available yet.'));
 const form=document.querySelector('.compose'), input=document.getElementById('message'), sendButton=document.getElementById('sendButton'), status=document.querySelector('.status');
 input.disabled=true;sendButton.disabled=true;input.placeholder='Connecting to anonymous chat…';
-function showNotice(text){document.getElementById('connectionNotice').textContent=text;}
+let noticeTimer=null;
+function showNotice(text){const notice=document.getElementById('connectionNotice');if(!notice)return;notice.textContent=text;notice.hidden=false;notice.setAttribute('role','status');notice.setAttribute('aria-live','polite');notice.classList.add('notice-toast');if(noticeTimer)clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>{notice.hidden=true;noticeTimer=null;},4200);}
 const piiPatterns=[/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/ig,/(?:\+?\d[\d\s().-]{7,}\d)/g,/(?:\b\d{10,12}\b)/g];
 const adultPattern=/\b(?:porn|xxx|nudes?|naked pics?|sex chat|send nudes|blowjob|handjob|fuck(?:ing|ed)?|dick pic|pussy|cumshot|masturbat(?:e|ion)|hookup for sex)\b/i;
 function containsPersonalDetails(text){return piiPatterns.some(re=>{re.lastIndex=0;return re.test(text);});}
