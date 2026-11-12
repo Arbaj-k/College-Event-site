@@ -22,6 +22,7 @@
       '/admin/submissions.html': '/admin/submissions/',
       '/admin/reset-password.html': '/admin/reset-password/',
       '/admin/accept-invite.html': '/admin/accept-invite/',
+      '/admin/chat-moderation.html': '/admin/chat-moderation/',
       '/admin/manage-fest-activities.html': '/admin/manage-fest-activities/',
       '/admin/super-admin-login.html': '/admin/super-admin-login/',
       '/admin/super-admin.html': '/admin/super-admin/'
