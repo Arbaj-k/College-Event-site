@@ -66,8 +66,13 @@
 
   const COLLEGE_STORAGE_KEY = 'hapn_selected_college_id';
   function collegeSlug(name) {
-    return String(name || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    const clean = String(name || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    const explicit = clean.match(/\(([a-z0-9-]{2,10})\)\s*$/);
+    if (explicit) return explicit[1];
+    const words = clean.match(/[a-z0-9]+/g) || [];
+    return words.length >= 2 && words.length <= 4
+      ? words.map((word) => word[0]).join('')
+      : words.join('-');
   }
   function syncCollegeStudentUrl(college) {
     if (!college || document.body.getAttribute('data-page') === 'event') return;
