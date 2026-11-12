@@ -1,0 +1,21 @@
+# College-specific student routes
+/college/*                 /index.html                    200
+
+# Fixed administrator routes must come before the college slug catch-all.
+/admin/login/              /admin/login.html              200
+/admin/dashboard/          /admin/dashboard.html           200
+/admin/add-event/          /admin/add-event.html            200
+/admin/create-fest/        /admin/create-fest.html          200
+/admin/submissions/        /admin/submissions.html          200
+/admin/reset-password/     /admin/reset-password.html      200
+/admin/invite-accept/      /admin/invite-accept.html       200
+/admin/super-admin-login/  /admin/super-admin-login.html   200
+/admin/super-admin/        /admin/super-admin.html         200
+/admin/chat-moderation/*   /admin/chat-moderation/:splat   200
+
+# /admin/<college-slug>/ resolves to the shared College Admin login.
+# js/auth.js validates that the signed-in admin belongs to that exact college.
+/admin/*                   /admin/login.html               200
+
+# Extensionless aliases for legacy public pages.
+/archive/                  /archive.html                   200
