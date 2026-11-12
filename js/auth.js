@@ -194,7 +194,7 @@
       try {
         const { data: colleges, error } = await sb.from('colleges').select('id,name').eq('is_active', true);
         if (error) throw error;
-        const slugify = (name) => String(name || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        const slugify = (name) => { const clean = String(name || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim(); const explicit = clean.match(/\(([a-z0-9-]{2,10})\)\s*$/); if (explicit) return explicit[1]; const words = clean.match(/[a-z0-9]+/g) || []; return words.length >= 2 && words.length <= 4 ? words.map(word => word[0]).join('') : words.join('-'); };
         const matches = (colleges || []).filter((college) => slugify(college.name) === slug);
         if (matches.length !== 1) throw new Error(matches.length ? 'This college login link is ambiguous.' : 'This college login link is invalid or inactive.');
         expectedCollegeId = matches[0].id;
