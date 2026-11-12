@@ -69,7 +69,7 @@ update public.events
 set college_id = (select id from public.colleges where name = 'Legacy / Unassigned')
 where college_id is null;
 
--- Deliberately minimal retention: no event descriptions, links, posters, venue, analytics or metadata.
+-- Full snapshots are retained for Super Admin review only; the archive table is private.
 create table if not exists public.event_archive (
   id uuid primary key default gen_random_uuid(),
   source_event_id uuid not null unique,
@@ -131,7 +131,6 @@ grant select on public.profiles to authenticated;
 grant insert, update, delete on public.profiles to authenticated;
 grant select, insert, update, delete on public.admin_invitations to authenticated;
 grant select, insert, update, delete on public.event_archive to authenticated;
-grant select on public.event_archive to anon;
 
 drop policy if exists "Public can read active colleges" on public.colleges;
 create policy "Public can read active colleges" on public.colleges for select to anon, authenticated using (is_active = true);
@@ -149,7 +148,6 @@ drop policy if exists "Super admins manage invitations" on public.admin_invitati
 create policy "Super admins manage invitations" on public.admin_invitations for all to authenticated using (public.is_super_admin()) with check (public.is_super_admin());
 
 drop policy if exists "Public can read archived event summaries" on public.event_archive;
-create policy "Public can read archived event summaries" on public.event_archive for select to anon, authenticated using (true);
 drop policy if exists "Super admins manage archive" on public.event_archive;
 create policy "Super admins manage archive" on public.event_archive for all to authenticated using (public.is_super_admin()) with check (public.is_super_admin());
 
