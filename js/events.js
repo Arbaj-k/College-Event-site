@@ -54,6 +54,7 @@
           '<ul class="meta">' +
             '<li>' + CE.esc(CE.formatDate(ev.date)) + (ev.end_date ? ' – ' + CE.esc(CE.formatDate(ev.end_date)) : '') + '</li>' +
             '<li>' + CE.esc(CE.formatTime(ev.time)) + (ev.end_time ? ' – ' + CE.esc(CE.formatTime(ev.end_time)) : '') + '</li>' +
+            (ev.college_id && state.colleges.find(col => col.id === ev.college_id) ? '<li>' + CE.esc(state.colleges.find(col => col.id === ev.college_id).name) + '</li>' : '') +
             '<li>' + CE.esc(ev.venue || 'Venue to be announced') + '</li>' +
           '</ul>' +
           '<div class="card-actions">' + button + '</div>' +
@@ -401,6 +402,7 @@
       ['DATE', CE.formatDate(ev.date) + (ev.end_date ? ' – ' + CE.formatDate(ev.end_date) : '')],
       ['TIME', CE.formatTime(ev.time) + (ev.end_time ? ' – ' + CE.formatTime(ev.end_time) : '')],
       ['VENUE', ev.venue || 'Venue to be announced'],
+      ['COLLEGE', (state.colleges.find(col => col.id === ev.college_id) || {}).name || 'College event'],
       ['ORGANIZER', ev.organizer || 'College event']
     ];
     if (ev.registration_deadline) rows.push(['📝 Register by', CE.formatDate(ev.registration_deadline)]);
