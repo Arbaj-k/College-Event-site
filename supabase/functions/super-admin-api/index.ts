@@ -99,6 +99,15 @@ Deno.serve(async (req) => {
     return json({ ok: true });
   }
 
+  if (body.action === "delete_college_admin") {
+    const userId = String(body.user_id ?? "");
+    const { data: target } = await admin.from("profiles").select("user_id,role").eq("user_id", userId).maybeSingle();
+    if (!target || target.role !== "college_admin") return json({ error: "College Admin not found" }, 404);
+    const { error } = await admin.auth.admin.deleteUser(userId);
+    if (error) return json({ error: error.message }, 400);
+    return json({ ok: true });
+  }
+
   if (body.action === "set_admin_status") {
     const userId = String(body.user_id ?? "");
     const active = body.is_active === true;
