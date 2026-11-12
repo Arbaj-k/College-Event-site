@@ -13,7 +13,19 @@
       '/submit-event.html': '/submit-event/',
       '/fests.html': '/fests/',
       '/event.html': '/event/',
-      '/fest.html': '/fest/'
+      '/fest.html': '/fest/',
+      '/archive.html': '/archive/',
+      '/admin/login.html': '/admin/login/',
+      '/admin/dashboard.html': '/admin/dashboard/',
+      '/admin/add-event.html': '/admin/add-event/',
+      '/admin/create-fest.html': '/admin/create-fest/',
+      '/admin/submissions.html': '/admin/submissions/',
+      '/admin/reset-password.html': '/admin/reset-password/',
+      '/admin/accept-invite.html': '/admin/accept-invite/',
+      '/admin/chat-moderation.html': '/admin/chat-moderation/',
+      '/admin/manage-fest-activities.html': '/admin/manage-fest-activities/',
+      '/admin/super-admin-login.html': '/admin/super-admin-login/',
+      '/admin/super-admin.html': '/admin/super-admin/'
     };
     const path = location.pathname;
     const eventFile = path.match(/^\/event-([0-9a-f-]{36})\.html$/i);

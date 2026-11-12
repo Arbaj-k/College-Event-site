@@ -25,7 +25,7 @@
   function cardHtml(ev, index) {
     const status = CE.eventStatus(ev);
     const link = CE.httpsUrl(ev.registration_link);
-    const detailUrl = '/event/?id=' + encodeURIComponent(ev.id);
+    const detailUrl = collegeEventUrl(ev.id);
     const canRegister = CE.registrationOpen(ev) && link;
     const posterDate = ev.date ? new Date(String(ev.date).slice(0, 10) + 'T12:00:00') : null;
     const posterDateValid = posterDate && !Number.isNaN(posterDate.getTime());
@@ -61,6 +61,150 @@
           '<div class="card-actions">' + button + '</div>' +
         '</div>' +
       '</article>';
+  }
+
+
+  const COLLEGE_STORAGE_KEY = 'hapn_selected_college_id';
+  function collegeSlug(name) {
+    const clean = String(name || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    const explicit = clean.match(/\(([a-z0-9-]{2,10})\)\s*$/);
+    if (explicit) return explicit[1];
+    const words = clean.match(/[a-z0-9]+/g) || [];
+    return words.length >= 2 && words.length <= 4
+      ? words.map((word) => word[0]).join('')
+      : words.join('-');
+  }
+  function syncCollegeStudentUrl(college) {
+    if (!college || document.body.getAttribute('data-page') === 'event') return;
+    const suffix = document.body.getAttribute('data-page') === 'events' ? 'events/' : '';
+    const path = '/college/' + encodeURIComponent(collegeSlug(college.name)) + '/' + suffix;
+    if (location.pathname !== path) history.replaceState(null, document.title, path + location.search + location.hash);
+  }
+
+  function collegeEventUrl(id) {
+    const college = state.colleges.find((item) => item.id === state.college);
+    return '/event/?id=' + encodeURIComponent(id) + (college ? '&college=' + encodeURIComponent(collegeSlug(college.name)) : '');
+  }
+
+  function updateCollegeAdminLink(college) {
+    const link = document.querySelector('.footer-admin-link');
+    if (!link || !college) return;
+    const slug = collegeSlug(college.name);
+    link.href = '/admin/' + encodeURIComponent(slug) + '/';
+    link.textContent = college.name + ' College Admin';
+    link.setAttribute('aria-label', 'College Admin login for ' + college.name);
+  }
+
+  function getSavedCollegeId() {
+    try { return localStorage.getItem(COLLEGE_STORAGE_KEY) || ''; } catch (_) { return ''; }
+  }
+
+  function saveCollegeId(id) {
+    try { localStorage.setItem(COLLEGE_STORAGE_KEY, id); } catch (_) {}
+    state.college = id;
+  }
+
+  function ensureCollegeSelected(colleges) {
+    const available = (colleges || []).filter((college) => college.name !== 'Legacy / Unassigned');
+    state.colleges = available;
+    const routeMatch = location.pathname.match(/^\/college\/([^/]+)(?:\/events)?\/?$/i);
+    if (routeMatch) {
+      const slug = decodeURIComponent(routeMatch[1]).toLowerCase();
+      const matches = available.filter((college) => collegeSlug(college.name) === slug);
+      if (matches.length !== 1) throw new Error(matches.length ? 'This college URL is ambiguous.' : 'This college link is invalid or inactive.');
+      saveCollegeId(matches[0].id);
+      updateCollegeAdminLink(matches[0]);
+      syncCollegeStudentUrl(matches[0]);
+      return Promise.resolve(matches[0].id);
+    }
+    const saved = getSavedCollegeId();
+    if (saved && available.some((college) => college.id === saved)) {
+      state.college = saved;
+      updateCollegeAdminLink(available.find((college) => college.id === saved));
+      syncCollegeStudentUrl(available.find((college) => college.id === saved));
+      return Promise.resolve(saved);
+    }
+    return new Promise((resolve) => {
+      const old = document.getElementById('college-picker-overlay');
+      if (old) old.remove();
+      const overlay = document.createElement('div');
+      overlay.id = 'college-picker-overlay';
+      overlay.className = 'college-picker-overlay';
+      overlay.innerHTML =
+        '<section class="college-picker" role="dialog" aria-modal="true" aria-labelledby="college-picker-title">' +
+          '<div class="college-picker-mark" aria-hidden="true">H</div>' +
+          '<p class="college-picker-eyebrow">WELCOME TO HAPN</p>' +
+          '<h2 id="college-picker-title">Which college are you from?</h2>' +
+          '<p class="college-picker-copy">Choose your college to see events happening on your campus. You only need to do this once on this browser.</p>' +
+          '<label for="college-picker-select">Your college</label>' +
+          '<select id="college-picker-select"><option value="">Choose your college</option>' +
+            available.map((college) => '<option value="' + CE.esc(college.id) + '">' + CE.esc(college.name) + '</option>').join('') +
+          '</select>' +
+          '<p class="college-picker-error" id="college-picker-error" role="alert" hidden></p>' +
+          '<button class="btn btn-primary btn-block" id="college-picker-continue" type="button">Continue</button>' +
+          '<p class="college-picker-footnote">You can change your college anytime.</p>' +
+        '</section>';
+      document.body.appendChild(overlay);
+      const select = overlay.querySelector('#college-picker-select');
+      const button = overlay.querySelector('#college-picker-continue');
+      const error = overlay.querySelector('#college-picker-error');
+      if (!available.length) {
+        select.disabled = true; button.disabled = true; error.hidden = false;
+        error.textContent = 'No colleges are available yet. Please check back soon.';
+      }
+      button.addEventListener('click', () => {
+        const college = available.find((item) => item.id === select.value);
+        if (!college) {
+          error.hidden = false; error.textContent = 'Please select your college to continue.'; return;
+        }
+        saveCollegeId(college.id);
+        updateCollegeAdminLink(college);
+        syncCollegeStudentUrl(college);
+        overlay.remove();
+        resolve(college.id);
+      });
+    });
+  }
+
+  function renderCollegeSelector() {
+    const select = document.getElementById('college-filter');
+    if (!select) return;
+    select.innerHTML = state.colleges.map((college) =>
+      '<option value="' + CE.esc(college.id) + '">' + CE.esc(college.name) + '</option>'
+    ).join('');
+    select.value = state.college;
+    select.addEventListener('change', () => {
+      if (!state.colleges.some((college) => college.id === select.value)) return;
+      saveCollegeId(select.value);
+      const college = state.colleges.find((item) => item.id === select.value);
+      updateCollegeAdminLink(college);
+      syncCollegeStudentUrl(college);
+      loadCollegeEvents();
+    });
+  }
+
+  async function loadCollegeEvents() {
+    const grid = document.getElementById('events-grid');
+    if (grid) grid.setAttribute('aria-busy', 'true');
+    try {
+      const request = publicDb.from('events')
+        .select(LIST_COLUMNS)
+        .eq('college_id', state.college)
+        .order('date', { ascending: true })
+        .order('time', { ascending: true });
+      const timeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Events request timed out')), 10000)
+      );
+      const { data, error } = await Promise.race([request, timeout]);
+      if (error) throw error;
+      state.events = data || [];
+      renderHomeCalendar();
+      renderList();
+      renderNextUp();
+    } catch (error) {
+      console.error('Hapn event loading failed:', error);
+      showListError('Events could not be loaded right now. Please refresh and try again.');
+    }
   }
 
   /* ---------- list page ---------- */
@@ -183,7 +327,7 @@
       '</div>' +
       '<div class="featured-carousel" role="region" aria-label="Upcoming college events" tabindex="0">' +
       picks.map((ev, index) => {
-        const eventUrl = '/event/?id=' + encodeURIComponent(ev.id);
+        const eventUrl = collegeEventUrl(ev.id);
         const description = String(ev.short_description || '').trim();
         const dateValue = ev.date ? new Date(String(ev.date).slice(0, 10) + 'T12:00:00') : null;
         const validDate = dateValue && !Number.isNaN(dateValue.getTime());
@@ -358,34 +502,16 @@
     if (problem) return showListError(problem);
 
     try {
-      const collegeSelect = document.getElementById('college-filter');
-      if (collegeSelect) {
-        const { data: colleges, error: collegeError } = await publicDb.from('colleges').select('id,name').eq('is_active', true).order('name');
-        if (collegeError) throw collegeError;
-        state.colleges = colleges || [];
-        collegeSelect.innerHTML = '<option value="">All colleges</option>' + state.colleges.map(c => '<option value="' + CE.esc(c.id) + '">' + CE.esc(c.name) + '</option>').join('');
-        collegeSelect.addEventListener('change', () => { state.college = collegeSelect.value; renderList(); });
-      }
-
-      const request = publicDb.from('events')
-        .select(LIST_COLUMNS)
-        .order('date', { ascending: true })
-        .order('time', { ascending: true });
-
-      const timeout = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Events request timed out')), 10000)
-      );
-
-      const { data, error } = await Promise.race([request, timeout]);
-      if (error) throw error;
-
-      state.events = data || [];
-      renderHomeCalendar();
-      renderList();
-      renderNextUp();
+      const { data: colleges, error: collegeError } = await publicDb.from('colleges')
+        .select('id,name').eq('is_active', true).order('name');
+      if (collegeError) throw collegeError;
+      const selectedCollege = await ensureCollegeSelected(colleges || []);
+      if (!selectedCollege) return;
+      renderCollegeSelector();
+      await loadCollegeEvents();
     } catch (error) {
-      console.error('Hapn event loading failed:', error);
-      showListError('Events could not be loaded right now. Please refresh and try again.');
+      console.error('Hapn college/event loading failed:', error);
+      showListError('Colleges or events could not be loaded right now. Please refresh and try again.');
     }
   }
 
@@ -410,7 +536,7 @@
 
     return '' +
       '<div class="detail">' +
-        '<div class="detail-poster detail-poster-wrap"><img class="poster-img" src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="Poster for ' + CE.esc(ev.title) + '" loading="eager" decoding="async" fetchpriority="high" width="800" height="1000"><button class="poster-share-button share-button" type="button" data-share-url="/event/?id=' + encodeURIComponent(ev.id) + '" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '" title="Share event"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button></div>' +
+        '<div class="detail-poster detail-poster-wrap"><img class="poster-img" src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="Poster for ' + CE.esc(ev.title) + '" loading="eager" decoding="async" fetchpriority="high" width="800" height="1000"><button class="poster-share-button share-button" type="button" data-share-url="' + collegeEventUrl(ev.id) + '" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '" title="Share event"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button></div>' +
         '<div class="detail-info">' +
           '<div class="detail-pills"><span class="pill">' + CE.esc(ev.category || 'College event') + '</span>' + (status !== 'upcoming' ? '<span class="pill pill-ended">Ended</span>' : (ev.date ? (function(){ const d=new Date(String(ev.date).slice(0,10)+'T00:00:00'); const t=new Date(); t.setHours(0,0,0,0); const n=Math.ceil((d-t)/86400000); return '<span class="pill pill-countdown">' + (n > 0 ? 'Starts in ' + n + (n===1?' day':' days') : (n===0?'Today':'Upcoming')) + '</span>'; })() : '')) + '</div>' +
           '<h1>' + CE.esc(ev.title) + '</h1>' +
@@ -423,7 +549,7 @@
           '<h2 class="detail-text-title">About this event</h2>' +
           '<p class="detail-text">' + CE.esc(ev.description || ev.short_description || 'More event details will be announced soon.') + '</p>' +
           (ev.organizer ? '<section class="detail-organizers"><h2 class="detail-text-title">Who’s organizing</h2><div class="organizer-card"><span class="organizer-avatar">' + CE.esc(String(ev.organizer).trim().charAt(0).toUpperCase()) + '</span><span class="organizer-copy"><strong>' + CE.esc(ev.organizer) + '</strong><small>Event organizer</small></span></div></section>' : '') +
-          '<div class="detail-cta">' + cta + '<button class="register-share-icon share-button" type="button" data-share-url="/event/?id=' + encodeURIComponent(ev.id) + '" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share this event" title="Share event"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button></div>' +
+          '<div class="detail-cta">' + cta + '<button class="register-share-icon share-button" type="button" data-share-url="' + collegeEventUrl(ev.id) + '" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share this event" title="Share event"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button></div>' +
         '</div>' +
       '</div>';
   }
@@ -439,9 +565,17 @@
     const problem = CE.setupProblem();
     if (problem) return notFound(problem);
 
-    const { data: collegeRows } = await publicDb.from('colleges').select('id,name').eq('is_active', true);
-    state.colleges = collegeRows || [];
-    const { data, error } = await publicDb.from('events').select('*').eq('id', id).maybeSingle();
+    const { data: collegeRows, error: collegeError } = await publicDb.from('colleges').select('id,name').eq('is_active', true);
+    if (collegeError) return notFound('Colleges could not be loaded. Please try again.');
+    const collegeSlugFromLink = new URLSearchParams(location.search).get('college');
+    if (collegeSlugFromLink) {
+      const matchingCollege = (collegeRows || []).find((college) => collegeSlug(college.name) === collegeSlugFromLink.toLowerCase());
+      if (!matchingCollege) return notFound('This event link has an invalid or inactive college.');
+      saveCollegeId(matchingCollege.id);
+    }
+    const selectedCollege = await ensureCollegeSelected(collegeRows || []);
+    if (!selectedCollege) return notFound('No colleges are available yet.');
+    const { data, error } = await publicDb.from('events').select('*').eq('id', id).eq('college_id', selectedCollege).maybeSingle();
     if (error) { console.error(error); return notFound('This event could not be loaded. Please try again.'); }
     if (!data) return notFound('Event not found.');
 

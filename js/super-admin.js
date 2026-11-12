@@ -7,8 +7,8 @@ function note(t,ok=false){$('notice').hidden=false;$('notice').className='notice
 function clearNote(){$('notice').hidden=true;}
 async function checkAccess(){
  if(!window.sb){$('gate').textContent='Supabase is not configured.';return false;}
- const {data:{session}}=await sb.auth.getSession();if(!session){location.replace('/admin/super-admin-login.html');return false;}
- const {data:u,error:ue}=await sb.auth.getUser();if(ue||!u.user){await sb.auth.signOut();location.replace('/admin/super-admin-login.html');return false;}
+ const {data:{session}}=await sb.auth.getSession();if(!session){location.replace('/admin/super-admin-login/');return false;}
+ const {data:u,error:ue}=await sb.auth.getUser();if(ue||!u.user){await sb.auth.signOut();location.replace('/admin/super-admin-login/');return false;}
  const {data:p,error}=await sb.from('profiles').select('role,is_active').eq('user_id',u.user.id).maybeSingle();
  if(error||p?.role!=='super_admin'||p.is_active!==true){$('gate').textContent='Access denied. This page is restricted to approved Super Admin accounts.';await sb.auth.signOut();return false;}
  user=u.user;$('user-email').textContent=user.email||'';$('gate').hidden=true;$('app').hidden=false;return true;
@@ -54,7 +54,7 @@ async function init(){
  document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));
  document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
  $('menu-toggle').onclick=()=>$('sidebar').classList.toggle('open');
- $('logout').onclick=async()=>{await sb.auth.signOut();location.replace('/admin/super-admin-login.html');};
+ $('logout').onclick=async()=>{await sb.auth.signOut();location.replace('/admin/super-admin-login/');};
  $('new-college').onclick=()=>openCollege(null);$('new-invite').onclick=()=>{$('invite-dialog').showModal();};
  document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('dialog').close());
  $('college-search').oninput=renderColleges;$('event-search').oninput=renderEvents;$('event-college-filter').onchange=renderEvents;

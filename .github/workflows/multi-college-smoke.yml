@@ -24,7 +24,10 @@ jobs:
           node --check js/auth.js
           node --check js/admin.js
           node --check js/events.js
+          node --check js/common.js
           node --check js/invite-accept.js
           node --check js/archive.js
       - name: Run multi-college security smoke checks
-        run: node tests/multi-college-smoke.cjs
+        run: |
+          node tests/multi-college-smoke.cjs
+          node tests/college-selection-smoke.cjs
