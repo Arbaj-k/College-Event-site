@@ -63,6 +63,109 @@
       '</article>';
   }
 
+
+  const COLLEGE_STORAGE_KEY = 'hapn_selected_college_id';
+
+  function getSavedCollegeId() {
+    try { return localStorage.getItem(COLLEGE_STORAGE_KEY) || ''; } catch (_) { return ''; }
+  }
+
+  function saveCollegeId(id) {
+    try { localStorage.setItem(COLLEGE_STORAGE_KEY, id); } catch (_) {}
+    state.college = id;
+  }
+
+  function ensureCollegeSelected(colleges) {
+    const available = (colleges || []).filter((college) => college.name !== 'Legacy / Unassigned');
+    state.colleges = available;
+    const saved = getSavedCollegeId();
+    if (saved && available.some((college) => college.id === saved)) {
+      state.college = saved;
+      return Promise.resolve(saved);
+    }
+
+    return new Promise((resolve) => {
+      const old = document.getElementById('college-picker-overlay');
+      if (old) old.remove();
+      const overlay = document.createElement('div');
+      overlay.id = 'college-picker-overlay';
+      overlay.className = 'college-picker-overlay';
+      overlay.innerHTML =
+        '<section class="college-picker" role="dialog" aria-modal="true" aria-labelledby="college-picker-title">' +
+          '<div class="college-picker-mark" aria-hidden="true">H</div>' +
+          '<p class="college-picker-eyebrow">WELCOME TO HAPN</p>' +
+          '<h2 id="college-picker-title">Which college are you from?</h2>' +
+          '<p class="college-picker-copy">Choose your college to see events happening on your campus. You only need to do this once on this browser.</p>' +
+          '<label for="college-picker-select">Your college</label>' +
+          '<select id="college-picker-select"><option value="">Choose your college</option>' +
+            available.map((college) => '<option value="' + CE.esc(college.id) + '">' + CE.esc(college.name) + '</option>').join('') +
+          '</select>' +
+          '<p class="college-picker-error" id="college-picker-error" role="alert" hidden></p>' +
+          '<button class="btn btn-primary btn-block" id="college-picker-continue" type="button">Continue</button>' +
+          '<p class="college-picker-footnote">You can change your college anytime.</p>' +
+        '</section>';
+      document.body.appendChild(overlay);
+      const select = overlay.querySelector('#college-picker-select');
+      const button = overlay.querySelector('#college-picker-continue');
+      const error = overlay.querySelector('#college-picker-error');
+      if (!available.length) {
+        select.disabled = true;
+        button.disabled = true;
+        error.hidden = false;
+        error.textContent = 'No colleges are available yet. Please check back soon.';
+      }
+      button.addEventListener('click', () => {
+        const id = select.value;
+        if (!id || !available.some((college) => college.id === id)) {
+          error.hidden = false;
+          error.textContent = 'Please select your college to continue.';
+          return;
+        }
+        saveCollegeId(id);
+        overlay.remove();
+        resolve(id);
+      });
+    });
+  }
+
+  function renderCollegeSelector() {
+    const select = document.getElementById('college-filter');
+    if (!select) return;
+    select.innerHTML = state.colleges.map((college) =>
+      '<option value="' + CE.esc(college.id) + '">' + CE.esc(college.name) + '</option>'
+    ).join('');
+    select.value = state.college;
+    select.addEventListener('change', () => {
+      if (!state.colleges.some((college) => college.id === select.value)) return;
+      saveCollegeId(select.value);
+      loadCollegeEvents();
+    });
+  }
+
+  async function loadCollegeEvents() {
+    const grid = document.getElementById('events-grid');
+    if (grid) grid.setAttribute('aria-busy', 'true');
+    try {
+      const request = publicDb.from('events')
+        .select(LIST_COLUMNS)
+        .eq('college_id', state.college)
+        .order('date', { ascending: true })
+        .order('time', { ascending: true });
+      const timeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Events request timed out')), 10000)
+      );
+      const { data, error } = await Promise.race([request, timeout]);
+      if (error) throw error;
+      state.events = data || [];
+      renderHomeCalendar();
+      renderList();
+      renderNextUp();
+    } catch (error) {
+      console.error('Hapn event loading failed:', error);
+      showListError('Events could not be loaded right now. Please refresh and try again.');
+    }
+  }
+
   /* ---------- list page ---------- */
   function filtered() {
     const q = state.query.trim().toLowerCase();
@@ -358,34 +461,16 @@
     if (problem) return showListError(problem);
 
     try {
-      const collegeSelect = document.getElementById('college-filter');
-      if (collegeSelect) {
-        const { data: colleges, error: collegeError } = await publicDb.from('colleges').select('id,name').eq('is_active', true).order('name');
-        if (collegeError) throw collegeError;
-        state.colleges = colleges || [];
-        collegeSelect.innerHTML = '<option value="">All colleges</option>' + state.colleges.map(c => '<option value="' + CE.esc(c.id) + '">' + CE.esc(c.name) + '</option>').join('');
-        collegeSelect.addEventListener('change', () => { state.college = collegeSelect.value; renderList(); });
-      }
-
-      const request = publicDb.from('events')
-        .select(LIST_COLUMNS)
-        .order('date', { ascending: true })
-        .order('time', { ascending: true });
-
-      const timeout = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Events request timed out')), 10000)
-      );
-
-      const { data, error } = await Promise.race([request, timeout]);
-      if (error) throw error;
-
-      state.events = data || [];
-      renderHomeCalendar();
-      renderList();
-      renderNextUp();
+      const { data: colleges, error: collegeError } = await publicDb.from('colleges')
+        .select('id,name').eq('is_active', true).order('name');
+      if (collegeError) throw collegeError;
+      const selectedCollege = await ensureCollegeSelected(colleges || []);
+      if (!selectedCollege) return;
+      renderCollegeSelector();
+      await loadCollegeEvents();
     } catch (error) {
-      console.error('Hapn event loading failed:', error);
-      showListError('Events could not be loaded right now. Please refresh and try again.');
+      console.error('Hapn college/event loading failed:', error);
+      showListError('Colleges or events could not be loaded right now. Please refresh and try again.');
     }
   }
 
@@ -439,9 +524,11 @@
     const problem = CE.setupProblem();
     if (problem) return notFound(problem);
 
-    const { data: collegeRows } = await publicDb.from('colleges').select('id,name').eq('is_active', true);
-    state.colleges = collegeRows || [];
-    const { data, error } = await publicDb.from('events').select('*').eq('id', id).maybeSingle();
+    const { data: collegeRows, error: collegeError } = await publicDb.from('colleges').select('id,name').eq('is_active', true);
+    if (collegeError) return notFound('Colleges could not be loaded. Please try again.');
+    const selectedCollege = await ensureCollegeSelected(collegeRows || []);
+    if (!selectedCollege) return notFound('No colleges are available yet.');
+    const { data, error } = await publicDb.from('events').select('*').eq('id', id).eq('college_id', selectedCollege).maybeSingle();
     if (error) { console.error(error); return notFound('This event could not be loaded. Please try again.'); }
     if (!data) return notFound('Event not found.');
 
