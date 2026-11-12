@@ -2,6 +2,17 @@
   const msg=document.getElementById('invite-msg'), form=document.getElementById('invite-form'), btn=document.getElementById('activate-btn');
   function show(text,ok=false){msg.hidden=false;msg.className='notice '+(ok?'notice-success':'notice-warn');msg.textContent=text;}
   if(!window.sb){show('Hapn authentication is not configured.');btn.disabled=true;return;}
+  (async()=>{
+    try {
+      const hash=new URLSearchParams(location.hash.slice(1));
+      const query=new URLSearchParams(location.search);
+      const accessToken=hash.get('access_token'),refreshToken=hash.get('refresh_token'),code=query.get('code');
+      if(accessToken&&refreshToken){const {error}=await sb.auth.setSession({access_token:accessToken,refresh_token:refreshToken});if(error)throw error;history.replaceState(null,'',location.pathname);}
+      else if(code){const {error}=await sb.auth.exchangeCodeForSession(code);if(error)throw error;history.replaceState(null,'',location.pathname);}
+      const {data:{session}}=await sb.auth.getSession();
+      if(!session){show('Please open the secure invitation link from your email to activate this account.');btn.disabled=true;}
+    } catch(err){show(err.message||'This invitation link could not be verified.');btn.disabled=true;}
+  })();
   form.addEventListener('submit',async e=>{
     e.preventDefault();const p=document.getElementById('new-password').value,c=document.getElementById('confirm-password').value;
     if(p!==c){show('Passwords do not match.');return;}if(p.length<10){show('Use at least 10 characters.');return;}
