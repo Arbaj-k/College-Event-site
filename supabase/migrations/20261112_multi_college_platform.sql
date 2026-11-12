@@ -137,7 +137,7 @@ drop policy if exists "Admins can delete events" on public.events;
 drop policy if exists "Public can read published events only" on public.events;
 drop policy if exists "Admins can manage events" on public.events;
 
-create policy "Public read published events" on public.events for select to anon, authenticated using (is_published = true);
+create policy "Public read published events" on public.events for select to anon using (is_published = true);
 create policy "Super admins read all events" on public.events for select to authenticated using (public.is_super_admin());
 create policy "College admins read own events" on public.events for select to authenticated using (college_id = public.current_college_id());
 create policy "Super admins insert events" on public.events for insert to authenticated with check (public.is_super_admin());
