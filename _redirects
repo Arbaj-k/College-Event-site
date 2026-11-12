@@ -8,7 +8,9 @@
 /admin/create-fest/        /admin/create-fest.html          200
 /admin/submissions/        /admin/submissions.html          200
 /admin/reset-password/     /admin/reset-password.html      200
-/admin/invite-accept/      /admin/invite-accept.html       200
+/admin/invite-accept/      /admin/accept-invite.html       200
+/admin/accept-invite/      /admin/accept-invite.html       200
+/admin/manage-fest-activities/ /admin/manage-fest-activities.html 200
 /admin/super-admin-login/  /admin/super-admin-login.html   200
 /admin/super-admin/        /admin/super-admin.html         200
 /admin/chat-moderation/*   /admin/chat-moderation/:splat   200
