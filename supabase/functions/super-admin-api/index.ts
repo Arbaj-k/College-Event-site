@@ -53,6 +53,12 @@ Deno.serve(async (req) => {
   if (profileError || profile?.role !== "super_admin" || profile?.is_active !== true) {
     return json({ error: "Super Admin access required" }, 403);
   }
+  if (body.action === "archive_events") {
+    const { data, error } = await admin.rpc("archive_expired_events");
+    if (error) return json({ error: error.message }, 400);
+    return json({ ok: true, archived_count: data ?? 0 });
+  }
+
   if (body.action === "invite_college_admin") {
     const email = String(body.email ?? "").trim().toLowerCase();
     const collegeId = String(body.college_id ?? "");
