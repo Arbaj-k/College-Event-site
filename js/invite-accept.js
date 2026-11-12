@@ -2,6 +2,7 @@
   const msg=document.getElementById('invite-msg'), form=document.getElementById('invite-form'), btn=document.getElementById('activate-btn');
   function show(text,ok=false){msg.hidden=false;msg.className='notice '+(ok?'notice-success':'notice-warn');msg.textContent=text;}
   if(!window.sb){show('Hapn authentication is not configured.');btn.disabled=true;return;}
+  btn.disabled=true;
   (async()=>{
     try {
       const hash=new URLSearchParams(location.hash.slice(1));
@@ -11,6 +12,7 @@
       else if(code){const {error}=await sb.auth.exchangeCodeForSession(code);if(error)throw error;history.replaceState(null,'',location.pathname);}
       const {data:{session}}=await sb.auth.getSession();
       if(!session){show('Please open the secure invitation link from your email to activate this account.');btn.disabled=true;}
+      else btn.disabled=false;
     } catch(err){show(err.message||'This invitation link could not be verified.');btn.disabled=true;}
   })();
   form.addEventListener('submit',async e=>{
