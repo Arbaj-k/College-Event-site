@@ -24,7 +24,7 @@ assert.ok(migration.includes('college_id = public.current_college_id()'));
 assert.ok(migration.includes('current_date - 7'));
 assert.ok(migration.includes('event_title, college_name, event_date, archived_at'));
 assert.ok(!/super-admin-login|super-admin\.html/i.test(home + publicEvents));
-assert.ok(adminAuth.includes("role === 'college_admin'"));
+assert.ok(adminAuth.includes("profile.role !== 'college_admin'"));
 assert.ok(adminEvents.includes('payload.college_id = CE.currentProfile.college_id'));
 assert.ok(supabaseClient.includes('window.sbPublic'));
 assert.ok(publicEventsJs.includes('const publicDb = window.sbPublic || window.sb'));
