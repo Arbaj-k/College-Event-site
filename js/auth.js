@@ -90,7 +90,7 @@
   async function isAdmin(userId, expectedCollegeId) {
     const profile = await getProfile(userId);
     // Legacy College Admins remain supported only while profiles is absent.
-    if (profile && profile._legacyAdmin === true) return true;
+    if (profile && profile._legacyAdmin === true) return !expectedCollegeId;
     if (!profile || profile.role !== 'college_admin' || profile.is_active !== true || !profile.college_id) return false;
     if (expectedCollegeId && profile.college_id !== expectedCollegeId) return false;
     const { data: activeCollegeId, error } = await sb.rpc('current_college_id');
