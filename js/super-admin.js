@@ -14,14 +14,18 @@ async function checkAccess(){
  user=u.user;$('user-email').textContent=user.email||'';$('gate').hidden=true;$('app').hidden=false;return true;
 }
 function go(view){currentView=view;document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id==='view-'+view));document.querySelectorAll('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.view===view));$('page-title').textContent=titles[view];$('sidebar').classList.remove('open');if(view==='colleges')renderColleges();if(view==='admins')loadAdmins();if(view==='events')renderEvents();if(view==='analytics')renderAnalytics();if(view==='archive')loadArchive();}
+async function fetchAll(table,columns,orderBy,ascending,filter){
+ let rows=[],offset=0;
+ while(offset<50000){let query=sb.from(table).select(columns).order(orderBy,{ascending}).range(offset,offset+999);if(filter)query=filter(query);const {data,error}=await query;if(error)throw error;rows=rows.concat(data||[]);if(!data||data.length<1000)break;offset+=1000;}
+ return rows;
+}
 async function loadBase(){
  const [c,a,e]=await Promise.all([
- sb.from('colleges').select('*').order('name'),
- sb.from('profiles').select('user_id,email,full_name,college_id,is_active,created_at').eq('role','college_admin').order('created_at',{ascending:false}),
- sb.from('events').select('id,title,date,end_date,is_published,college_id,created_at').order('created_at',{ascending:false}).limit(500)
+ fetchAll('colleges','*','name',true),
+ fetchAll('profiles','user_id,email,full_name,college_id,is_active,created_at','created_at',false,q=>q.eq('role','college_admin')),
+ fetchAll('events','id,title,date,end_date,is_published,college_id,created_at','created_at',false)
  ]);
- if(c.error||a.error||e.error)throw c.error||a.error||e.error;
- colleges=c.data||[];admins=a.data||[];events=e.data||[];
+ colleges=c;admins=a;events=e;
  $('metric-colleges').textContent=colleges.length;$('metric-admins').textContent=admins.filter(x=>x.is_active).length;$('metric-events').textContent=events.length;$('metric-published').textContent=events.filter(x=>x.is_published).length;
  $('a-colleges').textContent=colleges.length;$('a-admins').textContent=admins.filter(x=>x.is_active).length;$('a-events').textContent=events.length;$('a-published').textContent=events.filter(x=>x.is_published).length;
  const collegeName=id=>colleges.find(c=>c.id===id)?.name||'Unassigned';
@@ -40,7 +44,7 @@ function renderAdmins(){
  if(adminTab==='admins'){$('admins-list').innerHTML=admins.length?table(['ADMINISTRATOR','EMAIL','COLLEGE','STATUS','ACTIONS'],admins.map(a=>[esc(a.full_name||'—'),esc(a.email),esc(colleges.find(c=>c.id===a.college_id)?.name||'—'),a.is_active?'<span class="pill">Active</span>':'<span class="pill off">Inactive</span>','<button class="small-btn" data-reassign="'+a.user_id+'">Reassign</button> <button class="small-btn" data-admin-status="'+a.user_id+'" data-active="'+(!a.is_active)+'">'+(a.is_active?'Deactivate':'Activate')+'</button>'])):'<div class="empty">No College Admins yet.</div>';}
  else $('admins-list').innerHTML=invitations.length?table(['EMAIL','COLLEGE','STATUS','EXPIRES','ACTION'],invitations.map(i=>[esc(i.email),esc(colleges.find(c=>c.id===i.college_id)?.name||'—'),esc(i.status),new Date(i.expires_at).toLocaleDateString(),i.status==='pending'?'<button class="small-btn danger" data-revoke="'+i.id+'">Revoke</button>':'—'])):'<div class="empty">No invitations found.</div>';
 }
-async function loadAdmins(){const [a,i]=await Promise.all([sb.from('profiles').select('user_id,email,full_name,college_id,is_active,created_at').eq('role','college_admin').order('created_at',{ascending:false}),sb.from('admin_invitations').select('*').order('created_at',{ascending:false})]);if(a.error||i.error){note((a.error||i.error).message);return;}admins=a.data||[];invitations=i.data||[];renderAdmins();}
+async function loadAdmins(){try{const [a,i]=await Promise.all([fetchAll('profiles','user_id,email,full_name,college_id,is_active,created_at','created_at',false,q=>q.eq('role','college_admin')),fetchAll('admin_invitations','*','created_at',false)]);admins=a;invitations=i;renderAdmins();}catch(err){note(err.message);}}
 function renderEvents(){const q=$('event-search').value.toLowerCase(),college=$('event-college-filter').value;const list=events.filter(e=>(!college||e.college_id===college)&&(!q||String(e.title).toLowerCase().includes(q)));$('events-list').innerHTML=list.length?table(['EVENT','COLLEGE','DATE','STATUS','ACTIONS'],list.map(e=>[esc(e.title||'Untitled'),esc(colleges.find(c=>c.id===e.college_id)?.name||'Unassigned'),esc(e.date||'—'),e.is_published?'<span class="pill">Published</span>':'<span class="pill off">Draft</span>','<button class="small-btn" data-edit-event="'+e.id+'">Edit</button> <button class="small-btn danger" data-delete-event="'+e.id+'">Delete</button>'])):'<div class="empty">No events found.</div>';}
 function renderAnalytics(){const rows=colleges.map(c=>({name:c.name,n:events.filter(e=>e.college_id===c.id).length})).sort((a,b)=>b.n-a.n),max=Math.max(1,...rows.map(r=>r.n));$('college-analytics').innerHTML=rows.map(r=>'<div class="bar-row"><span>'+esc(r.name)+'</span><div class="bar-track"><div class="bar-fill" style="width:'+(r.n/max*100)+'%"></div></div><b>'+r.n+'</b></div>').join('')||'<div class="empty">Add colleges and events to see analytics.</div>';}
 async function loadArchive(){const {data,error}=await sb.from('event_archive').select('id,event_title,college_name,event_date,archived_at').order('archived_at',{ascending:false}).limit(500);$('archive-list').innerHTML=error?'<div class="empty">'+esc(error.message)+'</div>':data.length?table(['EVENT','COLLEGE','EVENT DATE','ARCHIVED ON'],data.map(x=>[esc(x.event_title),esc(x.college_name),esc(x.event_date||'—'),esc(new Date(x.archived_at).toLocaleString())])):'<div class="empty">Archive is empty.</div>';}
