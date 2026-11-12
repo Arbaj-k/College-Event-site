@@ -10,7 +10,7 @@ The Super Admin pages are `noindex` and have no public navigation link. Hiding a
 
 ## Required deployment steps
 
-1. Back up the Supabase database.
+1. A manual backup is recommended before schema changes. If you choose to proceed without one, understand that recovery options on the Free plan are limited; this migration is designed to preserve existing event rows.
 2. Confirm the existing base schema and `20261002_event_end_featured.sql` migration have been applied. The new migration uses `events.end_date`.
 3. Apply `supabase/migrations/20261112_multi_college_platform.sql` in Supabase SQL Editor.
 4. Create the first owner account in Supabase Authentication (email/password), confirm it, and copy its Auth user UUID.
@@ -71,4 +71,4 @@ Never trust an email-only match to assign an account; verify the Auth UID and co
 - An unauthenticated user cannot read the Super Admin dashboard data.
 - An invitation can be accepted only by the invited email while the invitation is pending and unexpired.
 - A revoked or expired invitation cannot activate a profile.
-- Archive runs at the scheduled time and retains only the four approved summary fields.
+- Archive runs at the scheduled time; full snapshots are readable only by Super Admins, and anonymous users receive no archive access.
