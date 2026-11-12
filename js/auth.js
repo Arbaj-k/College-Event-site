@@ -25,7 +25,7 @@
       scheduleIdleCheck();
       return;
     }
-    void signOut().finally(() => location.replace('login.html'));
+    void signOut().finally(() => location.replace('/admin/login/'));
   }
 
   function scheduleIdleCheck() {
@@ -87,11 +87,12 @@
     return data;
   }
 
-  async function isAdmin(userId) {
+  async function isAdmin(userId, expectedCollegeId) {
     const profile = await getProfile(userId);
     // Legacy College Admins remain supported only while profiles is absent.
     if (profile && profile._legacyAdmin === true) return true;
     if (!profile || profile.role !== 'college_admin' || profile.is_active !== true || !profile.college_id) return false;
+    if (expectedCollegeId && profile.college_id !== expectedCollegeId) return false;
     const { data: activeCollegeId, error } = await sb.rpc('current_college_id');
     if (error) throw error;
     return Boolean(activeCollegeId && activeCollegeId === profile.college_id);
@@ -172,7 +173,7 @@
       if (!email) { CE.showNotice(msg, 'Enter your admin email first, then click Forgot password.'); return; }
       forgot.textContent = 'Sending…';
       try {
-        const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: 'https://hapn.info/admin/reset-password.html' });
+        const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: 'https://hapn.info/admin/reset-password/' });
         if (error) throw error;
         CE.showNotice(msg, 'If this email is registered, a password reset link has been sent. Check your inbox and spam folder.', 'success');
       } catch (err) { CE.showNotice(msg, 'Could not send reset email. Please try again later.', 'warn'); }
@@ -186,10 +187,31 @@
       return;
     }
 
+    const routeMatch = location.pathname.match(/^\/admin\/([^/]+)\/?$/i);
+    let expectedCollegeId = '';
+    if (routeMatch && routeMatch[1].toLowerCase() !== 'login') {
+      const slug = decodeURIComponent(routeMatch[1]).toLowerCase();
+      try {
+        const { data: colleges, error } = await sb.from('colleges').select('id,name').eq('is_active', true);
+        if (error) throw error;
+        const slugify = (name) => String(name || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        const matches = (colleges || []).filter((college) => slugify(college.name) === slug);
+        if (matches.length !== 1) throw new Error(matches.length ? 'This college login link is ambiguous.' : 'This college login link is invalid or inactive.');
+        expectedCollegeId = matches[0].id;
+        const contextLabel = document.getElementById('college-context');
+        if (contextLabel) { contextLabel.hidden = false; contextLabel.textContent = 'College: ' + matches[0].name; }
+        document.title = matches[0].name + ' College Admin Login – Hapn';
+      } catch (error) {
+        CE.showNotice(msg, error.message || 'Could not verify this college link.', 'warn');
+        btn.disabled = true;
+        return;
+      }
+    }
+
     // Already signed in as an admin? Go straight to the dashboard.
     try {
       const { data } = await sb.auth.getSession();
-      if (data.session && (await isAdmin(data.session.user.id))) { location.replace('dashboard.html'); return; }
+      if (data.session && (await isAdmin(data.session.user.id, expectedCollegeId))) { location.replace('/admin/dashboard/'); return; }
     } catch (e) { /* show the normal form */ }
 
     form.addEventListener('submit', async (e) => {
@@ -211,7 +233,7 @@
 
         // 2 + 3 + 4. Check the authenticated user's ID in the admins table
         let admin = false;
-        try { admin = await isAdmin(data.user.id); }
+        try { admin = await isAdmin(data.user.id, expectedCollegeId); }
         catch (checkError) {
           console.error(checkError);
           await signOut();
@@ -226,7 +248,7 @@
           return;
         }
 
-        location.href = 'dashboard.html';
+        location.href = '/admin/dashboard/';
       } finally {
         btn.disabled = false;
         btn.textContent = 'Log in';
