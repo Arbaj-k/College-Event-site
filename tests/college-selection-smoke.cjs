@@ -11,7 +11,7 @@ assert.ok(events.includes("localStorage.setItem(COLLEGE_STORAGE_KEY, id)"));
 assert.ok(events.includes(".eq('college_id', state.college)"), 'Event list must be queried for the selected college');
 assert.ok(events.includes(".eq('college_id', selectedCollege)"), 'Event details must stay within the selected college');
 assert.ok(events.includes('Which college are you from?'));
-assert.ok(events.includes('Change your college anytime.'));
+assert.ok(events.includes('You can change your college anytime.'));
 assert.ok(events.includes("college.name !== 'Legacy / Unassigned'"), 'Placeholder college must not be offered to visitors');
 assert.ok(home.includes('id="college-filter"') && listing.includes('id="college-filter"'));
 assert.ok(home.includes('js/events.js?v=20261112college2') && listing.includes('js/events.js?v=20261112college2'));
