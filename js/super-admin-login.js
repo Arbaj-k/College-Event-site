@@ -56,7 +56,7 @@
     .then(async ({ data, error }) => {
       if (error) throw error;
       if (data?.session?.user?.id && await getActiveSuperAdmin(data.session.user.id)) {
-        location.replace('/admin/super-admin.html');
+        location.replace('/admin/super-admin/');
       }
     })
     .catch(() => {
@@ -100,7 +100,7 @@
         throw new Error('Access denied. This account is not an active Super Admin.');
       }
 
-      location.replace('/admin/super-admin.html');
+      location.replace('/admin/super-admin/');
     } catch (error) {
       show(error?.message || 'We could not sign you in. Please try again.');
       button.disabled = false;
