@@ -37,7 +37,7 @@ The previous platform used a global `admins` table and had no college ownership.
 
 - Create the colleges first in the Super Admin control centre.
 - Assign existing events to the correct college using **All Events → Edit**. Unassigned legacy events remain public if published until assigned; their College Admin ownership is not inferred.
-- Existing rows in `admins` are not automatically granted new access. For each retained College Admin, assign exactly one college by inserting/upserting a matching `profiles` row after verifying their Auth UID and institution. Example:
+- Existing rows in `admins` are migrated as **College Admins only**, never Super Admins, into a temporary `Legacy / Unassigned` college. Existing events without a college are assigned to that same temporary college so the current Admin workflow remains usable. Rename/split this temporary college and reassign events/admins once their actual institutions are confirmed. Example:
 
 ```sql
 insert into public.profiles (user_id, email, full_name, role, college_id, is_active)
@@ -51,7 +51,7 @@ set email = excluded.email,
     is_active = true;
 ```
 
-Never trust an email-only match to assign an account; verify the Auth UID and college out of band.
+Never trust an email-only match to assign an account; verify the Auth UID and college out of band. The migration's temporary legacy mapping is only a compatibility bridge and should be replaced with verified institution assignments.
 
 ## Security and behavior
 
@@ -59,7 +59,7 @@ Never trust an email-only match to assign an account; verify the Auth UID and co
 - College Admin permissions are limited by `profiles.college_id`; event insert/update/delete policies require that exact college ID. Storage writes must be under a folder named with the assigned college UUID.
 - The old Admin Login is College Admin-only. The separate Super Admin login checks `profiles.role` and rejects College Admin accounts.
 - Invitation links are time-limited to seven days. A user must authenticate through the invite link, choose a password and complete activation before their College Admin profile is created.
-- Event archive retains only event title, college name, event date and archive timestamp. It deletes the original event row once its effective end date (end date if present, otherwise start date) is at least seven days in the past. Associated original event analytics are not copied into the archive.
+- Event archive is non-destructive. Once an event's effective end date (end date if present, otherwise start date) is at least seven days in the past, a full JSON snapshot is copied to the archive. The original event row and related records are not deleted.
 - Existing ancillary modules (fests, submissions, chat/community) were not intentionally redesigned. Their use of the legacy global `is_admin()` helper remains for compatibility; audit those modules separately before granting College Admins access to moderation or submissions.
 - College deletion is blocked in the dashboard while that college still has assigned admins or events. Reassign or remove them first.
 
