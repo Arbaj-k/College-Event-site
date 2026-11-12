@@ -7,8 +7,9 @@
   'use strict';
 
   const CE = window.CE;
-  const LIST_COLUMNS = 'id,title,poster_url,date,time,end_date,end_time,venue,category,short_description,registration_deadline,registration_link,is_featured,is_pinned';
-  const state = { events: [], category: 'All', query: '', selectedDate: '' };
+  const publicDb = window.sbPublic || window.sb;
+  const LIST_COLUMNS = 'id,title,poster_url,date,time,end_date,end_time,venue,category,short_description,registration_deadline,registration_link,is_featured,is_pinned,college_id';
+  const state = { events: [], colleges: [], category: 'All', query: '', selectedDate: '', college: '' };
 
   const plane = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>';
 
@@ -54,6 +55,7 @@
           '<ul class="meta">' +
             '<li>' + CE.esc(CE.formatDate(ev.date)) + (ev.end_date ? ' – ' + CE.esc(CE.formatDate(ev.end_date)) : '') + '</li>' +
             '<li>' + CE.esc(CE.formatTime(ev.time)) + (ev.end_time ? ' – ' + CE.esc(CE.formatTime(ev.end_time)) : '') + '</li>' +
+            (ev.college_id && state.colleges.find(col => col.id === ev.college_id) ? '<li>' + CE.esc(state.colleges.find(col => col.id === ev.college_id).name) + '</li>' : '') +
             '<li>' + CE.esc(ev.venue || 'Venue to be announced') + '</li>' +
           '</ul>' +
           '<div class="card-actions">' + button + '</div>' +
@@ -70,6 +72,7 @@
         const eventEnd = String(ev.end_date || ev.date || '');
         if (state.selectedDate < eventStart || state.selectedDate > eventEnd) return false;
       }
+      if (state.college && ev.college_id !== state.college) return false;
       if (state.category !== 'All' && !String(ev.category || '').split(',').map((c) => c.trim()).includes(state.category)) return false;
       if (!q) return true;
       return [ev.title, ev.venue, ev.category].some((field) => String(field || '').toLowerCase().indexOf(q) !== -1);
@@ -355,7 +358,16 @@
     if (problem) return showListError(problem);
 
     try {
-      const request = sb.from('events')
+      const collegeSelect = document.getElementById('college-filter');
+      if (collegeSelect) {
+        const { data: colleges, error: collegeError } = await publicDb.from('colleges').select('id,name').eq('is_active', true).order('name');
+        if (collegeError) throw collegeError;
+        state.colleges = colleges || [];
+        collegeSelect.innerHTML = '<option value="">All colleges</option>' + state.colleges.map(c => '<option value="' + CE.esc(c.id) + '">' + CE.esc(c.name) + '</option>').join('');
+        collegeSelect.addEventListener('change', () => { state.college = collegeSelect.value; renderList(); });
+      }
+
+      const request = publicDb.from('events')
         .select(LIST_COLUMNS)
         .order('date', { ascending: true })
         .order('time', { ascending: true });
@@ -391,6 +403,7 @@
       ['DATE', CE.formatDate(ev.date) + (ev.end_date ? ' – ' + CE.formatDate(ev.end_date) : '')],
       ['TIME', CE.formatTime(ev.time) + (ev.end_time ? ' – ' + CE.formatTime(ev.end_time) : '')],
       ['VENUE', ev.venue || 'Venue to be announced'],
+      ['COLLEGE', (state.colleges.find(col => col.id === ev.college_id) || {}).name || 'College event'],
       ['ORGANIZER', ev.organizer || 'College event']
     ];
     if (ev.registration_deadline) rows.push(['📝 Register by', CE.formatDate(ev.registration_deadline)]);
@@ -426,7 +439,9 @@
     const problem = CE.setupProblem();
     if (problem) return notFound(problem);
 
-    const { data, error } = await sb.from('events').select('*').eq('id', id).maybeSingle();
+    const { data: collegeRows } = await publicDb.from('colleges').select('id,name').eq('is_active', true);
+    state.colleges = collegeRows || [];
+    const { data, error } = await publicDb.from('events').select('*').eq('id', id).maybeSingle();
     if (error) { console.error(error); return notFound('This event could not be loaded. Please try again.'); }
     if (!data) return notFound('Event not found.');
 

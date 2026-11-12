@@ -12,9 +12,15 @@
   CE.libraryLoaded = Boolean(window.supabase && window.supabase.createClient);
 
   window.sb = null;
+  window.sbPublic = null;
   if (CE.configured && CE.libraryLoaded) {
     window.sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, {
       auth: { persistSession: true, storage: window.sessionStorage, autoRefreshToken: true, detectSessionInUrl: false }
+    });
+    // Public pages always use an anonymous client, even when a College Admin is signed in
+    // in the same browser tab. This keeps public event discovery separate from tenant RLS.
+    window.sbPublic = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
     });
   }
 

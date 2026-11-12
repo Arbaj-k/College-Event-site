@@ -57,10 +57,18 @@
   }
 
   /* Is this user listed in the admins table? (RLS lets a user read only their own row.) */
-  async function isAdmin(userId) {
-    const { data, error } = await sb.from('admins').select('role').eq('user_id', userId).maybeSingle();
+  async function getProfile(userId) {
+    const { data, error } = await sb.from('profiles').select('role,college_id,is_active,full_name,email').eq('user_id', userId).maybeSingle();
     if (error) throw error;
-    return Boolean(data && data.role === 'admin');
+    return data;
+  }
+
+  async function isAdmin(userId) {
+    const profile = await getProfile(userId);
+    if (!profile || profile.role !== 'college_admin' || profile.is_active !== true || !profile.college_id) return false;
+    const { data: activeCollegeId, error } = await sb.rpc('current_college_id');
+    if (error) throw error;
+    return Boolean(activeCollegeId && activeCollegeId === profile.college_id);
   }
 
   async function signOut() {
@@ -98,6 +106,7 @@
 
     let admin = false;
     try {
+      CE.currentProfile = await getProfile(user.id);
       admin = await isAdmin(user.id);
     } catch (e) {
       console.error(e);
@@ -199,7 +208,7 @@
     });
   }
 
-  CE.auth = { isAdmin: isAdmin, signOut: signOut, requireAdmin: requireAdmin };
+  CE.auth = { isAdmin: isAdmin, getProfile: getProfile, signOut: signOut, requireAdmin: requireAdmin };
 
   if (document.body.getAttribute('data-page') === 'login') initLogin();
 })();
