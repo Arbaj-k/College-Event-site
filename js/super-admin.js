@@ -7,7 +7,7 @@ function note(t,ok=false){$('notice').hidden=false;$('notice').className='notice
 function clearNote(){$('notice').hidden=true;}
 async function checkAccess(){
  if(!window.sb){$('gate').textContent='Supabase is not configured.';return false;}
- const {data:{session}}=await sb.auth.getSession();if(!session){location.replace('/admin/login.html');return false;}
+ const {data:{session}}=await sb.auth.getSession();if(!session){location.replace('/admin/super-admin-login.html');return false;}
  const {data:u,error:ue}=await sb.auth.getUser();if(ue||!u.user){await sb.auth.signOut();location.replace('/admin/login.html');return false;}
  const {data:p,error}=await sb.from('profiles').select('role,is_active').eq('user_id',u.user.id).maybeSingle();
  if(error||p?.role!=='super_admin'||p.is_active!==true){$('gate').textContent='Access denied. This page is restricted to approved Super Admin accounts.';await sb.auth.signOut();return false;}
