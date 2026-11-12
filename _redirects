@@ -1,3 +1,6 @@
+/events/                   /events.html                    200
+/event/                    /event.html                     200
+
 # College-specific student routes
 /college/*/events/         /events.html                   200
 /college/*                 /index.html                    200
