@@ -23,7 +23,9 @@
       const {data:{session},error:sessionError}=await sb.auth.getSession();if(sessionError||!session)throw new Error('Open the invitation link from your email again to continue.');
       const {data:{user},error}=await sb.auth.updateUser({password:p,data:{full_name:document.getElementById('full-name').value.trim()}});
       if(error)throw error;
-      const {data:activation,error:activationError}=await sb.functions.invoke('super-admin-api',{body:{action:'finalize_admin_activation',full_name:document.getElementById('full-name').value.trim()},headers:{Authorization:'Bearer '+session.access_token}});
+      const {data:{session:activeSession}}=await sb.auth.getSession();
+      if(!activeSession)throw new Error('Your invitation session expired. Open the email link again.');
+      const {data:activation,error:activationError}=await sb.functions.invoke('super-admin-api',{body:{action:'finalize_admin_activation',full_name:document.getElementById('full-name').value.trim()},headers:{Authorization:'Bearer '+activeSession.access_token}});
       if(activationError||activation?.error)throw new Error(activation?.error||activationError.message||'Invitation activation failed.');
       show('Your account is active. Sign in using the existing Admin Login page.',true);form.hidden=true;await sb.auth.signOut();
     }catch(err){show(err.message||'Could not activate this account.');}
