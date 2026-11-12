@@ -18,3 +18,11 @@ assert.ok(home.includes('js/events.js?v=20261112college1') && listing.includes('
 assert.ok(common.includes('initHapnNotifications'), 'Shared non-event features must remain present');
 assert.ok(!events.includes("localStorage.clear()"), 'College selection must not clear other site preferences');
 console.log('College selection smoke checks passed.');
+
+const auth = fs.readFileSync('js/auth.js', 'utf8');
+assert.ok(events.includes("location.pathname.match(/^\\/college\\/([^/]+)\\/?$/i)"), 'Student route must resolve a college slug');
+assert.ok(events.includes("'/admin/' + encodeURIComponent(slug) + '/'"), 'Admin link must include selected college slug');
+assert.ok(events.includes("collegeEventUrl(ev.id)"), 'Shared event links must retain college context');
+assert.ok(auth.includes('isAdmin(data.user.id, expectedCollegeId)'), 'College Admin login must validate the route college');
+assert.ok(auth.includes("location.href = '/admin/dashboard/'"), 'Admin login must use a clean dashboard URL');
+assert.ok(fs.readFileSync('_redirects', 'utf8').includes('/college/*'), 'College slugs must rewrite to the homepage');
