@@ -110,7 +110,7 @@
 
   function bindLogout() {
     const btn = document.getElementById('logout-btn');
-    if (btn) btn.addEventListener('click', async () => { await signOut(); location.replace('login.html'); });
+    if (btn) btn.addEventListener('click', async () => { await signOut(); location.replace('/admin/login/'); });
   }
 
   /* Call at the start of every admin page. Returns the user, or null if access is refused. */
@@ -124,11 +124,11 @@
     }
 
     const { data: sessionData } = await sb.auth.getSession();
-    if (!sessionData.session) { location.replace('login.html'); return null; }
+    if (!sessionData.session) { location.replace('/admin/login/'); return null; }
 
     // getUser() re-validates the session with the Supabase server.
     const { data: userData, error: userError } = await sb.auth.getUser();
-    if (userError || !userData.user) { await signOut(); location.replace('login.html'); return null; }
+    if (userError || !userData.user) { await signOut(); location.replace('/admin/login/'); return null; }
     const user = userData.user;
 
     let admin = false;
@@ -147,7 +147,7 @@
         '<div class="gate-actions"><button type="button" class="btn btn-primary" id="denied-signout">Sign out</button>' +
         '<a class="btn btn-outline" href="../index.html">Back to website</a></div></div>'
       );
-      document.getElementById('denied-signout').addEventListener('click', async () => { await signOut(); location.replace('login.html'); });
+      document.getElementById('denied-signout').addEventListener('click', async () => { await signOut(); location.replace('/admin/login/'); });
       return null;
     }
 
