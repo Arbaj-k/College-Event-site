@@ -21,7 +21,8 @@
       '/admin/create-fest.html': '/admin/create-fest/',
       '/admin/submissions.html': '/admin/submissions/',
       '/admin/reset-password.html': '/admin/reset-password/',
-      '/admin/invite-accept.html': '/admin/invite-accept/',
+      '/admin/accept-invite.html': '/admin/accept-invite/',
+      '/admin/manage-fest-activities.html': '/admin/manage-fest-activities/',
       '/admin/super-admin-login.html': '/admin/super-admin-login/',
       '/admin/super-admin.html': '/admin/super-admin/'
     };
