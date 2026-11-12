@@ -65,7 +65,10 @@
 
   async function isAdmin(userId) {
     const profile = await getProfile(userId);
-    return Boolean(profile && profile.role === 'college_admin' && profile.is_active === true && profile.college_id);
+    if (!profile || profile.role !== 'college_admin' || profile.is_active !== true || !profile.college_id) return false;
+    const { data: activeCollegeId, error } = await sb.rpc('current_college_id');
+    if (error) throw error;
+    return Boolean(activeCollegeId && activeCollegeId === profile.college_id);
   }
 
   async function signOut() {
@@ -104,7 +107,7 @@
     let admin = false;
     try {
       CE.currentProfile = await getProfile(user.id);
-      admin = Boolean(CE.currentProfile && CE.currentProfile.role === 'college_admin' && CE.currentProfile.is_active === true && CE.currentProfile.college_id);
+      admin = await isAdmin(user.id);
     } catch (e) {
       console.error(e);
       gateMessage('<div class="card"><h1>Something went wrong</h1><p>We could not check your permissions. Please refresh the page.</p></div>');
