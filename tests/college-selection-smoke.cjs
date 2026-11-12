@@ -14,7 +14,7 @@ assert.ok(events.includes('Which college are you from?'));
 assert.ok(events.includes('Change your college anytime.'));
 assert.ok(events.includes("college.name !== 'Legacy / Unassigned'"), 'Placeholder college must not be offered to visitors');
 assert.ok(home.includes('id="college-filter"') && listing.includes('id="college-filter"'));
-assert.ok(home.includes('js/events.js?v=20261112college1') && listing.includes('js/events.js?v=20261112college1'));
+assert.ok(home.includes('js/events.js?v=20261112college2') && listing.includes('js/events.js?v=20261112college2'));
 assert.ok(common.includes('initHapnNotifications'), 'Shared non-event features must remain present');
 assert.ok(!events.includes("localStorage.clear()"), 'College selection must not clear other site preferences');
 console.log('College selection smoke checks passed.');
