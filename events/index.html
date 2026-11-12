@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://analytics.google.com; form-action 'self' https:">
+  <base href="/">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; worker-src 'self' blob:; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com https://static.cloudflareinsights.com https://cdn.onesignal.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://analytics.google.com https://*.onesignal.com https://*.onesignal.net https://*.os.tc; form-action 'self' https:">
   <meta name="referrer" content="strict-origin-when-cross-origin">
 
   <!-- Google tag (gtag.js) -->
@@ -42,8 +43,8 @@
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"CollectionPage","name":"College Events – Hapn","url":"https://hapn.info/events.html","description":"Browse upcoming college events on Hapn, including workshops, hackathons, competitions, cultural events and campus activities.","inLanguage":"en"}
   </script>
-  <link rel="icon" href="/assets/images/logo.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/css/style.css?v=20261022desktopmenu1">
+  <link rel="icon" href="assets/images/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css?v=20261112college1">
 </head>
 <body data-root="" data-page="events">
   <a class="skip-link" href="#main">Skip to content</a>
@@ -51,7 +52,7 @@
   <header class="site-header">
     <div class="container header-inner">
       <a class="brand" href="/">
-        <img src="/assets/images/logo.svg" alt="" width="34" height="34">
+        <img src="assets/images/logo.svg" alt="" width="34" height="34">
         <span>Hapn</span>
       </a>
       <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="site-nav">☰</button>
@@ -59,6 +60,7 @@
         <a href="/">Home</a>
         <a href="/events/" aria-current="page">Events</a>
         <a href="/about/">About</a>
+        <a href="/archive.html">Archive</a>
       
         <a class="nav-submit" href="/submit-event/">Submit an Event</a>
       </nav>
@@ -81,6 +83,7 @@
             <label class="visually-hidden" for="search-input">Search events</label>
             <input id="search-input" type="search" placeholder="Search by event name, venue or category" autocomplete="off">
           </div>
+          <select id="college-filter" aria-label="Your college"></select>
           <div class="chips" id="category-chips" role="group" aria-label="Filter by category"></div>
         </div>
         <div class="events-grid" id="events-grid" aria-busy="true">
@@ -97,7 +100,7 @@
     <div class="container">
       <div class="footer-grid">
         <div>
-          <span class="footer-brand"><img src="/assets/images/logo.svg" alt="" width="32" height="32">Hapn</span>
+          <span class="footer-brand"><img src="assets/images/logo.svg" alt="" width="32" height="32">Hapn</span>
           <p class="footer-tagline">One place for all your college events.</p>
         </div>
         <ul class="footer-links">
@@ -106,7 +109,7 @@
           <li><a href="/about/">About</a></li>
           <li><a href="/help/">Help</a></li>
           <li><a href="/terms/">Terms &amp; Conditions</a></li>
-          <li><a class="footer-admin-link" href="admin/login.html">Admin Login</a></li>
+          <li><a class="footer-admin-link" href="/admin/login/">College Admin Login</a></li>
         </ul>
       </div>
       <p class="footer-bottom">© 2026 Hapn</p>
@@ -114,9 +117,9 @@
   </footer>
 
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
-  <script defer src="/js/config.js?v=20261020speed1"></script>
-  <script defer src="/js/supabase.js?v=20261020speed1"></script>
-  <script defer src="/js/common.js?v=20261024cleanroutes3"></script>
-  <script defer src="/js/events.js?v=20261024cleanroutes3"></script>
+  <script defer src="js/config.js?v=20261020speed1"></script>
+  <script defer src="js/supabase.js?v=20261020speed1"></script>
+  <script defer src="js/common.js?v=20261112cleanroutes4"></script>
+  <script defer src="js/events.js?v=20261112college2"></script>
 </body>
 </html>
