@@ -57,10 +57,15 @@
   }
 
   /* Is this user listed in the admins table? (RLS lets a user read only their own row.) */
-  async function isAdmin(userId) {
-    const { data, error } = await sb.from('admins').select('role').eq('user_id', userId).maybeSingle();
+  async function getProfile(userId) {
+    const { data, error } = await sb.from('profiles').select('role,college_id,is_active,full_name,email').eq('user_id', userId).maybeSingle();
     if (error) throw error;
-    return Boolean(data && data.role === 'admin');
+    return data;
+  }
+
+  async function isAdmin(userId) {
+    const profile = await getProfile(userId);
+    return Boolean(profile && profile.role === 'college_admin' && profile.is_active === true && profile.college_id);
   }
 
   async function signOut() {
@@ -98,7 +103,8 @@
 
     let admin = false;
     try {
-      admin = await isAdmin(user.id);
+      CE.currentProfile = await getProfile(user.id);
+      admin = Boolean(CE.currentProfile && CE.currentProfile.role === 'college_admin' && CE.currentProfile.is_active === true && CE.currentProfile.college_id);
     } catch (e) {
       console.error(e);
       gateMessage('<div class="card"><h1>Something went wrong</h1><p>We could not check your permissions. Please refresh the page.</p></div>');
@@ -199,7 +205,7 @@
     });
   }
 
-  CE.auth = { isAdmin: isAdmin, signOut: signOut, requireAdmin: requireAdmin };
+  CE.auth = { isAdmin: isAdmin, getProfile: getProfile, signOut: signOut, requireAdmin: requireAdmin };
 
   if (document.body.getAttribute('data-page') === 'login') initLogin();
 })();
