@@ -11,6 +11,8 @@ const adminEvents = read('js/admin.js');
 const superPage = read('admin/super-admin.html');
 const superJs = read('js/super-admin.js');
 const edge = read('supabase/functions/super-admin-api/index.ts');
+const supabaseClient = read('js/supabase.js');
+const publicEventsJs = read('js/events.js');
 
 for (const table of ['colleges','profiles','admin_invitations','event_archive']) {
   assert.ok(migration.includes('create table if not exists public.' + table), 'Missing table: ' + table);
@@ -24,6 +26,8 @@ assert.ok(migration.includes('event_title, college_name, event_date, archived_at
 assert.ok(!/super-admin-login|super-admin\.html/i.test(home + publicEvents));
 assert.ok(adminAuth.includes("role === 'college_admin'"));
 assert.ok(adminEvents.includes('payload.college_id = CE.currentProfile.college_id'));
+assert.ok(supabaseClient.includes('window.sbPublic'));
+assert.ok(publicEventsJs.includes('const publicDb = window.sbPublic || window.sb'));
 assert.ok(superPage.includes('name="robots" content="noindex,nofollow"'));
 for (const section of ['overview','colleges','admins','events','analytics','archive','settings']) {
   assert.ok(superPage.includes('data-view="' + section + '"'), 'Missing dashboard section: ' + section);
