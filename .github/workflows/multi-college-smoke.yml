@@ -1,0 +1,30 @@
+name: Multi-college platform smoke checks
+
+on:
+  push:
+    branches: [multi-college-platform-v1]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check frontend JavaScript syntax
+        run: |
+          node --check js/super-admin.js
+          node --check js/super-admin-login.js
+          node --check js/auth.js
+          node --check js/admin.js
+          node --check js/events.js
+          node --check js/invite-accept.js
+          node --check js/archive.js
+      - name: Run multi-college security smoke checks
+        run: node tests/multi-college-smoke.cjs
