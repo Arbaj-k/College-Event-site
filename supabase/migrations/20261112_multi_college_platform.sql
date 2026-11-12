@@ -73,6 +73,7 @@ create or replace function public.current_college_id()
 returns uuid language sql stable security definer set search_path = ''
 as $$
   select p.college_id from public.profiles p
+  join public.colleges c on c.id = p.college_id and c.is_active = true
   where p.user_id = (select auth.uid())
     and p.role = 'college_admin' and p.is_active = true
   limit 1;
@@ -83,6 +84,7 @@ returns boolean language sql stable security definer set search_path = ''
 as $$
   select exists (
     select 1 from public.profiles p
+    join public.colleges c on c.id = p.college_id and c.is_active = true
     where p.user_id = (select auth.uid())
       and p.role = 'college_admin' and p.college_id is not null and p.is_active = true
   );
