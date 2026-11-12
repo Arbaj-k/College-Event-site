@@ -54,7 +54,7 @@ async function init(){
  document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));
  document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.go)));
  $('menu-toggle').onclick=()=>$('sidebar').classList.toggle('open');
- $('logout').onclick=async()=>{await sb.auth.signOut();location.replace('/admin/login.html');};
+ $('logout').onclick=async()=>{await sb.auth.signOut();location.replace('/admin/super-admin-login.html');};
  $('new-college').onclick=()=>openCollege(null);$('new-invite').onclick=()=>{$('invite-dialog').showModal();};
  document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('dialog').close());
  $('college-search').oninput=renderColleges;$('event-search').oninput=renderEvents;$('event-college-filter').onchange=renderEvents;
@@ -86,7 +86,7 @@ async function init(){
  const reassign=e.target.closest('[data-reassign]');if(reassign){const a=admins.find(x=>x.user_id===reassign.dataset.reassign);const choice=prompt('Enter the exact new college name:\n'+colleges.map(c=>c.name).join('\n'));const c=colleges.find(x=>x.name.toLowerCase()===String(choice||'').toLowerCase());if(c){try{await callApi({action:'reassign_admin',user_id:a.user_id,college_id:c.id});note('Administrator reassigned.',true);await refresh();}catch(err){note(err.message);}}}
  });
  $('refresh-analytics').onclick=refresh;
- $('run-archive').onclick=async()=>{if(!confirm('Archive and permanently remove all events whose end date is at least seven days past?'))return;const result=await callApi({action:'archive_events'});note((result.archived_count||0)+' event(s) archived and removed.',true);await refresh();await loadArchive();};
+ $('run-archive').onclick=async()=>{if(!confirm('Copy all events whose effective end date is at least seven days past into the private archive? Original event records will remain unchanged.'))return;const result=await callApi({action:'archive_events'});note((result.archived_count||0)+' event(s) copied to the private archive. Original event records remain unchanged.',true);await refresh();await loadArchive();};
  if(!await checkAccess())return;
  try{await refresh();go('overview');}catch(err){note(err.message||'Could not load platform data.');}
 }
