@@ -168,11 +168,15 @@ create policy "College admins delete own posters" on storage.objects for delete 
   using (bucket_id = 'event-posters' and public.is_college_admin() and (storage.foldername(name))[1] = public.current_college_id()::text);
 
 -- Archive events seven days after their effective end date, retaining only approved summary fields.
+-- Only Super Admins can invoke this from an authenticated session; database scheduler calls run as owner.
 create or replace function public.archive_expired_events()
 returns integer language plpgsql security definer set search_path = ''
-as $$
+as $archive$
 declare archived_count integer;
 begin
+  if auth.uid() is not null and not public.is_super_admin() then
+    raise exception 'Super Admin access required' using errcode = '42501';
+  end if;
   with due as (
     select e.id, coalesce(e.end_date, e."date") as effective_end,
            coalesce(nullif(c.name, ''), 'Unassigned college') as college_name,
@@ -193,35 +197,7 @@ begin
     and coalesce(e.end_date, e."date") <= (current_date - 7);
   return coalesce(archived_count, 0);
 end;
-$$;
--- Authenticated callers may invoke this only when their profile is Super Admin.
--- Scheduled database jobs run as the database owner and are also allowed.
-create or replace function public.archive_expired_events()
-returns integer language plpgsql security definer set search_path = ''
-as $
-declare archived_count integer;
-begin
-  if auth.uid() is not null and not public.is_super_admin() then
-    raise exception 'Super Admin access required' using errcode = '42501';
-  end if;
-  with due as (
-    select e.id, coalesce(e.end_date, e."date") as effective_end,
-           coalesce(nullif(c.name, ''), 'Unassigned college') as college_name,
-           coalesce(nullif(e.title, ''), 'Untitled event') as event_title
-    from public.events e left join public.colleges c on c.id = e.college_id
-    where coalesce(e.end_date, e."date") is not null
-      and coalesce(e.end_date, e."date") <= (current_date - 7)
-  ), inserted as (
-    insert into public.event_archive (event_title, college_name, event_date, archived_at)
-    select d.event_title, d.college_name, d.effective_end, now() from due d returning id
-  )
-  select count(*) into archived_count from inserted;
-  delete from public.events e
-  where coalesce(e.end_date, e."date") is not null
-    and coalesce(e.end_date, e."date") <= (current_date - 7);
-  return coalesce(archived_count, 0);
-end;
-$;
+$archive$;
 revoke all on function public.archive_expired_events() from public, anon;
 grant execute on function public.archive_expired_events() to authenticated;
 
