@@ -65,6 +65,18 @@
 
 
   const COLLEGE_STORAGE_KEY = 'hapn_selected_college_id';
+  function collegeSlug(name) {
+    return String(name || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  }
+  function updateCollegeAdminLink(college) {
+    const link = document.querySelector('.footer-admin-link');
+    if (!link || !college) return;
+    const slug = collegeSlug(college.name);
+    link.href = '/admin/' + encodeURIComponent(slug) + '/';
+    link.textContent = college.name + ' College Admin';
+    link.setAttribute('aria-label', 'College Admin login for ' + college.name);
+  }
 
   function getSavedCollegeId() {
     try { return localStorage.getItem(COLLEGE_STORAGE_KEY) || ''; } catch (_) { return ''; }
@@ -78,12 +90,21 @@
   function ensureCollegeSelected(colleges) {
     const available = (colleges || []).filter((college) => college.name !== 'Legacy / Unassigned');
     state.colleges = available;
+    const routeMatch = location.pathname.match(/^\/college\/([^/]+)\/?$/i);
+    if (routeMatch) {
+      const slug = decodeURIComponent(routeMatch[1]).toLowerCase();
+      const matches = available.filter((college) => collegeSlug(college.name) === slug);
+      if (matches.length !== 1) throw new Error(matches.length ? 'This college URL is ambiguous.' : 'This college link is invalid or inactive.');
+      saveCollegeId(matches[0].id);
+      updateCollegeAdminLink(matches[0]);
+      return Promise.resolve(matches[0].id);
+    }
     const saved = getSavedCollegeId();
     if (saved && available.some((college) => college.id === saved)) {
       state.college = saved;
+      updateCollegeAdminLink(available.find((college) => college.id === saved));
       return Promise.resolve(saved);
     }
-
     return new Promise((resolve) => {
       const old = document.getElementById('college-picker-overlay');
       if (old) old.remove();
@@ -109,21 +130,18 @@
       const button = overlay.querySelector('#college-picker-continue');
       const error = overlay.querySelector('#college-picker-error');
       if (!available.length) {
-        select.disabled = true;
-        button.disabled = true;
-        error.hidden = false;
+        select.disabled = true; button.disabled = true; error.hidden = false;
         error.textContent = 'No colleges are available yet. Please check back soon.';
       }
       button.addEventListener('click', () => {
-        const id = select.value;
-        if (!id || !available.some((college) => college.id === id)) {
-          error.hidden = false;
-          error.textContent = 'Please select your college to continue.';
-          return;
+        const college = available.find((item) => item.id === select.value);
+        if (!college) {
+          error.hidden = false; error.textContent = 'Please select your college to continue.'; return;
         }
-        saveCollegeId(id);
+        saveCollegeId(college.id);
+        updateCollegeAdminLink(college);
         overlay.remove();
-        resolve(id);
+        resolve(college.id);
       });
     });
   }
@@ -138,6 +156,7 @@
     select.addEventListener('change', () => {
       if (!state.colleges.some((college) => college.id === select.value)) return;
       saveCollegeId(select.value);
+      updateCollegeAdminLink(state.colleges.find((item) => item.id === select.value));
       loadCollegeEvents();
     });
   }
