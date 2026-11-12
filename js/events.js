@@ -438,6 +438,8 @@
     const problem = CE.setupProblem();
     if (problem) return notFound(problem);
 
+    const { data: collegeRows } = await sb.from('colleges').select('id,name').eq('is_active', true);
+    state.colleges = collegeRows || [];
     const { data, error } = await sb.from('events').select('*').eq('id', id).maybeSingle();
     if (error) { console.error(error); return notFound('This event could not be loaded. Please try again.'); }
     if (!data) return notFound('Event not found.');
