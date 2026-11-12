@@ -25,14 +25,34 @@ Deno.serve(async (req) => {
   if (userError || !userData.user) return json({ error: "Unauthorized" }, 401);
 
   const admin = createClient(url, service, { auth: { persistSession: false } });
+  let body: Record<string, unknown>;
+  try { body = await req.json(); } catch { return json({ error: "Invalid JSON body" }, 400); }
+
+  if (body.action === "finalize_admin_activation") {
+    const email = String(userData.user.email ?? "").trim().toLowerCase();
+    const fullName = String(body.full_name ?? "").trim();
+    const { data: invitation, error: invitationError } = await admin.from("admin_invitations")
+      .select("id,email,college_id,status,expires_at").eq("email", email).eq("status", "pending")
+      .gt("expires_at", new Date().toISOString()).order("created_at", { ascending: false }).limit(1).maybeSingle();
+    if (invitationError || !invitation) return json({ error: "No valid pending invitation was found for this email." }, 403);
+    const { data: college } = await admin.from("colleges").select("id,is_active").eq("id", invitation.college_id).maybeSingle();
+    if (!college?.is_active) return json({ error: "The assigned college is no longer active." }, 403);
+    const { error: profileUpsertError } = await admin.from("profiles").upsert({
+      user_id: userData.user.id, email, full_name: fullName || null,
+      role: "college_admin", college_id: invitation.college_id, is_active: true,
+    }, { onConflict: "user_id" });
+    if (profileUpsertError) return json({ error: profileUpsertError.message }, 400);
+    const { error: acceptedError } = await admin.from("admin_invitations")
+      .update({ status: "accepted", accepted_at: new Date().toISOString() }).eq("id", invitation.id);
+    if (acceptedError) return json({ error: acceptedError.message }, 400);
+    return json({ ok: true, message: "College Admin account activated." });
+  }
+
   const { data: profile, error: profileError } = await admin.from("profiles")
     .select("role,is_active").eq("user_id", userData.user.id).maybeSingle();
   if (profileError || profile?.role !== "super_admin" || profile?.is_active !== true) {
     return json({ error: "Super Admin access required" }, 403);
   }
-
-  let body: Record<string, unknown>;
-  try { body = await req.json(); } catch { return json({ error: "Invalid JSON body" }, 400); }
   if (body.action === "invite_college_admin") {
     const email = String(body.email ?? "").trim().toLowerCase();
     const collegeId = String(body.college_id ?? "");
@@ -65,6 +85,17 @@ Deno.serve(async (req) => {
     const id = String(body.invitation_id ?? "");
     const { error } = await admin.from("admin_invitations").update({ status: "revoked" }).eq("id", id).eq("status", "pending");
     if (error) return json({ error: error.message }, 400);
+    return json({ ok: true });
+  }
+
+  if (body.action === "reassign_admin") {
+    const userId = String(body.user_id ?? "");
+    const collegeId = String(body.college_id ?? "");
+    const { data: college } = await admin.from("colleges").select("id,is_active").eq("id", collegeId).maybeSingle();
+    if (!college?.is_active) return json({ error: "Choose an active college" }, 400);
+    const { data, error } = await admin.from("profiles").update({ college_id: collegeId })
+      .eq("user_id", userId).eq("role", "college_admin").select("user_id").maybeSingle();
+    if (error || !data) return json({ error: error?.message ?? "College Admin not found" }, 400);
     return json({ ok: true });
   }
 
