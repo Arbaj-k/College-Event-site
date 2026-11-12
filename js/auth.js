@@ -58,13 +58,39 @@
 
   /* Is this user listed in the admins table? (RLS lets a user read only their own row.) */
   async function getProfile(userId) {
-    const { data, error } = await sb.from('profiles').select('role,college_id,is_active,full_name,email').eq('user_id', userId).maybeSingle();
-    if (error) throw error;
+    const { data, error } = await sb.from('profiles')
+      .select('role,college_id,is_active,full_name,email')
+      .eq('user_id', userId).maybeSingle();
+
+    if (error) {
+      // The multi-college migration has not been applied yet on some deployments.
+      // Until then, preserve the existing admins-table login without granting
+      // Super Admin access or weakening the database's own RLS policies.
+      const missingProfilesTable = error.code === '42P01' || error.code === 'PGRST205' ||
+        /relation .*profiles.* does not exist|could not find the table .*profiles/i.test(error.message || '');
+      if (!missingProfilesTable) throw error;
+
+      const legacy = await sb.from('admins')
+        .select('user_id,email,role')
+        .eq('user_id', userId).maybeSingle();
+      if (legacy.error) throw legacy.error;
+      if (!legacy.data || legacy.data.role !== 'admin') return null;
+      return {
+        user_id: legacy.data.user_id,
+        email: legacy.data.email,
+        role: 'admin',
+        is_active: true,
+        college_id: undefined,
+        _legacyAdmin: true
+      };
+    }
     return data;
   }
 
   async function isAdmin(userId) {
     const profile = await getProfile(userId);
+    // Legacy College Admins remain supported only while profiles is absent.
+    if (profile && profile._legacyAdmin === true) return true;
     if (!profile || profile.role !== 'college_admin' || profile.is_active !== true || !profile.college_id) return false;
     const { data: activeCollegeId, error } = await sb.rpc('current_college_id');
     if (error) throw error;
