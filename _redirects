@@ -1,4 +1,5 @@
 # College-specific student routes
+/college/*/events/         /events.html                   200
 /college/*                 /index.html                    200
 
 # Fixed administrator routes must come before the college slug catch-all.
