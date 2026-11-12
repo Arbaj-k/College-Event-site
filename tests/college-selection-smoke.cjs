@@ -20,7 +20,7 @@ assert.ok(!events.includes("localStorage.clear()"), 'College selection must not 
 console.log('College selection smoke checks passed.');
 
 const auth = fs.readFileSync('js/auth.js', 'utf8');
-assert.ok(events.includes("location.pathname.match(/^\\/college\\/([^/]+)\\/?$/i)"), 'Student route must resolve a college slug');
+assert.ok(events.includes("location.pathname.match(/^\\/college\\/([^/]+)(?:\\/events)?\\/?$/i)"), 'Student route must resolve a college slug');
 assert.ok(events.includes("'/admin/' + encodeURIComponent(slug) + '/'"), 'Admin link must include selected college slug');
 assert.ok(events.includes("collegeEventUrl(ev.id)"), 'Shared event links must retain college context');
 assert.ok(auth.includes('isAdmin(data.user.id, expectedCollegeId)'), 'College Admin login must validate the route college');
