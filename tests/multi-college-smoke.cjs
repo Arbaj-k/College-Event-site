@@ -26,7 +26,7 @@ assert.ok(migration.includes('grant execute on function public.archive_expired_e
 assert.ok(!migration.includes('grant execute on function public.archive_expired_events() to authenticated'));
 assert.ok(migration.includes('event_title, college_name, event_date, event_snapshot, archived_at'));
 assert.ok(!/grant\s+select\s+on\s+public\.event_archive\s+to\s+anon/i.test(migration), 'Archive must not be readable by anon');
-assert.ok(!/create\\s+policy\\s+\"Public can read archived event summaries\"/i.test(migration), 'Archive must not have a public read policy');
+assert.ok(!/create\s+policy\s+\"Public can read archived event summaries\"/i.test(migration), 'Archive must not have a public read policy');
 assert.ok(migration.includes('create policy "Super admins manage archive"'), 'Archive must be Super Admin-only');
 assert.ok(migration.includes('to_jsonb(e)'));
 assert.ok(migration.includes('source_event_id uuid not null unique'));
