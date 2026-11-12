@@ -201,6 +201,20 @@ $archive$;
 revoke all on function public.archive_expired_events() from public, anon;
 grant execute on function public.archive_expired_events() to authenticated;
 
+-- If pg_cron is enabled in this Supabase project, schedule automatic daily archiving at 02:15 UTC.
+-- If it is not enabled, enable the pg_cron extension and run this migration again.
+do $schedule$
+begin
+  if exists (select 1 from pg_extension where extname = 'pg_cron') then
+    if not exists (select 1 from cron.job where jobname = 'hapn-event-archive-daily') then
+      execute 'select cron.schedule(''hapn-event-archive-daily'', ''15 2 * * *'', ''select public.archive_expired_events();'')';
+    end if;
+  end if;
+exception when undefined_table or undefined_function or invalid_schema_name then
+  raise notice 'pg_cron is not enabled; schedule public.archive_expired_events() daily after enabling pg_cron.';
+end;
+$schedule$;
+
 commit;
 
 -- Bootstrap: create the first Auth user in Supabase Auth, then insert exactly that UID:
