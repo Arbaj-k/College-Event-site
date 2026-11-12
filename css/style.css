@@ -2371,3 +2371,80 @@ body[data-page="home"] .home-calendar {
     background: rgba(255, 255, 255, .2);
   }
 }
+
+
+/* ---------- One-time college selection ---------- */
+.college-picker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(8, 15, 42, .72);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.college-picker {
+  width: min(100%, 460px);
+  padding: clamp(24px, 5vw, 36px);
+  border: 1px solid rgba(255,255,255,.7);
+  border-radius: 24px;
+  background: #fff;
+  color: #172044;
+  box-shadow: 0 28px 90px rgba(0,0,0,.28);
+}
+.college-picker-mark {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 20px;
+  border-radius: 15px;
+  background: #2f45ff;
+  color: #fff;
+  font-size: 1.45rem;
+  font-weight: 900;
+}
+.college-picker-eyebrow {
+  margin: 0 0 8px;
+  color: #2f45ff;
+  font-size: .72rem;
+  font-weight: 850;
+  letter-spacing: .14em;
+}
+.college-picker h2 {
+  margin: 0 0 10px;
+  color: #172044;
+  font-size: clamp(1.55rem, 5vw, 2rem);
+  line-height: 1.15;
+}
+.college-picker-copy {
+  margin: 0 0 22px;
+  color: #65708c;
+  line-height: 1.6;
+}
+.college-picker label {
+  display: block;
+  margin-bottom: 8px;
+  color: #253052;
+  font-size: .86rem;
+  font-weight: 750;
+}
+.college-picker select {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 13px;
+  border: 1px solid #d9deef;
+  border-radius: 12px;
+  background: #fff;
+  color: #172044;
+  font: inherit;
+}
+.college-picker .btn { margin-top: 16px; min-height: 48px; }
+.college-picker-error { margin: 9px 0 0; color: #b42336; font-size: .84rem; }
+.college-picker-footnote { margin: 15px 0 0; color: #7a839c; font-size: .78rem; text-align: center; }
+@media(prefers-reduced-motion:no-preference) {
+  .college-picker { animation: college-picker-in .22s ease-out both; }
+  @keyframes college-picker-in { from { opacity: 0; transform: translateY(10px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+}
