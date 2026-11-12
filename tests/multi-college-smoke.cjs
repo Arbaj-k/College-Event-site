@@ -22,6 +22,8 @@ assert.ok(!migration.includes('Public read published events" on public.events fo
 assert.ok(migration.includes('College admins read own events'));
 assert.ok(migration.includes('college_id = public.current_college_id()'));
 assert.ok(migration.includes('current_date - 7'));
+assert.ok(migration.includes('grant execute on function public.archive_expired_events() to service_role'));
+assert.ok(!migration.includes('grant execute on function public.archive_expired_events() to authenticated'));
 assert.ok(migration.includes('event_title, college_name, event_date, archived_at'));
 assert.ok(!/super-admin-login|super-admin\.html/i.test(home + publicEvents));
 assert.ok(adminAuth.includes("profile.role !== 'college_admin'"));
@@ -32,7 +34,7 @@ assert.ok(superPage.includes('name="robots" content="noindex,nofollow"'));
 for (const section of ['overview','colleges','admins','events','analytics','archive','settings']) {
   assert.ok(superPage.includes('data-view="' + section + '"'), 'Missing dashboard section: ' + section);
 }
-for (const action of ['invite_college_admin','finalize_admin_activation','revoke_invitation','reassign_admin','set_admin_status','delete_college_admin']) {
+for (const action of ['invite_college_admin','finalize_admin_activation','revoke_invitation','reassign_admin','set_admin_status','delete_college_admin','archive_events']) {
   assert.ok(edge.includes(action), 'Missing Edge Function action: ' + action);
 }
 assert.ok(edge.includes('SUPABASE_SERVICE_ROLE_KEY'));
