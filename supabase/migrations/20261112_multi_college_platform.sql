@@ -200,8 +200,8 @@ begin
   return coalesce(archived_count, 0);
 end;
 $archive$;
-revoke all on function public.archive_expired_events() from public, anon;
-grant execute on function public.archive_expired_events() to authenticated;
+revoke all on function public.archive_expired_events() from public, anon, authenticated;
+grant execute on function public.archive_expired_events() to service_role;
 
 -- If pg_cron is enabled in this Supabase project, schedule automatic daily archiving at 02:15 UTC.
 -- If it is not enabled, enable the pg_cron extension and run this migration again.
