@@ -172,7 +172,8 @@
 
   async function uploadPoster(file) {
     const id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2);
-    const path = id + '.' + POSTER_TYPES[file.type];   // extension comes from the verified type, not the file name
+    const folder = CE.currentProfile && CE.currentProfile.college_id ? CE.currentProfile.college_id + '/' : '';
+    const path = folder + id + '.' + POSTER_TYPES[file.type];   // extension comes from the verified type, not the file name
     const { error } = await sb.storage.from(CE.BUCKET).upload(path, file, { contentType: file.type, cacheControl: '31536000', upsert: false });
     if (error) throw error;
     const { data } = sb.storage.from(CE.BUCKET).getPublicUrl(path);
@@ -224,6 +225,8 @@
 
     try {
       const payload = Object.assign({}, values);
+      if (!editing) payload.college_id = CE.currentProfile.college_id;
+      if (editing && editing.college_id !== CE.currentProfile.college_id) throw new Error('You can only edit events assigned to your college.');
       if (file) {
         uploaded = await uploadPoster(file);
         payload.poster_url = uploaded.url;
