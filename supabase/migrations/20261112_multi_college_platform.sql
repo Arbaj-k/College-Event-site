@@ -30,6 +30,23 @@ create table if not exists public.profiles (
 create index if not exists profiles_college_role_idx on public.profiles (college_id, role);
 create index if not exists profiles_email_idx on public.profiles (lower(email));
 
+-- Preserve the existing Admin workflow without elevating anyone to Super Admin.
+-- Existing records are placed in a temporary college pending verified assignment.
+insert into public.colleges (name, description)
+values ('Legacy / Unassigned', 'Temporary home for existing Hapn events and College Admins pending college assignment.')
+on conflict (name) do nothing;
+
+insert into public.profiles (user_id, email, role, college_id, is_active)
+select a.user_id, a.email, 'college_admin', c.id, true
+from public.admins a
+cross join public.colleges c
+where c.name = 'Legacy / Unassigned'
+on conflict (user_id) do update
+set email = excluded.email,
+    role = 'college_admin',
+    college_id = excluded.college_id,
+    is_active = true;
+
 create table if not exists public.admin_invitations (
   id uuid primary key default gen_random_uuid(),
   email text not null,
@@ -48,12 +65,18 @@ alter table public.events add column if not exists college_id uuid references pu
 create index if not exists events_college_date_idx on public.events (college_id, "date" desc);
 create index if not exists events_public_college_date_idx on public.events (is_published, college_id, "date");
 
+update public.events
+set college_id = (select id from public.colleges where name = 'Legacy / Unassigned')
+where college_id is null;
+
 -- Deliberately minimal retention: no event descriptions, links, posters, venue, analytics or metadata.
 create table if not exists public.event_archive (
   id uuid primary key default gen_random_uuid(),
+  source_event_id uuid not null unique,
   event_title text not null,
   college_name text not null,
   event_date date,
+  event_snapshot jsonb not null,
   archived_at timestamptz not null default now()
 );
 create index if not exists event_archive_date_idx on public.event_archive (archived_at desc);
@@ -169,8 +192,7 @@ create policy "Super admins delete posters" on storage.objects for delete to aut
 create policy "College admins delete own posters" on storage.objects for delete to authenticated
   using (bucket_id = 'event-posters' and public.is_college_admin() and (storage.foldername(name))[1] = public.current_college_id()::text);
 
--- Archive events seven days after their effective end date, retaining only approved summary fields.
--- Only Super Admins can invoke this from an authenticated session; database scheduler calls run as owner.
+-- Non-destructive archive: preserve a full JSON snapshot and leave source event rows intact.
 create or replace function public.archive_expired_events()
 returns integer language plpgsql security definer set search_path = ''
 as $archive$
@@ -179,24 +201,22 @@ begin
   if auth.uid() is not null and not public.is_super_admin() then
     raise exception 'Super Admin access required' using errcode = '42501';
   end if;
-  with due as (
-    select e.id, coalesce(e.end_date, e."date") as effective_end,
-           coalesce(nullif(c.name, ''), 'Unassigned college') as college_name,
-           coalesce(nullif(e.title, ''), 'Untitled event') as event_title
-    from public.events e
-    left join public.colleges c on c.id = e.college_id
-    where coalesce(e.end_date, e."date") is not null
-      and coalesce(e.end_date, e."date") <= (current_date - 7)
-  ), inserted as (
-    insert into public.event_archive (event_title, college_name, event_date, archived_at)
-    select d.event_title, d.college_name, d.effective_end, now() from due d
-    returning id
-  )
-  select count(*) into archived_count from inserted;
 
-  delete from public.events e
+  insert into public.event_archive
+    (source_event_id, event_title, college_name, event_date, event_snapshot, archived_at)
+  select e.id,
+         coalesce(nullif(e.title, ''), 'Untitled event'),
+         coalesce(nullif(c.name, ''), 'Unassigned college'),
+         coalesce(e.end_date, e."date"),
+         to_jsonb(e),
+         now()
+  from public.events e
+  left join public.colleges c on c.id = e.college_id
   where coalesce(e.end_date, e."date") is not null
-    and coalesce(e.end_date, e."date") <= (current_date - 7);
+    and coalesce(e.end_date, e."date") <= (current_date - 7)
+  on conflict (source_event_id) do nothing;
+
+  get diagnostics archived_count = row_count;
   return coalesce(archived_count, 0);
 end;
 $archive$;
