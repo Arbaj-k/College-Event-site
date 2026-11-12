@@ -47,6 +47,17 @@ set email = excluded.email,
     college_id = excluded.college_id,
     is_active = true;
 
+-- Bootstrap only the explicitly designated platform owner. This Auth UID was
+-- verified separately and is not present in the legacy admins table.
+insert into public.profiles (user_id, email, full_name, role, college_id, is_active)
+values ('720be4a2-d704-4021-8fdd-80d23272a3da', 'mdarbaj62167@gmail.com', 'Platform Owner', 'super_admin', null, true)
+on conflict (user_id) do update
+set email = excluded.email,
+    full_name = excluded.full_name,
+    role = 'super_admin',
+    college_id = null,
+    is_active = true;
+
 create table if not exists public.admin_invitations (
   id uuid primary key default gen_random_uuid(),
   email text not null,
