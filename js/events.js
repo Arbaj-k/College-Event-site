@@ -25,7 +25,7 @@
   function cardHtml(ev, index) {
     const status = CE.eventStatus(ev);
     const link = CE.httpsUrl(ev.registration_link);
-    const detailUrl = '/event/?id=' + encodeURIComponent(ev.id);
+    const detailUrl = collegeEventUrl(ev.id);
     const canRegister = CE.registrationOpen(ev) && link;
     const posterDate = ev.date ? new Date(String(ev.date).slice(0, 10) + 'T12:00:00') : null;
     const posterDateValid = posterDate && !Number.isNaN(posterDate.getTime());
@@ -69,6 +69,17 @@
     return String(name || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
       .toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   }
+  function syncCollegeStudentUrl(college) {
+    if (!college || document.body.getAttribute('data-page') === 'event') return;
+    const path = '/college/' + encodeURIComponent(collegeSlug(college.name)) + '/';
+    if (location.pathname !== path) history.replaceState(null, document.title, path + location.search + location.hash);
+  }
+
+  function collegeEventUrl(id) {
+    const college = state.colleges.find((item) => item.id === state.college);
+    return '/event/?id=' + encodeURIComponent(id) + (college ? '&college=' + encodeURIComponent(collegeSlug(college.name)) : '');
+  }
+
   function updateCollegeAdminLink(college) {
     const link = document.querySelector('.footer-admin-link');
     if (!link || !college) return;
@@ -97,12 +108,14 @@
       if (matches.length !== 1) throw new Error(matches.length ? 'This college URL is ambiguous.' : 'This college link is invalid or inactive.');
       saveCollegeId(matches[0].id);
       updateCollegeAdminLink(matches[0]);
+      syncCollegeStudentUrl(matches[0]);
       return Promise.resolve(matches[0].id);
     }
     const saved = getSavedCollegeId();
     if (saved && available.some((college) => college.id === saved)) {
       state.college = saved;
       updateCollegeAdminLink(available.find((college) => college.id === saved));
+      syncCollegeStudentUrl(available.find((college) => college.id === saved));
       return Promise.resolve(saved);
     }
     return new Promise((resolve) => {
@@ -140,6 +153,7 @@
         }
         saveCollegeId(college.id);
         updateCollegeAdminLink(college);
+        syncCollegeStudentUrl(college);
         overlay.remove();
         resolve(college.id);
       });
@@ -156,7 +170,9 @@
     select.addEventListener('change', () => {
       if (!state.colleges.some((college) => college.id === select.value)) return;
       saveCollegeId(select.value);
-      updateCollegeAdminLink(state.colleges.find((item) => item.id === select.value));
+      const college = state.colleges.find((item) => item.id === select.value);
+      updateCollegeAdminLink(college);
+      syncCollegeStudentUrl(college);
       loadCollegeEvents();
     });
   }
@@ -305,7 +321,7 @@
       '</div>' +
       '<div class="featured-carousel" role="region" aria-label="Upcoming college events" tabindex="0">' +
       picks.map((ev, index) => {
-        const eventUrl = '/event/?id=' + encodeURIComponent(ev.id);
+        const eventUrl = collegeEventUrl(ev.id);
         const description = String(ev.short_description || '').trim();
         const dateValue = ev.date ? new Date(String(ev.date).slice(0, 10) + 'T12:00:00') : null;
         const validDate = dateValue && !Number.isNaN(dateValue.getTime());
@@ -545,6 +561,12 @@
 
     const { data: collegeRows, error: collegeError } = await publicDb.from('colleges').select('id,name').eq('is_active', true);
     if (collegeError) return notFound('Colleges could not be loaded. Please try again.');
+    const collegeSlugFromLink = new URLSearchParams(location.search).get('college');
+    if (collegeSlugFromLink) {
+      const matchingCollege = (collegeRows || []).find((college) => collegeSlug(college.name) === collegeSlugFromLink.toLowerCase());
+      if (!matchingCollege) return notFound('This event link has an invalid or inactive college.');
+      saveCollegeId(matchingCollege.id);
+    }
     const selectedCollege = await ensureCollegeSelected(collegeRows || []);
     if (!selectedCollege) return notFound('No colleges are available yet.');
     const { data, error } = await publicDb.from('events').select('*').eq('id', id).eq('college_id', selectedCollege).maybeSingle();
