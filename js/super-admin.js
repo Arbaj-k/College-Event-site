@@ -86,7 +86,7 @@ async function init(){
  const reassign=e.target.closest('[data-reassign]');if(reassign){const a=admins.find(x=>x.user_id===reassign.dataset.reassign);const choice=prompt('Enter the exact new college name:\n'+colleges.map(c=>c.name).join('\n'));const c=colleges.find(x=>x.name.toLowerCase()===String(choice||'').toLowerCase());if(c){try{await callApi({action:'reassign_admin',user_id:a.user_id,college_id:c.id});note('Administrator reassigned.',true);await refresh();}catch(err){note(err.message);}}}
  });
  $('refresh-analytics').onclick=refresh;
- $('run-archive').onclick=async()=>{if(!confirm('Archive and permanently remove all events whose end date is at least seven days past?'))return;const {data,error}=await sb.rpc('archive_expired_events');if(error)note(error.message);else{note((data||0)+' event(s) archived and removed.',true);await refresh();await loadArchive();}};
+ $('run-archive').onclick=async()=>{if(!confirm('Archive and permanently remove all events whose end date is at least seven days past?'))return;const result=await callApi({action:'archive_events'});note((result.archived_count||0)+' event(s) archived and removed.',true);await refresh();await loadArchive();};
  if(!await checkAccess())return;
  try{await refresh();go('overview');}catch(err){note(err.message||'Could not load platform data.');}
 }
