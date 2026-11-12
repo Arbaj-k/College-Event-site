@@ -7,6 +7,7 @@
   'use strict';
 
   const CE = window.CE;
+  const publicDb = window.sbPublic || window.sb;
   const LIST_COLUMNS = 'id,title,poster_url,date,time,end_date,end_time,venue,category,short_description,registration_deadline,registration_link,is_featured,is_pinned,college_id';
   const state = { events: [], colleges: [], category: 'All', query: '', selectedDate: '', college: '' };
 
@@ -359,14 +360,14 @@
     try {
       const collegeSelect = document.getElementById('college-filter');
       if (collegeSelect) {
-        const { data: colleges, error: collegeError } = await sb.from('colleges').select('id,name').eq('is_active', true).order('name');
+        const { data: colleges, error: collegeError } = await publicDb.from('colleges').select('id,name').eq('is_active', true).order('name');
         if (collegeError) throw collegeError;
         state.colleges = colleges || [];
         collegeSelect.innerHTML = '<option value="">All colleges</option>' + state.colleges.map(c => '<option value="' + CE.esc(c.id) + '">' + CE.esc(c.name) + '</option>').join('');
         collegeSelect.addEventListener('change', () => { state.college = collegeSelect.value; renderList(); });
       }
 
-      const request = sb.from('events')
+      const request = publicDb.from('events')
         .select(LIST_COLUMNS)
         .order('date', { ascending: true })
         .order('time', { ascending: true });
@@ -438,9 +439,9 @@
     const problem = CE.setupProblem();
     if (problem) return notFound(problem);
 
-    const { data: collegeRows } = await sb.from('colleges').select('id,name').eq('is_active', true);
+    const { data: collegeRows } = await publicDb.from('colleges').select('id,name').eq('is_active', true);
     state.colleges = collegeRows || [];
-    const { data, error } = await sb.from('events').select('*').eq('id', id).maybeSingle();
+    const { data, error } = await publicDb.from('events').select('*').eq('id', id).maybeSingle();
     if (error) { console.error(error); return notFound('This event could not be loaded. Please try again.'); }
     if (!data) return notFound('Event not found.');
 
