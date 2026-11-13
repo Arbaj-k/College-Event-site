@@ -2380,3 +2380,25 @@ body[data-page="home"] .home-calendar {
 .college-preference-copy span{font-size:.76rem;color:var(--muted)}
 .college-preference-bar select{width:min(100%,320px);min-height:44px;padding:9px 38px 9px 12px;border:1px solid #d9def0;border-radius:12px;background:#fff;color:var(--ink);font:inherit;font-weight:650}
 @media(max-width:600px){.college-preference-bar{padding:10px 0}.college-preference-bar>.container{gap:8px}.college-preference-copy{flex-basis:100%}.college-preference-bar select{width:100%;max-width:none;min-height:46px}}
+
+
+/* Compact, conflict-proof college preference bar */
+.college-preference-bar{display:block!important;width:100%;padding:10px 0!important;background:#f2f7f4!important;border-bottom:1px solid #dce9e1!important;overflow:visible}
+.college-preference-bar>.container{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(150px,240px)!important;align-items:center!important;gap:12px!important;max-width:1180px;margin-inline:auto;padding-inline:clamp(16px,4vw,28px)!important}
+.college-preference-bar .college-preference-copy{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:3px!important;min-width:0!important;max-width:100%!important;flex:none!important}
+.college-preference-bar .college-preference-copy strong{display:block!important;margin:0!important;padding:0!important;color:#17372d!important;font-size:15px!important;line-height:1.25!important;font-weight:750!important;letter-spacing:0!important}
+.college-preference-bar .college-preference-copy span{display:block!important;margin:0!important;padding:0!important;color:#64766c!important;font-size:12px!important;line-height:1.35!important;font-weight:450!important;letter-spacing:0!important;white-space:normal!important}
+.college-preference-bar label{display:none!important}
+.college-preference-bar select#college-filter{display:block!important;box-sizing:border-box!important;width:100%!important;max-width:240px!important;min-width:0!important;min-height:42px!important;height:42px!important;margin:0!important;padding:7px 34px 7px 12px!important;border:1px solid #cbdcd1!important;border-radius:11px!important;background-color:#fff!important;color:#17372d!important;font-family:inherit!important;font-size:14px!important;line-height:1.2!important;font-weight:650!important;box-shadow:0 2px 7px rgba(22,65,45,.05)!important;outline:none!important}
+.college-preference-bar select#college-filter:focus-visible{border-color:#197457!important;box-shadow:0 0 0 3px rgba(25,116,87,.14)!important}
+@media(max-width:600px){
+ .college-preference-bar{padding:9px 0!important}
+ .college-preference-bar>.container{grid-template-columns:minmax(0,1fr) minmax(112px,42%)!important;gap:9px!important;padding-inline:16px!important}
+ .college-preference-bar .college-preference-copy strong{font-size:14px!important}
+ .college-preference-bar .college-preference-copy span{font-size:11px!important;line-height:1.3!important}
+ .college-preference-bar select#college-filter{max-width:none!important;min-height:40px!important;height:40px!important;padding:6px 28px 6px 10px!important;font-size:13px!important;border-radius:10px!important}
+}
+@media(max-width:360px){
+ .college-preference-bar>.container{grid-template-columns:minmax(0,1fr) minmax(105px,40%)!important;padding-inline:12px!important}
+ .college-preference-bar .college-preference-copy span{max-width:150px}
+}
