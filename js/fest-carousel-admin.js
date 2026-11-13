@@ -33,7 +33,7 @@ function wirePreview(){
 function renderPreview(){const root=$('carousel-preview');if(!root.hidden){root.innerHTML=previewMarkup();wirePreview()}}
 function broadcast(patch,updatedAt){window.dispatchEvent(new CustomEvent('hapn:fest-record-updated',{detail:{id:fest.id,patch,updated_at:updatedAt}}))}
 async function save(patch){
- const {data,error}=await sb.from('fests').update(patch).eq('id',fest.id).eq('college_id',collegeId).eq('updated_at',fest.updated_at).select('updated_at').maybeSingle();
+ const {data,error}=await sb.from('fests').update({...patch,updated_at:new Date().toISOString()}).eq('id',fest.id).eq('college_id',collegeId).eq('updated_at',fest.updated_at).select('updated_at').maybeSingle();
  if(error)throw error;if(!data)throw new Error('Another admin changed this fest. Refresh before saving to avoid overwriting their changes.');
  fest={...fest,...patch,updated_at:data.updated_at};broadcast(patch,data.updated_at);items=build(fest);render();renderPreview();
 }
