@@ -17,5 +17,6 @@
     if (error) { root.innerHTML = '<p class="muted">College fests will appear here soon.</p>'; console.warn('Fest carousel:',error.message); return; }
     if (!data || !data.length) { root.closest('.fest-carousel-section')?.remove(); return; }
     root.innerHTML = '<div class="fest-carousel-track">' + data.map(card).join('') + '</div>';
-  });
+  })();
+  document.addEventListener('hapn:collegechange',()=>location.reload());
 })();
