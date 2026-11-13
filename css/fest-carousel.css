@@ -103,3 +103,10 @@ body[data-page="fest"] .back-link:hover{border-color:#a9cfc3;text-decoration:non
  .fest-media-section .hapn-carousel-slide{aspect-ratio:16/10}
 }
 @media(prefers-reduced-motion:reduce){body[data-page="fest"] .back-link:hover{transform:none}}
+
+
+/* Fest description follows the directions / action buttons */
+.fest-description-card{margin:0 0 2rem;padding:1.15rem 1.25rem;border:1px solid #e2e9f0;border-radius:18px;background:#fff;box-shadow:0 8px 24px rgba(24,48,75,.045)}
+.fest-description-card .fest-section-kicker{margin-bottom:.55rem}
+.fest-description-card .fest-description{margin:0;padding:0;border:0;color:#46566a;font-size:clamp(.95rem,2.7vw,1.06rem);line-height:1.75;white-space:pre-line;overflow-wrap:anywhere}
+@media(max-width:560px){.fest-description-card{margin-bottom:1.5rem;padding:1rem;border-radius:16px}}
