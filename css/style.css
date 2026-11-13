@@ -2371,3 +2371,12 @@ body[data-page="home"] .home-calendar {
     background: rgba(255, 255, 255, .2);
   }
 }
+
+/* One shared college choice for Events and Fests across Hapn public pages. */
+.college-preference-bar{position:relative;z-index:5;padding:12px 0;background:#f6f7ff;border-bottom:1px solid #e4e7f5}
+.college-preference-bar>.container{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.college-preference-copy{display:flex;flex-direction:column;gap:2px;min-width:150px;flex:1}
+.college-preference-copy strong{font-size:.9rem;color:var(--ink)}
+.college-preference-copy span{font-size:.76rem;color:var(--muted)}
+.college-preference-bar select{width:min(100%,320px);min-height:44px;padding:9px 38px 9px 12px;border:1px solid #d9def0;border-radius:12px;background:#fff;color:var(--ink);font:inherit;font-weight:650}
+@media(max-width:600px){.college-preference-bar{padding:10px 0}.college-preference-bar>.container{gap:8px}.college-preference-copy{flex-basis:100%}.college-preference-bar select{width:100%;max-width:none;min-height:46px}}
