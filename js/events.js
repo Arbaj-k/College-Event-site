@@ -135,6 +135,7 @@
       date.setDate(monday.getDate() + i);
       const key = iso(date);
       const hasEvents = state.events.some((ev) => {
+        if (state.college && ev.college_id !== state.college) return false;
         const start = String(ev.date || '');
         const end = String(ev.end_date || ev.date || '');
         return key >= start && key <= end && CE.eventStatus(ev) === 'upcoming';
@@ -169,7 +170,7 @@
     if (!box) return;
 
     // Use every upcoming event; featured events appear first, without hiding the rest.
-    const upcoming = sortForDisplay(state.events).filter((e) => CE.eventStatus(e) === 'upcoming');
+    const upcoming = sortForDisplay(state.events).filter((e) => CE.eventStatus(e) === 'upcoming' && (!state.college || e.college_id === state.college));
     const picks = upcoming.slice().sort((a, b) => Number(Boolean(b.is_featured)) - Number(Boolean(a.is_featured)) || Number(Boolean(b.is_pinned)) - Number(Boolean(a.is_pinned)) || byDateTime(a, b));
     if (!picks.length) { box.hidden = true; return; }
 
@@ -358,14 +359,20 @@
     if (problem) return showListError(problem);
 
     try {
+      await (window.HapnCollegeSelection?.ready || Promise.resolve());
       const collegeSelect = document.getElementById('college-filter');
+      state.colleges = window.HapnCollegeSelection?.getColleges?.() || [];
+      state.college = window.HapnCollegeSelection?.get?.() || '';
       if (collegeSelect) {
-        const { data: colleges, error: collegeError } = await publicDb.from('colleges').select('id,name').eq('is_active', true).order('name');
-        if (collegeError) throw collegeError;
-        state.colleges = colleges || [];
-        collegeSelect.innerHTML = '<option value="">All colleges</option>' + state.colleges.map(c => '<option value="' + CE.esc(c.id) + '">' + CE.esc(c.name) + '</option>').join('');
-        collegeSelect.addEventListener('change', () => { state.college = collegeSelect.value; renderList(); });
+        collegeSelect.innerHTML = '<option value="">Choose your college</option>' + state.colleges.map(c => '<option value="' + CE.esc(c.id) + '">' + CE.esc(c.name) + '</option>').join('');
+        collegeSelect.value = state.college;
+        collegeSelect.addEventListener('change', () => window.HapnCollegeSelection?.set?.(collegeSelect.value));
       }
+      document.addEventListener('hapn:collegechange', (event) => {
+        state.college = event.detail?.collegeId || '';
+        if (collegeSelect) collegeSelect.value = state.college;
+        renderHomeCalendar(); renderList(); renderNextUp();
+      });
 
       const request = publicDb.from('events')
         .select(LIST_COLUMNS)
