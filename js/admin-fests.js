@@ -12,7 +12,6 @@ async function start(){
  const {data:college,error}=await sb.from('colleges').select('id,name,is_active').eq('id',collegeId).maybeSingle();
  if(error||!college||!college.is_active){CE.showNotice($('fest-error'),'Your assigned college is unavailable. Ask the Super Admin to check your college assignment.');return}
  collegeName=college.name;
- const collegeInput=$('college');collegeInput.value=collegeName;collegeInput.readOnly=true;collegeInput.setAttribute('aria-readonly','true');
  $('photos').addEventListener('change',()=>{const files=Array.from($('photos').files||[]);$('photo-preview').innerHTML=files.slice(0,10).map(f=>'<figure><img alt="" src="'+URL.createObjectURL(f)+'"><figcaption>'+safe(f.name)+'</figcaption></figure>').join('')});
  $('fest-form').addEventListener('submit',submit);$('existing-fests').addEventListener('click',manageExistingFests);await loadExistingFests();
 }
@@ -36,6 +35,7 @@ async function manageExistingFests(e){
 }
 async function submit(e){
  e.preventDefault();const files=Array.from($('photos').files||[]),err=$('fest-error'),btn=$('save-fest');err.hidden=true;
+ if(!$('college').value.trim()){CE.showNotice(err,'Enter the college hosting or organising this fest.');return}
  if(!files.length||files.length>10){CE.showNotice(err,'Choose between 1 and 10 fest photos.');return}
  if(files.some(f=>!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>5*1024*1024)){CE.showNotice(err,'Each image must be JPG, PNG or WebP and no larger than 5 MB.');return}
  if($('end').value&&$('start').value&&$('end').value<$('start').value){CE.showNotice(err,'End date cannot be before start date.');return}
@@ -45,7 +45,7 @@ async function submit(e){
   btn.textContent='Uploading fest photos…';
   for(const file of files){const ext={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[file.type],path=collegeId+'/fests/'+crypto.randomUUID()+'.'+ext;const {error}=await sb.storage.from(CE.BUCKET).upload(path,file,{contentType:file.type,cacheControl:'31536000',upsert:false});if(error)throw error;uploaded.push(sb.storage.from(CE.BUCKET).getPublicUrl(path).data.publicUrl)}
   btn.textContent='Saving fest…';
-  const payload={title:$('title').value.trim(),college_name:collegeName,college_id:collegeId,description:$('description').value.trim()||null,venue:$('venue').value.trim()||null,registration_link:registrationLink||null,start_date:$('start').value||null,end_date:$('end').value||null,photo_urls:uploaded,activities:[],event_ids:[],is_published:$('publish').checked};
+  const payload={title:$('title').value.trim(),college_name:$('college').value.trim(),college_id:collegeId,description:$('description').value.trim()||null,venue:$('venue').value.trim()||null,registration_link:registrationLink||null,start_date:$('start').value||null,end_date:$('end').value||null,photo_urls:uploaded,activities:[],event_ids:[],is_published:$('publish').checked};
   const {data,error}=await sb.from('fests').insert(payload).select('id').single();if(error)throw error;
   CE.toast('Fest created. Add activities and arrange its carousel slides.');location.href='manage-fest-activities.html?id='+encodeURIComponent(data.id);
  }catch(ex){console.error(ex);CE.showNotice(err,/row-level security|permission denied/i.test(ex.message||'')?'Your College Admin account could not create this fest. Check that your college assignment is active.':(ex.message||'Could not create fest.'));
