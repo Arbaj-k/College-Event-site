@@ -1,0 +1,27 @@
+/* Hapn Instagram-style fest feed and independent swipe carousels */
+.fest-grid.fest-feed{display:grid;grid-template-columns:minmax(0,760px);justify-content:center;gap:1.25rem}
+.fest-feed-post{min-width:0;overflow:hidden;border:1px solid var(--line);border-radius:20px;background:var(--surface,#fff);box-shadow:var(--shadow-sm)}
+.fest-feed-header{display:flex;align-items:center;gap:.8rem;padding:1rem}
+.fest-feed-avatar{width:40px;height:40px;display:grid;place-items:center;border-radius:50%;background:var(--primary,#5546d7);color:#fff;font-weight:800}
+.fest-feed-header>div:nth-child(2){flex:1;min-width:0}.fest-feed-header h2{margin:.12rem 0;font-size:1.05rem}.fest-feed-header p{margin:0;color:var(--muted);font-size:.8rem}
+.hapn-carousel{width:100%;min-width:0;margin:0 0 1rem}.hapn-carousel-frame{position:relative;overflow:hidden;background:#111}
+.hapn-carousel-track{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;touch-action:pan-y pinch-zoom;user-select:none}
+.hapn-carousel-track::-webkit-scrollbar{display:none}
+.hapn-carousel-slide{position:relative;flex:0 0 100%;width:100%;min-width:0;aspect-ratio:4/5;margin:0;scroll-snap-align:start;scroll-snap-stop:always;background:#17171d}
+.hapn-carousel-slide img{width:100%;height:100%;display:block;object-fit:contain}
+.hapn-carousel-slide figcaption{position:absolute;inset:auto 0 0;padding:2rem 1rem .8rem;color:white;background:linear-gradient(transparent,rgba(0,0,0,.7));pointer-events:none}
+.hapn-carousel-slide figcaption span{display:block;font-size:.75rem;opacity:.85}
+.hapn-carousel-count{position:absolute;right:.8rem;top:.8rem;padding:.3rem .6rem;border-radius:20px;background:#000a;color:#fff;font-size:.75rem}
+.hapn-carousel-arrow{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;border:0;border-radius:50%;background:#0008;color:#fff;font-size:1.6rem;cursor:pointer}
+.hapn-carousel-arrow:disabled{opacity:0;pointer-events:none}.hapn-carousel-arrow.is-prev{left:.7rem}.hapn-carousel-arrow.is-next{right:.7rem}
+.hapn-carousel-pagination{display:flex;justify-content:center;gap:.4rem;padding:.65rem}
+.hapn-carousel-pagination button{width:6px;height:6px;padding:0;border:0;border-radius:50%;background:var(--muted,#999);opacity:.35}
+.hapn-carousel-pagination button[aria-current=true]{width:8px;height:8px;opacity:1;background:var(--primary,#5546d7)}
+.fest-feed-body{padding:.25rem 1rem 1rem}.fest-feed-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.fest-carousel-admin-list{display:grid;gap:.6rem;margin:1rem 0}
+.fest-carousel-admin-item{display:grid;grid-template-columns:68px 1fr auto;align-items:center;gap:.7rem;padding:.65rem;border:1px solid var(--line);border-radius:12px}
+.fest-carousel-admin-item img{width:68px;height:82px;object-fit:cover;border-radius:8px}
+.fest-carousel-admin-controls{display:flex;gap:.3rem;flex-wrap:wrap}.fest-carousel-admin-controls button{padding:.4rem .55rem;border:1px solid var(--line);border-radius:8px;background:var(--surface,#fff)}
+.fest-carousel-admin-item.is-dragging{opacity:.4}.fest-carousel-admin-item.is-drop-target{outline:2px solid var(--primary)}
+@media(min-width:760px){.hapn-carousel-arrow{opacity:0}.hapn-carousel-frame:hover .hapn-carousel-arrow,.hapn-carousel-arrow:focus-visible{opacity:1}}
+@media(max-width:600px){.fest-feed-post{border-radius:0;border-left:0;border-right:0}.fest-feed-header{padding:.8rem}.fest-feed-body{padding:.8rem}.fest-carousel-admin-item{grid-template-columns:54px 1fr}.fest-carousel-admin-item img{width:54px;height:68px}.fest-carousel-admin-controls{grid-column:1/-1}}
