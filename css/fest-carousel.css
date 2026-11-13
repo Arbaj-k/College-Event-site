@@ -32,3 +32,74 @@
 .fest-carousel-admin-item.is-dragging{opacity:.4}.fest-carousel-admin-item.is-drop-target{outline:2px solid var(--primary)}
 @media(min-width:760px){.hapn-carousel-arrow{opacity:0}.hapn-carousel-frame:hover .hapn-carousel-arrow,.hapn-carousel-arrow:focus-visible{opacity:1}}
 @media(max-width:600px){.fest-carousel-preview{padding:.65rem}.fest-feed-post{border-radius:0;border-left:0;border-right:0}.fest-feed-header{padding:.8rem}.fest-feed-body{padding:.8rem}.fest-carousel-admin-item{grid-template-columns:54px 1fr}.fest-carousel-admin-item img{width:54px;height:68px}.fest-carousel-admin-controls{grid-column:1/-1}}
+
+
+/* ---------- Premium fest detail page ---------- */
+body[data-page="fest"]{background:#f4f7fb;color:#15243a}
+body[data-page="fest"] .site-header{box-shadow:0 4px 22px rgba(21,36,58,.05)}
+body[data-page="fest"] main.section{padding-top:clamp(1.25rem,3vw,2.25rem);padding-bottom:4rem}
+body[data-page="fest"] main>.container{max-width:920px}
+body[data-page="fest"] .back-link{display:inline-flex;align-items:center;gap:.45rem;margin:0 0 1.1rem;padding:.55rem .9rem;border:1px solid #dfe7f1;border-radius:999px;background:#fff;color:#176b57;font-weight:700;font-size:.9rem;box-shadow:0 3px 12px rgba(22,43,68,.04)}
+body[data-page="fest"] .back-link:hover{border-color:#a9cfc3;text-decoration:none;transform:translateX(-2px)}
+.fest-intro-panel{position:relative;overflow:hidden;margin:0 0 1.25rem;padding:clamp(1.2rem,4vw,2.15rem);border:1px solid #e3eaf2;border-radius:24px;background:linear-gradient(135deg,#fff 0%,#f8fbff 65%,#edf7f4 100%);box-shadow:0 14px 38px rgba(24,48,75,.06)}
+.fest-intro-panel:after{content:"";position:absolute;width:220px;height:220px;right:-100px;top:-110px;border-radius:50%;background:radial-gradient(circle,#d9eee7 0%,rgba(217,238,231,0) 70%);pointer-events:none}
+.fest-intro-top{position:relative;z-index:1;display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin-bottom:1rem}
+.fest-live-pill{display:inline-flex;align-items:center;gap:.45rem;padding:.35rem .7rem;border-radius:999px;background:#e7f5ef;color:#176b57;font-size:.7rem;font-weight:850;letter-spacing:.09em}
+.fest-live-pill i{width:7px;height:7px;border-radius:50%;background:#22a477;box-shadow:0 0 0 4px rgba(34,164,119,.12)}
+.fest-intro-college{color:#62728a;font-size:.85rem;font-weight:700}
+.fest-intro-panel h1{position:relative;z-index:1;margin:0 0 1rem;color:#14243a;font-size:clamp(2rem,7vw,3.5rem);line-height:1.02;letter-spacing:-.055em;font-weight:850;overflow-wrap:anywhere}
+.fest-meta-row{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:.55rem;margin-bottom:.9rem}
+.fest-meta-chip{display:inline-flex;align-items:center;gap:.35rem;padding:.5rem .75rem;border:1px solid #e1e9f0;border-radius:12px;background:#fff;color:#41536a;font-size:.82rem;font-weight:650}
+.fest-description{position:relative;z-index:1;margin-top:1rem;padding-top:1rem;border-top:1px solid #e7edf3;color:#46566a;font-size:clamp(.95rem,2.7vw,1.08rem);line-height:1.75;white-space:pre-line;overflow-wrap:anywhere}
+.fest-media-section{overflow:hidden;margin:0 0 1rem;padding:1rem;border:1px solid #e2e9f0;border-radius:22px;background:#fff;box-shadow:0 12px 32px rgba(24,48,75,.055)}
+.fest-section-kicker{display:block;margin:0 0 .45rem;color:#168067;font-size:.7rem;font-weight:850;letter-spacing:.13em}
+.fest-media-section .hapn-carousel{margin:.65rem 0 0}
+.fest-media-section .hapn-carousel-frame{overflow:hidden;border-radius:15px;background:#101d2d}
+.fest-media-section .hapn-carousel-slide{aspect-ratio:4/5;background:#101d2d}
+.fest-media-section .hapn-carousel-slide img{object-fit:contain}
+.fest-media-section .hapn-carousel-slide figcaption{padding:3rem 1rem .9rem;font-size:.85rem}
+.fest-media-section .hapn-carousel-count{top:.75rem;right:.75rem;padding:.4rem .7rem;background:rgba(9,20,34,.72);backdrop-filter:blur(8px);font-weight:750}
+.fest-media-section .hapn-carousel-arrow{width:42px;height:42px;background:rgba(8,22,38,.68);box-shadow:0 4px 16px rgba(0,0,0,.16)}
+.fest-media-section .hapn-carousel-pagination{padding:.9rem .4rem .2rem;gap:.48rem}
+.fest-media-section .hapn-carousel-pagination button{width:7px;height:7px;background:#9aabba;opacity:.55}
+.fest-media-section .hapn-carousel-pagination button[aria-current=true]{width:20px;border-radius:99px;background:#168067;opacity:1}
+.fest-action-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;margin:1rem 0 2.2rem}
+.fest-action-row .btn{min-height:54px;padding:.8rem 1rem;border-radius:15px;font-size:.94rem;box-shadow:0 7px 18px rgba(20,45,67,.06)}
+.fest-action-row .btn-primary{background:#14765f;border-color:#14765f;color:#fff}
+.fest-action-row .btn-primary:hover{background:#0f624e}
+.fest-action-row .btn-outline{border-color:#dce6e9;background:#fff;color:#1a3440}
+.fest-schedule{padding:clamp(1.1rem,3vw,1.6rem);border:1px solid #e2e9f0;border-radius:22px;background:#fff;box-shadow:0 12px 32px rgba(24,48,75,.045)}
+.fest-schedule-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:1.15rem}
+.fest-schedule-heading h2{margin:0;color:#172a3b;font-size:clamp(1.45rem,4vw,2rem);letter-spacing:-.04em}
+.fest-activity-count{flex:0 0 auto;padding:.35rem .6rem;border-radius:999px;background:#edf6f2;color:#176b57;font-size:.65rem;font-weight:850;letter-spacing:.06em}
+.fest-schedule .fest-events-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:.85rem;margin-top:0}
+.fest-schedule .fest-event{overflow:hidden;padding:0 0 1rem;border:1px solid #e6edf2;border-radius:17px;background:#fff;box-shadow:0 5px 18px rgba(20,45,67,.04)}
+.fest-schedule .fest-event h3,.fest-schedule .fest-event p,.fest-schedule .fest-event .btn{margin-left:1rem;margin-right:1rem}
+.fest-schedule .fest-event h3{margin-top:.85rem;color:#172a3b;font-size:1.05rem}
+.fest-schedule .fest-event p{line-height:1.55}
+.fest-schedule .fest-event .activity-poster{width:100%;max-height:300px;margin:0 0 .8rem;border-radius:0;object-fit:contain;background:#f0f4f7}
+.fest-schedule-empty{padding:1.6rem 1rem;border:1px dashed #d6e5e1;border-radius:16px;background:#f7fbf9;text-align:center}
+.fest-schedule-empty>span{display:grid;place-items:center;width:42px;height:42px;margin:0 auto .7rem;border-radius:14px;background:#e4f3ec;color:#168067;font-size:1.35rem}
+.fest-schedule-empty strong{display:block;color:#1a3440;font-size:1.05rem}
+.fest-schedule-empty p{max-width:360px;margin:.35rem auto 0;color:#68798a;font-size:.9rem}
+@media(max-width:560px){
+ body[data-page="fest"] main.section{padding-top:1rem}
+ body[data-page="fest"] .back-link{margin-bottom:.85rem}
+ .fest-intro-panel{padding:1.15rem;border-radius:19px}
+ .fest-intro-top{margin-bottom:.8rem}
+ .fest-intro-panel h1{font-size:clamp(2rem,10vw,2.8rem)}
+ .fest-meta-chip{font-size:.76rem;padding:.45rem .6rem}
+ .fest-description{font-size:.96rem;line-height:1.68}
+ .fest-media-section{padding:.65rem;border-radius:18px}
+ .fest-media-section .hapn-carousel-frame{border-radius:12px}
+ .fest-action-row{grid-template-columns:1fr;gap:.55rem;margin-bottom:1.6rem}
+ .fest-action-row .btn{min-height:50px}
+ .fest-schedule{padding:1rem;border-radius:18px}
+ .fest-schedule-heading{align-items:flex-start}
+ .fest-activity-count{font-size:.58rem}
+}
+@media(min-width:760px){
+ body[data-page="fest"] #fest-detail{max-width:820px;margin-inline:auto}
+ .fest-media-section .hapn-carousel-slide{aspect-ratio:16/10}
+}
+@media(prefers-reduced-motion:reduce){body[data-page="fest"] .back-link:hover{transform:none}}
