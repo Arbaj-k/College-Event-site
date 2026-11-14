@@ -115,3 +115,9 @@ body[data-page="fest"] .back-link:hover{border-color:#a9cfc3;text-decoration:non
 .fest-description-card .fest-section-kicker{margin-bottom:.55rem}
 .fest-description-card .fest-description{margin:0;padding:0;border:0;color:#46566a;font-size:clamp(.95rem,2.7vw,1.06rem);line-height:1.75;white-space:pre-line;overflow-wrap:anywhere}
 @media(max-width:560px){.fest-description-card{margin-bottom:1.5rem;padding:1rem;border-radius:16px}}
+
+/* Share action belongs on homepage College Fests cards only */
+.fest-card{position:relative}
+.fest-home-share{position:absolute;z-index:3;top:.75rem;right:.75rem;display:grid;place-items:center;width:40px;height:40px;border:1px solid rgba(255,255,255,.65);border-radius:50%;background:rgba(12,20,32,.72);color:#fff;box-shadow:0 3px 14px rgba(0,0,0,.22);backdrop-filter:blur(8px);cursor:pointer}
+.fest-home-share:hover{background:var(--primary,#5546d7);color:#fff}
+.fest-home-share:focus-visible{outline:3px solid var(--primary);outline-offset:3px}
