@@ -2,7 +2,7 @@
 'use strict';
 const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let user=null, colleges=[], admins=[], invitations=[], events=[], collegeDomains=[], currentView='overview', adminTab='admins';
-const titles={overview:'Overview',colleges:'Colleges',admins:'College Admins',events:'All Events',analytics:'Analytics',archive:'Event Archive',settings:'Settings'};
+const titles={overview:'Overview',colleges:'Colleges',admins:'College Admins',events:'All Events',analytics:'Analytics',settings:'Settings'};
 function note(t,ok=false){$('notice').hidden=false;$('notice').className='notice'+(ok?' success':'');$('notice').textContent=t;}
 function clearNote(){$('notice').hidden=true;}
 async function checkAccess(){
@@ -13,7 +13,7 @@ async function checkAccess(){
  if(error||p?.role!=='super_admin'||p.is_active!==true){$('gate').textContent='Access denied. This page is restricted to approved Super Admin accounts.';await sb.auth.signOut();return false;}
  user=u.user;$('user-email').textContent=user.email||'';$('gate').hidden=true;$('app').hidden=false;return true;
 }
-function go(view){currentView=view;document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id==='view-'+view));document.querySelectorAll('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.view===view));$('page-title').textContent=titles[view];$('sidebar').classList.remove('open');if(view==='colleges')renderColleges();if(view==='admins')loadAdmins();if(view==='events')renderEvents();if(view==='analytics')renderAnalytics();if(view==='archive')loadArchive();}
+function go(view){currentView=view;document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id==='view-'+view));document.querySelectorAll('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.view===view));$('page-title').textContent=titles[view];$('sidebar').classList.remove('open');if(view==='colleges')renderColleges();if(view==='admins')loadAdmins();if(view==='events')renderEvents();if(view==='analytics')renderAnalytics();}
 async function fetchAll(table,columns,orderBy,ascending,filter){
  let rows=[],offset=0;
  while(offset<50000){let query=sb.from(table).select(columns).order(orderBy,{ascending}).range(offset,offset+999);if(filter)query=filter(query);const {data,error}=await query;if(error)throw error;rows=rows.concat(data||[]);if(!data||data.length<1000)break;offset+=1000;}
@@ -48,7 +48,6 @@ function renderAdmins(){
 async function loadAdmins(){try{const [a,i]=await Promise.all([fetchAll('profiles','user_id,email,full_name,college_id,is_active,created_at','created_at',false,q=>q.eq('role','college_admin')),fetchAll('admin_invitations','*','created_at',false)]);admins=a;invitations=i;renderAdmins();}catch(err){note(err.message);}}
 function renderEvents(){const q=$('event-search').value.toLowerCase(),college=$('event-college-filter').value;const list=events.filter(e=>(!college||e.college_id===college)&&(!q||String(e.title).toLowerCase().includes(q)));$('events-list').innerHTML=list.length?table(['EVENT','COLLEGE','DATE','STATUS','ACTIONS'],list.map(e=>[esc(e.title||'Untitled'),esc(colleges.find(c=>c.id===e.college_id)?.name||'Unassigned'),esc(e.date||'—'),e.is_published?'<span class="pill">Published</span>':'<span class="pill off">Draft</span>','<button class="small-btn" data-edit-event="'+e.id+'">Edit</button> <button class="small-btn danger" data-delete-event="'+e.id+'">Delete</button>'])):'<div class="empty">No events found.</div>';}
 function renderAnalytics(){const rows=colleges.map(c=>({name:c.name,n:events.filter(e=>e.college_id===c.id).length})).sort((a,b)=>b.n-a.n),max=Math.max(1,...rows.map(r=>r.n));$('college-analytics').innerHTML=rows.map(r=>'<div class="bar-row"><span>'+esc(r.name)+'</span><div class="bar-track"><div class="bar-fill" style="width:'+(r.n/max*100)+'%"></div></div><b>'+r.n+'</b></div>').join('')||'<div class="empty">Add colleges and events to see analytics.</div>';}
-async function loadArchive(){const {data,error}=await sb.from('event_archive').select('id,event_title,college_name,event_date,archived_at').order('archived_at',{ascending:false}).limit(500);$('archive-list').innerHTML=error?'<div class="empty">'+esc(error.message)+'</div>':data.length?table(['EVENT','COLLEGE','EVENT DATE','ARCHIVED ON'],data.map(x=>[esc(x.event_title),esc(x.college_name),esc(x.event_date||'—'),esc(new Date(x.archived_at).toLocaleString())])):'<div class="empty">Archive is empty.</div>';}
 function openCollege(c){$('college-dialog-title').textContent=c?'Edit college':'Add college';$('college-id').value=c?.id||'';$('college-name').value=c?.name||'';$('college-logo').value=c?.logo_url||'';$('college-website').value=c?.website_url||'';$('college-description').value=c?.description||'';$('college-active').checked=c?.is_active!==false;$('college-domains').value=c?collegeDomains.filter(d=>d.college_id===c.id&&d.is_active).map(d=>d.domain).join('\\n'):'';$('college-dialog').showModal();}
 async function callApi(body){const {data:{session}}=await sb.auth.getSession();const {data,error}=await sb.functions.invoke('super-admin-api',{body,headers:{Authorization:'Bearer '+session.access_token}});if(error)throw error;if(data?.error)throw new Error(data.error);return data;}
 async function init(){
@@ -87,7 +86,6 @@ async function init(){
  const reassign=e.target.closest('[data-reassign]');if(reassign){const a=admins.find(x=>x.user_id===reassign.dataset.reassign);const choice=prompt('Enter the exact new college name:\n'+colleges.map(c=>c.name).join('\n'));const c=colleges.find(x=>x.name.toLowerCase()===String(choice||'').toLowerCase());if(c){try{await callApi({action:'reassign_admin',user_id:a.user_id,college_id:c.id});note('Administrator reassigned.',true);await refresh();}catch(err){note(err.message);}}}
  });
  $('refresh-analytics').onclick=refresh;
- $('run-archive').onclick=async()=>{if(!confirm('Copy all events whose effective end date is at least seven days past into the private archive? Original event records will remain unchanged.'))return;const result=await callApi({action:'archive_events'});note((result.archived_count||0)+' event(s) copied to the private archive. Original event records remain unchanged.',true);await refresh();await loadArchive();};
  if(!await checkAccess())return;
  try{await refresh();go('overview');}catch(err){note(err.message||'Could not load platform data.');}
 }
