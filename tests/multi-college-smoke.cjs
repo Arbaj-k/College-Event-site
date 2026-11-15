@@ -66,7 +66,7 @@ assert.ok(campusLogin.includes("signInWithOtp"));
 assert.ok(campusLogin.includes("verifyOtp"));
 assert.ok(campusLogin.includes("emailRedirectTo:location.origin+'/connect/'"));
 assert.ok(campusLogin.includes("location.href='/connect/board/'"));
-assert.ok(campusBoard.includes("public.campus_posts"));
+assert.ok(campusBoard.includes("from('campus_posts')"));
 assert.ok(campusBoard.includes("ensure_campus_member"));
 assert.ok(home.includes('class="campus-board-card"'));
 assert.ok(home.includes('href="/connect/"'));
