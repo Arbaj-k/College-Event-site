@@ -6,6 +6,7 @@
 - A college-email magic-link login. The email must match a domain approved by Hapn Super Admin.
 - A Super Admin-only domain allowlist, managed from the existing **Colleges → Add/Edit College** dialog. Enter one domain per line, without `@`.
 - Verified student membership is assigned to the college that owns the exact email domain.
+- College Admin board access also requires an approved domain matching their assigned college; disabling a domain revokes board access through RLS.
 - A live college-scoped post feed at `/connect/board/`. Students see only posts for their assigned college. Row Level Security enforces this in PostgreSQL.
 - Existing College Admin accounts can open their own college board and moderate posts; they cannot cross into another college.
 
