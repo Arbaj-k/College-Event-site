@@ -30,7 +30,7 @@ begin
     where p.college_id = p_college_id
       and p.status = 'active'
       and (p.expires_at is null or p.expires_at > now())
-      and (p.visibility in ('all','college'))
+      and (p.visibility='all' or (p.visibility='college' and (exists(select 1 from public.campus_members cm where cm.user_id=auth.uid() and cm.college_id=p_college_id) or exists(select 1 from public.profiles pr where pr.user_id=auth.uid() and pr.role='college_admin' and pr.is_active=true and pr.college_id=p_college_id))))
       and not exists (
         select 1 from public.campus_post_reports r where r.post_id = p.id
       )
@@ -66,7 +66,7 @@ begin
   where p.college_id = p_college_id
     and p.status = 'active'
     and (p.expires_at is null or p.expires_at > now())
-    and p.visibility in ('all','college')
+    and (p.visibility='all' or (p.visibility='college' and (exists(select 1 from public.campus_members cm where cm.user_id=auth.uid() and cm.college_id=p_college_id) or exists(select 1 from public.profiles pr where pr.user_id=auth.uid() and pr.role='college_admin' and pr.is_active=true and pr.college_id=p_college_id))))
     and p.created_at >= now() - interval '24 hours'
     and not exists (select 1 from public.campus_post_reports r where r.post_id = p.id);
 
