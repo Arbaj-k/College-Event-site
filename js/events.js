@@ -247,7 +247,7 @@
       const b=renderShareCareCardB(preview||{college_name:collegeName,posts:[]},loading,previewError);
       if(eventHtml.length){slideItems.push(eventHtml[0],a);slideItems.push(...eventHtml.slice(1));}
       else slideItems.push(a);
-      if(eventHtml.length>=2){const pos=Math.min(5,Math.max(2,slideItems.length-1));slideItems.splice(pos,0,b);}
+      if(eventHtml.length>=3){const pos=Math.min(5,slideItems.length-1);slideItems.splice(pos,0,b);}
       else slideItems.push(b);
     }
     const count=slideItems.length;
@@ -266,9 +266,22 @@
     box.querySelector('.carousel-dots').addEventListener('click',e=>{const d=e.target.closest('[data-slide-to]');if(d)goTo(Number(d.dataset.slideTo));});
     let auto=null,paused=false;const stop=()=>{if(auto){clearInterval(auto);auto=null;}};const start=()=>{stop();if(count<2||matchMedia('(prefers-reduced-motion: reduce)').matches)return;auto=setInterval(()=>{if(!document.hidden&&!paused)goTo(activeIndex+1);},3000);};
     box.addEventListener('mouseenter',()=>{paused=true;stop();});box.addEventListener('mouseleave',()=>{paused=false;start();});box.addEventListener('focusin',stop);box.addEventListener('focusout',e=>{if(!box.contains(e.relatedTarget))start();});rail.addEventListener('pointerdown',()=>{paused=true;stop();},{passive:true});rail.addEventListener('pointerup',()=>{setTimeout(()=>{paused=false;if(!box.matches(':hover')&&!box.contains(document.activeElement))start();},900);},{passive:true});document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();else if(!paused)start();});
-    box.addEventListener('click',e=>{const post=e.target.closest('[data-snc-post]');if(post){shareCareEvent('sharencare_card_a_post_click',{post_id:post.dataset.sncPost});location.href='/connect/board/?post='+encodeURIComponent(post.dataset.sncPost);return;}const card=e.target.closest('[data-snc-card]');if(card&&!e.target.closest('a,button')){shareCareEvent('sharencare_card_'+card.dataset.sncCard+'_click');location.href='/connect/';}});
+    box.addEventListener('click',e=>{const openLink=e.target.closest('.snc-open');if(openLink){const card=openLink.closest('[data-snc-card]');if(card)shareCareEvent('sharencare_card_'+card.dataset.sncCard+'_click');}const post=e.target.closest('[data-snc-post]');if(post){shareCareEvent('sharencare_card_a_post_click',{post_id:post.dataset.sncPost});location.href='/connect/board/?post='+encodeURIComponent(post.dataset.sncPost);return;}const card=e.target.closest('[data-snc-card]');if(card&&!e.target.closest('a,button')){shareCareEvent('sharencare_card_'+card.dataset.sncCard+'_click');location.href='/connect/';}});
     box.addEventListener('keydown',e=>{const card=e.target.closest('[data-snc-card]');if(card&&(e.key==='Enter'||e.key===' ')){if(e.target.closest('a,button'))return;e.preventDefault();shareCareEvent('sharencare_card_'+card.dataset.sncCard+'_click');location.href='/connect/';}});
     const seen=new WeakSet();if('IntersectionObserver'in window){const io=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting&&entry.intersectionRatio>=.6&&!seen.has(entry.target)){seen.add(entry.target);shareCareEvent('sharencare_card_'+entry.target.dataset.sncCard+'_impression');}}),{threshold:[.6]});allCards.filter(c=>c.dataset.sncCard).forEach(c=>io.observe(c));}
     setActive(0);box.hidden=false;box.classList.add('ticket-ready');requestAnimationFrame(()=>goTo(0,'auto'));start();
+    const aCard=allCards.findIndex(c=>c.dataset.sncCard==='a');
+    const aElement=aCard>=0?allCards[aCard]:null;
+    let rowIndex=0,rowTimer=null;
+    const rotateRows=()=>{if(!aElement||aCard!==activeIndex||paused||document.hidden||matchMedia('(prefers-reduced-motion: reduce)').matches)return;const rows=Array.from(aElement.querySelectorAll('.snc-post-row'));if(rows.length<2)return;rowIndex=(rowIndex+1)%rows.length;rows.forEach((r,i)=>r.classList.toggle('newest',i===rowIndex));const dotsRow=aElement.querySelectorAll('.snc-progress i');dotsRow.forEach((d,i)=>d.classList.toggle('on',i===rowIndex));};
+    const startRows=()=>{if(rowTimer)clearInterval(rowTimer);if(aElement&&aCard===activeIndex&&!matchMedia('(prefers-reduced-motion: reduce)').matches)rowTimer=setInterval(rotateRows,5000);};
+    const stopRows=()=>{if(rowTimer){clearInterval(rowTimer);rowTimer=null;}};
+    const previousSetActive=setActive;
+    setActive=index=>{previousSetActive(index);if(index===aCard)startRows();else stopRows();};
+    startRows();
+    box.addEventListener('mouseenter',stopRows);box.addEventListener('mouseleave',startRows);
+    box.addEventListener('focusin',stopRows);box.addEventListener('focusout',e=>{if(!box.contains(e.relatedTarget))startRows();});
+    rail.addEventListener('pointerdown',stopRows,{passive:true});rail.addEventListener('pointerup',()=>setTimeout(startRows,900),{passive:true});
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)stopRows();else startRows();});
   }
 
