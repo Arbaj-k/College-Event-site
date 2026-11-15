@@ -229,9 +229,18 @@
     const collegeName = state.colleges.find(c => c.id === collegeId)?.name || 'YOUR CAMPUS';
     if (collegeId) {
       const cached = shareCareCache.key === String(collegeId) && Date.now()-shareCareCache.at<60000;
-      loading = !cached;
-      try { preview = await loadShareCarePreview(collegeId); loading = false; }
-      catch (error) { console.warn('Share N Care preview unavailable:', error); previewError = true; }
+      if (cached) { preview = shareCareCache.data; previewError = !!shareCareCache.error; }
+      else {
+        loading = true;
+        if (!shareCarePending || shareCarePending.key !== String(collegeId)) {
+          const pending = loadShareCarePreview(collegeId);
+          shareCarePending = { key: String(collegeId), promise: pending };
+          pending.catch(error => console.warn('Share N Care preview unavailable:', error)).finally(() => {
+            if (shareCarePending?.key === String(collegeId)) shareCarePending = null;
+            if (state.college === collegeId || window.HapnCollegeSelection?.get?.() === collegeId) renderNextUp();
+          });
+        }
+      }
     }
     if (!picks.length && !collegeId) { box.hidden = true; return; }
     const cards = [];
