@@ -99,7 +99,7 @@ begin
   select p_college_id, d, true, now() from unnest(normalized) d
   on conflict (domain) do update
     set is_active = true, updated_at = now()
-    where public.college_email_domains.college_id = excluded.college_id;
+    where college_email_domains.college_id = excluded.college_id;
 
   return query
     select * from public.college_email_domains
