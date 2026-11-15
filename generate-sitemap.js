@@ -1,4 +1,5 @@
 /* Generate a sitemap containing public pages and published event detail URLs. */
+const fs = require('node:fs');
 const baseUrl = 'https://hapn.info';
 const supabaseUrl = (process.env.SUPABASE_URL || '').trim().replace(/\/$/, '');
 const anonKey = (process.env.SUPABASE_ANON_KEY || '').trim();
