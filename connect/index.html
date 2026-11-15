@@ -85,7 +85,7 @@ button.addEventListener('click',async()=>{
  button.disabled=true;button.textContent='Connecting to Google…';
  try{sessionStorage.setItem('hapn-connect-next',nextPath);}catch(e){}
  try{
-  const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/connect/',queryParams:{prompt:'select_account'},skipBrowserRedirect:false}});
+  const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/connect/',skipBrowserRedirect:false}});
   if(error)throw error;
  }catch(error){status(error.message||'Google sign-in could not start.',true);button.disabled=false;button.textContent='Continue with Google';}
 });
