@@ -42,14 +42,27 @@ const status=(message,error)=>{const el=document.getElementById('status');el.tex
 const button=document.getElementById('google-login');
 async function completeGoogleLogin(){
  const url=new URL(location.href),code=url.searchParams.get('code');
+ const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));
+ const accessToken=hashParams.get('access_token');
+ const refreshToken=hashParams.get('refresh_token');
+ const oauthError=url.searchParams.get('error_description')||url.searchParams.get('error')||hashParams.get('error_description')||hashParams.get('error');
+ if(oauthError)throw new Error(oauthError);
  if(code){
   const {error}=await sb.auth.exchangeCodeForSession(code);
+  if(error)throw error;
+  history.replaceState({},document.title,'/connect/');
+ }else if(accessToken){
+  if(!refreshToken)throw new Error('Google sign-in returned an incomplete session. Please try again.');
+  const {error}=await sb.auth.setSession({access_token:accessToken,refresh_token:refreshToken});
   if(error)throw error;
   history.replaceState({},document.title,'/connect/');
  }
  const {data:{session},error:sessionError}=await sb.auth.getSession();
  if(sessionError)throw sessionError;
- if(!session)return;
+ if(!session){
+  if(code||accessToken||url.searchParams.has('error')||hashParams.has('error'))throw new Error('Google sign-in could not establish a session. Please try again.');
+  return;
+ }
  const email=String(session.user.email||'').trim().toLowerCase();
  if(!email||session.user.app_metadata?.provider!=='google'||session.user.email_confirmed_at==null){
   await sb.auth.signOut();throw new Error('Please use a verified college Google account.');
