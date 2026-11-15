@@ -2457,3 +2457,32 @@ body[data-page="home"] .home-calendar {
 #next-up .snc-b-head{font-family:Impact,"Arial Narrow",system-ui,sans-serif;font-stretch:condensed}
 #next-up .snc-post-list .snc-skeleton{min-height:0}
 @media(max-width:380px){#next-up .snc-b-head{font-size:clamp(32px,10vw,42px)}#next-up .snc-b-name{font-size:23px}#next-up .snc-chips{margin:5px 0}#next-up .snc-b-preview{min-height:60px;padding:8px}#next-up .snc-actions{margin-top:6px}#next-up .snc-open{min-height:32px;padding:6px 11px}}
+
+
+/* Compact Share N Care preview so all four rows fit inside the shared event-card frame */
+@media(max-width:600px){
+  #next-up .snc-card-a{aspect-ratio:4/5;min-height:0;padding:clamp(10px,2.8vw,14px)}
+  #next-up .snc-card-a .snc-top .poster-share-button{width:34px;height:34px}
+  #next-up .snc-card-a .snc-live{padding:5px 8px;font-size:9px}
+  #next-up .snc-card-a .snc-title{margin-top:8px;font-size:clamp(29px,7.2vw,38px);line-height:.98}
+  #next-up .snc-card-a .snc-kicker{margin:5px 0 7px;font-size:9px;letter-spacing:.10em}
+  #next-up .snc-card-a .snc-post-list{flex:1 1 0;min-height:0;gap:5px;overflow:hidden}
+  #next-up .snc-card-a .snc-post-row{flex:1 1 0;min-height:0;gap:7px;padding:5px;border-width:1px;border-radius:13px}
+  #next-up .snc-card-a .snc-avatar{width:clamp(32px,8vw,40px);height:clamp(32px,8vw,40px);border-radius:11px;font-size:14px}
+  #next-up .snc-card-a .snc-post-copy{gap:3px}
+  #next-up .snc-card-a .snc-post-text{font-size:clamp(10px,2.8vw,13px);line-height:1.16;-webkit-line-clamp:2}
+  #next-up .snc-card-a .snc-post-meta{gap:4px;font-size:8px;line-height:1.1}
+  #next-up .snc-card-a .snc-post-meta span{padding:1px 4px;max-width:52%}
+  #next-up .snc-card-a .snc-footer{min-height:15px;margin-top:5px}
+  #next-up .snc-card-a .snc-progress i{width:4px;height:4px}
+  #next-up .snc-card-a .snc-progress i.on{width:13px}
+  #next-up .snc-card-a .snc-more{font-size:8px}
+  #next-up .snc-card-a .snc-actions{margin-top:5px}
+  #next-up .snc-card-a .snc-open{min-height:32px;padding:6px 13px;font-size:11px}
+}
+@media(max-width:380px){
+  #next-up .snc-card-a .snc-title{font-size:29px}
+  #next-up .snc-card-a .snc-post-row{gap:5px;padding:4px}
+  #next-up .snc-card-a .snc-post-text{font-size:10px}
+  #next-up .snc-card-a .snc-post-meta{font-size:7px}
+}
