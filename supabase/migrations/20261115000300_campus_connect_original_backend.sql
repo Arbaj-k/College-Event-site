@@ -142,6 +142,7 @@ end $$;
 drop trigger if exists campus_connect_request_notify_owner on public.campus_connect_requests;
 create trigger campus_connect_request_notify_owner after insert on public.campus_connect_requests
  for each row execute function public.campus_connect_request_notify_owner();
+revoke all on function public.campus_connect_request_notify_owner() from public, anon, authenticated;
 
 insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
 values('campus-post-images','campus-post-images',true,5242880,array['image/jpeg','image/png','image/webp','image/gif'])
