@@ -577,8 +577,7 @@ async function load() {
 async function refreshPosts() { try { S.posts = await api.listPosts(); S.error = ''; } catch (e) { S.error = e.message; } render(); }
 function go(v) { S.view = v; S.type = 'All'; S.q = ''; if (v === 'notifs') { setTimeout(() => { api.markAllRead(); renderChrome(); }, 800); } render(); window.scrollTo(0, 0); }
 
-/* Demo timers: simulate the other student responding. */
-function demoReply() {}
+/* Real connection requests are handled by their post owners. */
 
 /* =========================================================
    EVENTS (delegated)
@@ -675,9 +674,7 @@ document.addEventListener('submit', async (e) => {
 
 /* Init */
 load().then(() => {
-  /* Resume demo replies for requests still pending after a refresh. */
-  
-});
+  });
 </script>
 </body>
 </html>
