@@ -68,7 +68,7 @@ async function finishLogin(){
  const {data:member,error:memberError}=await sb.rpc('ensure_campus_member');
  if(memberError){await sb.auth.signOut();throw new Error(memberError.message||'This account is not approved for Campus Board.');}
  const m=Array.isArray(member)?member[0]:member;
- if(!m?.college_id){await sb.auth.signOut();throw new Error('Your college membership could not be verified.');}
+ if(!m?.college_id){await sb.auth.signOut();throw new Error('Your college membership could not be verified.');}const savedProfile=JSON.parse(localStorage.getItem('hapn-campus-profile')||'{}');const fullName=$('full-name').value.trim()||savedProfile.fullName||'';const academicYear=$('academic-year').value||savedProfile.academicYear||null;if(fullName||academicYear){const {error:profileError}=await sb.from('campus_members').update({full_name:fullName||null,academic_year:academicYear}).eq('user_id',session.user.id);if(profileError)throw profileError;}localStorage.removeItem('hapn-campus-profile');
  $('login-form').classList.add('hidden');$('intro').classList.add('hidden');$('heading').textContent='You’re verified.';
  $('welcome').textContent='Signed in as '+m.email+' · '+m.college_name+'. Your college membership is confirmed.';
  $('verified').classList.remove('hidden');status('Email verified. Campus Board access confirmed.');
@@ -77,7 +77,7 @@ $('login-form').addEventListener('submit',async e=>{
  e.preventDefault();const email=cleanEmail($('email').value),button=$('send');
  button.disabled=true;button.textContent='Checking college…';
  try{
-   await activeCollegeFor(email);
+   await activeCollegeFor(email);localStorage.setItem('hapn-campus-profile',JSON.stringify({fullName:$('full-name').value.trim(),academicYear:$('academic-year').value||null}));
    const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+'/connect/',shouldCreateUser:true,data:{full_name:$('full-name').value.trim()}}});
    if(error)throw error;
    status('Verification link sent to '+email+'. Open the email and click Verify & Login. The link can only be used once.');
@@ -89,7 +89,7 @@ $('enter').addEventListener('click',()=>{location.href='/connect/board/';});
 $('logout').addEventListener('click',async()=>{await sb.auth.signOut();location.reload();});
 document.addEventListener('DOMContentLoaded',async()=>{
  if(!window.sb){status(window.CE?.setupProblem?.()||'Could not connect to Hapn.',true);$('send').disabled=true;return;}
- try{await finishLogin();}catch(e){status(e.message||'Could not verify your account.',true);}
+ try{const saved=JSON.parse(localStorage.getItem('hapn-campus-profile')||'{}');if(saved.fullName)$('full-name').value=saved.fullName;if(saved.academicYear)$('academic-year').value=saved.academicYear;await finishLogin();catch(e){status(e.message||'Could not verify your account.',true);}
 });
 })();
 </script>
