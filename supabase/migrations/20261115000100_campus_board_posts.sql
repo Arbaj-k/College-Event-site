@@ -27,7 +27,7 @@ returns uuid language sql stable security definer set search_path = ''
 as $$
   select coalesce(
     (select m.college_id from public.campus_members m join public.colleges c on c.id=m.college_id and c.is_active=true join public.college_email_domains d on d.college_id=m.college_id and d.domain=lower(split_part(m.email,'@',2)) and d.is_active=true where m.user_id=(select auth.uid()) limit 1),
-    (select p.college_id from public.profiles p join public.colleges c on c.id=p.college_id and c.is_active=true where p.user_id=(select auth.uid()) and p.role='college_admin' and p.is_active=true limit 1)
+    (select p.college_id from public.profiles p join public.colleges c on c.id=p.college_id and c.is_active=true join public.college_email_domains d on d.college_id=p.college_id and d.domain=lower(split_part(p.email,'@',2)) and d.is_active=true where p.user_id=(select auth.uid()) and p.role='college_admin' and p.is_active=true limit 1)
   );
 $$;
 revoke all on function public.current_campus_college_id() from public, anon;
