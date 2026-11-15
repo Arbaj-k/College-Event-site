@@ -2486,3 +2486,29 @@ body[data-page="home"] .home-calendar {
   #next-up .snc-card-a .snc-post-text{font-size:10px}
   #next-up .snc-card-a .snc-post-meta{font-size:7px}
 }
+
+
+/* Share N Care CTA: match the event-card action directly below its content */
+#next-up .snc-actions {
+  width:100%;
+  margin-top:12px;
+  padding:0;
+  display:flex;
+  justify-content:center;
+}
+#next-up .snc-actions .btn {
+  display:flex;
+  width:100%;
+  min-height:42px;
+  align-items:center;
+  justify-content:center;
+  padding:.65rem 1rem;
+  border:0;
+  border-radius:12px;
+  background:var(--blue, #146b50);
+  color:#fff;
+  font-weight:700;
+  text-decoration:none;
+}
+/* No pagination dots are rendered; keep the rail free of their old reserved space. */
+#next-up .featured-carousel { padding-bottom:8px; }
