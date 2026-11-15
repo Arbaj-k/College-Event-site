@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#090909"><title>Campus Board – Hapn</title><link rel="icon" href="/assets/images/logo.svg">
+<style>
+:root{font-family:Inter,system-ui,sans-serif;color:#111;background:#f1f6f2}*{box-sizing:border-box}body{margin:0}.top{background:#090909;color:white;padding:18px max(20px,calc((100% - 900px)/2));display:flex;align-items:center;justify-content:space-between}.brand{font-weight:850;font-size:25px;letter-spacing:-1px;color:white;text-decoration:none}.top small{color:#c8ff65;display:block;font-size:10px;letter-spacing:.16em}.top button{background:transparent;color:#fff;border:1px solid #555;border-radius:10px;padding:9px 13px;cursor:pointer}.wrap{max-width:900px;margin:32px auto;padding:0 18px 70px}.intro{display:flex;justify-content:space-between;align-items:end;gap:18px;flex-wrap:wrap}.eyebrow{font-size:11px;font-weight:800;letter-spacing:.16em;color:#5f7c63}h1{font-size:36px;letter-spacing:-1.6px;margin:6px 0}.sub{color:#657066;margin:0}.college{background:#e3f2df;border-radius:30px;padding:8px 13px;font-size:12px;font-weight:750}
+.panel{background:#fff;border:1px solid #e1e9e1;border-radius:18px;padding:20px;margin-top:22px}.panel h2{font-size:19px;margin:0 0 14px}.composer textarea{width:100%;min-height:95px;resize:vertical;border:1px solid #dce5dc;border-radius:12px;padding:13px;font:inherit}.fields{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.fields select{height:42px;border:1px solid #dce5dc;border-radius:10px;padding:0 12px;background:white}.btn{border:0;background:#0b0d0b;color:white;border-radius:11px;padding:12px 17px;font-weight:750;cursor:pointer}.btn:disabled{opacity:.5}.feed-head{display:flex;justify-content:space-between;align-items:center;margin-top:28px}.feed-head h2{margin:0}.feed{display:grid;gap:13px;margin-top:13px}.post{background:#fff;border:1px solid #e1e9e1;border-radius:16px;padding:18px}.posthead{display:flex;align-items:center;gap:10px}.avatar{width:40px;height:40px;display:grid;place-items:center;background:#c8ff65;border-radius:12px;font-weight:850}.who{flex:1;min-width:0}.who b{display:block}.who small,.meta{color:#768078;font-size:12px}.tag{font-size:10px;font-weight:800;letter-spacing:.08em;border:1px solid #dce5dc;border-radius:20px;padding:5px 8px}.body{white-space:pre-wrap;overflow-wrap:anywhere;margin:15px 0;font-size:15px;line-height:1.55}.actions{display:flex;gap:8px;align-items:center}.actions button{border:1px solid #dce5dc;border-radius:9px;padding:7px 10px;background:white;cursor:pointer;font-size:12px}.actions button.danger{color:#a52c26}.empty,.notice{background:#fff;border:1px dashed #d5e0d5;border-radius:15px;padding:24px;text-align:center;color:#657066}.notice{margin-top:15px}.error{color:#a52c26}.hidden{display:none!important}@media(max-width:600px){.wrap{margin-top:22px}h1{font-size:30px}.panel{padding:15px}.top{padding:15px 18px}}
+</style></head><body>
+<header class="top"><a class="brand" href="/">hapn.<small>SHARE N CARE</small></a><button id="signout">Sign out</button></header>
+<main class="wrap">
+<div class="intro"><div><div class="eyebrow">YOUR COLLEGE COMMUNITY</div><h1>Campus Board.</h1><p class="sub">Find a ride, return something lost, get help or meet teammates.</p></div><span class="college" id="college-name">Verifying college…</span></div>
+<div class="notice hidden" id="notice" role="status"></div>
+<section class="panel composer"><h2>Share with your campus</h2><form id="post-form"><textarea id="post-body" maxlength="1200" placeholder="What would you like your campus to know?" required></textarea><div class="fields"><select id="post-type"><option>General</option><option>Ride Share</option><option>Lost &amp; Found</option><option>Help</option><option>Work</option><option>Buy / Sell</option><option>Rent</option><option>Roommate</option><option>Teammate</option><option>Giveaway</option><option>Other</option></select><select id="post-year"><option value="">Academic year (optional)</option><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option><option>Postgraduate</option></select><button class="btn" id="publish" type="submit">Publish post</button></div></form></section>
+<div class="feed-head"><h2>Latest posts</h2><span class="meta" id="feed-count"></span></div><section id="feed" class="feed" aria-live="polite"><div class="empty">Loading campus posts…</div></section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script><script src="/js/config.js"></script><script src="/js/supabase.js"></script>
+<script>
+(async function(){
+'use strict';
+const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let user=null,member=null,channel=null,posts=[];
+function note(t,error=false){$('notice').textContent=t;$('notice').classList.toggle('error',error);$('notice').classList.remove('hidden');}
+function render(){
+ $('feed-count').textContent=posts.length+' posts';
+ $('feed').innerHTML=posts.length?posts.map(p=>{const mine=p.user_id===user.id,done=p.status==='completed';const name=p.display_name||'Student';return '<article class="post"><div class="posthead"><span class="avatar">'+esc(name.split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase())+'</span><div class="who"><b>'+esc(name)+'</b><small>'+esc(p.academic_year||'Student')+' · '+new Date(p.created_at).toLocaleString()+'</small></div><span class="tag">'+esc(p.post_type==='Other'?(p.custom_type||'Other'):p.post_type)+'</span></div><div class="body">'+esc(p.body)+'</div><div class="actions">'+(done?'<span class="meta">Completed</span>':'')+(mine?'<button data-complete="'+p.id+'">'+(done?'Reopen':'Mark completed')+'</button><button class="danger" data-delete="'+p.id+'">Delete</button>':'')+'</div></article>';}).join(''):'<div class="empty"><b>No posts yet.</b><br>Be the first to share something with your college.</div>';
+}
+async function load(){
+ const {data,error}=await sb.from('campus_posts').select('*').order('created_at',{ascending:false}).limit(100);
+ if(error)throw error;posts=data||[];render();
+}
+try{
+ if(!window.sb)throw new Error(window.CE?.setupProblem?.()||'Hapn connection unavailable.');
+ const {data:{session}}=await sb.auth.getSession();
+ if(!session){location.replace('/connect/');return;}
+ user=session.user;
+ const {data:m,error:me}=await sb.rpc('ensure_campus_member');
+ if(me)throw me;member=Array.isArray(m)?m[0]:m;
+ if(!member?.college_id)throw new Error('Your college membership could not be verified.');
+ $('college-name').textContent=member.college_name;
+ await load();
+ channel=sb.channel('campus-board-'+member.college_id).on('postgres_changes',{event:'*',schema:'public',table:'campus_posts',filter:'college_id=eq.'+member.college_id},()=>load().catch(e=>note(e.message,true))).subscribe();
+}catch(e){note(e.message||'Could not load Campus Board.',true);$('feed').innerHTML='<div class="empty">Campus Board is unavailable. Refresh or contact Hapn support.</div>';}
+$('post-form').addEventListener('submit',async e=>{
+ e.preventDefault();if(!member||!user)return;
+ const body=$('post-body').value.trim();if(!body)return;
+ const btn=$('publish');btn.disabled=true;btn.textContent='Publishing…';
+ try{
+  const type=$('post-type').value,year=$('post-year').value;
+  const displayName=member.full_name||user.email.split('@')[0];
+  const {error}=await sb.from('campus_posts').insert({user_id:user.id,college_id:member.college_id,display_name:displayName,academic_year:year||member.academic_year||null,post_type:type,body:body});
+  if(error)throw error;$('post-body').value='';note('Your post is live on your college board.');await load();
+ }catch(err){note(err.message||'Could not publish post.',true);}
+ finally{btn.disabled=false;btn.textContent='Publish post';}
+});
+$('feed').addEventListener('click',async e=>{
+ const del=e.target.closest('[data-delete]'),complete=e.target.closest('[data-complete]');
+ try{
+  if(del){if(!confirm('Delete this post?'))return;const {error}=await sb.from('campus_posts').delete().eq('id',del.dataset.delete);if(error)throw error;await load();}
+  if(complete){const p=posts.find(x=>x.id===complete.dataset.complete);const {error}=await sb.from('campus_posts').update({status:p.status==='completed'?'active':'completed'}).eq('id',p.id);if(error)throw error;await load();}
+ }catch(err){note(err.message,true);}
+});
+$('signout').onclick=async()=>{if(channel)await sb.removeChannel(channel);await sb.auth.signOut();location.replace('/connect/');};
+})();
+</script></body></html>
