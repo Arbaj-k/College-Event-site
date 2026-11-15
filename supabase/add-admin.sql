@@ -7,7 +7,7 @@
 
 -- Option A: paste the user's UID (Authentication > Users > click user > "User UID")
 insert into public.admins (user_id, email, role)
-values ('06af9948-c7ef-4aad-abb2-b272e25e03e7', 'khanarbaz62167@gmail.com', 'admin');
+values ('YOUR-AUTH-USER-UUID', 'admin@example.com', 'admin');
 
 -- Option B: look the UID up by email automatically
 -- insert into public.admins (user_id, email, role)
