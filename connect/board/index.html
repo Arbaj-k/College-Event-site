@@ -16,11 +16,11 @@
 (async function(){
 'use strict';
 const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let user=null,member=null,channel=null,posts=[];
+let user=null,member=null,channel=null,posts=[],isCollegeAdmin=false;
 function note(t,error=false){$('notice').textContent=t;$('notice').classList.toggle('error',error);$('notice').classList.remove('hidden');}
 function render(){
  $('feed-count').textContent=posts.length+' posts';
- $('feed').innerHTML=posts.length?posts.map(p=>{const mine=p.user_id===user.id,done=p.status==='completed';const name=p.display_name||'Student';return '<article class="post"><div class="posthead"><span class="avatar">'+esc(name.split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase())+'</span><div class="who"><b>'+esc(name)+'</b><small>'+esc(p.academic_year||'Student')+' · '+new Date(p.created_at).toLocaleString()+'</small></div><span class="tag">'+esc(p.post_type==='Other'?(p.custom_type||'Other'):p.post_type)+'</span></div><div class="body">'+esc(p.body)+'</div><div class="actions">'+(done?'<span class="meta">Completed</span>':'')+(mine?'<button data-complete="'+p.id+'">'+(done?'Reopen':'Mark completed')+'</button><button class="danger" data-delete="'+p.id+'">Delete</button>':'')+'</div></article>';}).join(''):'<div class="empty"><b>No posts yet.</b><br>Be the first to share something with your college.</div>';
+ $('feed').innerHTML=posts.length?posts.map(p=>{const mine=p.user_id===user.id,canManage=mine||isCollegeAdmin,done=p.status==='completed';const name=p.display_name||'Student';return '<article class="post"><div class="posthead"><span class="avatar">'+esc(name.split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase())+'</span><div class="who"><b>'+esc(name)+'</b><small>'+esc(p.academic_year||'Student')+' · '+new Date(p.created_at).toLocaleString()+'</small></div><span class="tag">'+esc(p.post_type==='Other'?(p.custom_type||'Other'):p.post_type)+'</span></div><div class="body">'+esc(p.body)+'</div><div class="actions">'+(done?'<span class="meta">Completed</span>':'')+(canManage?'<button data-complete="'+p.id+'">'+(done?'Reopen':'Mark completed')+'</button><button class="danger" data-delete="'+p.id+'">Delete</button>':'')+'</div></article>';}).join(''):'<div class="empty"><b>No posts yet.</b><br>Be the first to share something with your college.</div>';
 }
 async function load(){
  const {data,error}=await sb.from('campus_posts').select('*').order('created_at',{ascending:false}).limit(100);
@@ -31,7 +31,7 @@ try{
  const {data:{session}}=await sb.auth.getSession();
  if(!session){location.replace('/connect/');return;}
  user=session.user;
- const {data:profile}=await sb.from('profiles').select('role,college_id,is_active,full_name,email').eq('user_id',user.id).maybeSingle();if(profile?.role==='college_admin'&&profile.is_active){const {data:college,error:ce}=await sb.from('colleges').select('id,name,is_active').eq('id',profile.college_id).maybeSingle();if(ce||!college?.is_active)throw new Error('Your college admin access is inactive.');member={college_id:college.id,college_name:college.name,full_name:profile.full_name,email:profile.email,academic_year:null};}else{const {data:m,error:me}=await sb.rpc('ensure_campus_member');if(me)throw me;member=Array.isArray(m)?m[0]:m;}if(!member?.college_id)throw new Error('Your college membership could not be verified.');
+ const {data:profile}=await sb.from('profiles').select('role,college_id,is_active,full_name,email').eq('user_id',user.id).maybeSingle();if(profile?.role==='college_admin'&&profile.is_active){isCollegeAdmin=true;const {data:college,error:ce}=await sb.from('colleges').select('id,name,is_active').eq('id',profile.college_id).maybeSingle();if(ce||!college?.is_active)throw new Error('Your college admin access is inactive.');member={college_id:college.id,college_name:college.name,full_name:profile.full_name,email:profile.email,academic_year:null};}else{const {data:m,error:me}=await sb.rpc('ensure_campus_member');if(me)throw me;member=Array.isArray(m)?m[0]:m;}if(!member?.college_id)throw new Error('Your college membership could not be verified.');
  $('college-name').textContent=member.college_name;
  await load();
  channel=sb.channel('campus-board-'+member.college_id).on('postgres_changes',{event:'*',schema:'public',table:'campus_posts',filter:'college_id=eq.'+member.college_id},()=>load().catch(e=>note(e.message,true))).subscribe();
