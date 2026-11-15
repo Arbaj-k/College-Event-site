@@ -55,7 +55,7 @@ async function activeCollegeFor(email){
  return c;
 }
 async function finishLogin(){
- const url=new URL(location.href),tokenHash=url.searchParams.get('token_hash'),type=url.searchParams.get('type'),hash=new URLSearchParams(location.hash.replace(/^#/,' '));
+ const url=new URL(location.href),tokenHash=url.searchParams.get('token_hash'),type=url.searchParams.get('type'),hash=new URLSearchParams(location.hash.replace(/^#/,''));
  if(tokenHash){
    if(!['magiclink','email'].includes(type||'')){status('This verification link is invalid or expired. Request a new link.',true);return;}
    const {error}=await sb.auth.verifyOtp({token_hash:tokenHash,type:type});
