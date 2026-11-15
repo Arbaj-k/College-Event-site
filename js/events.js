@@ -224,12 +224,13 @@
     const upcoming = sortForDisplay(state.events).filter((e) => CE.eventStatus(e) === 'upcoming' && (!state.college || e.college_id === state.college));
     const picks = upcoming.slice().sort((a, b) => Number(Boolean(b.is_featured)) - Number(Boolean(a.is_featured)) || Number(Boolean(b.is_pinned)) - Number(Boolean(a.is_pinned)) || byDateTime(a, b));
     let preview = null, previewError = false, loading = false;
-    const collegeId = state.college || window.HapnCollegeSelection?.get?.() || '';
+    const accountState = await (async()=>{try{const authDb=window.sb||window.sbPublic;const {data:{session}}=await authDb.auth.getSession();if(!session?.user)return {opened:false,collegeId:''};const {data,error}=await authDb.from('campus_members').select('college_id,sharencare_opened_at').eq('user_id',session.user.id).maybeSingle();return {opened:!error&&!!data?.sharencare_opened_at,collegeId:!error&&data?.college_id||''};}catch(_){return {opened:false,collegeId:''};}})();
+    const collegeId = accountState.collegeId || state.college || window.HapnCollegeSelection?.get?.() || '';
     const collegeName = state.colleges.find(c => c.id === collegeId)?.name || 'YOUR CAMPUS';
     if (collegeId) {
       const cached = shareCareCache.key === String(collegeId) && Date.now()-shareCareCache.at<60000;
       loading = !cached;
-      try { preview = await loadShareCarePreview(collegeId); }
+      try { preview = await loadShareCarePreview(collegeId); loading = false; }
       catch (error) { console.warn('Share N Care preview unavailable:', error); previewError = true; }
     }
     if (!picks.length && !collegeId) { box.hidden = true; return; }
@@ -239,9 +240,8 @@
       const validDate=dateValue&&!Number.isNaN(dateValue.getTime()), posterDay=validDate?String(dateValue.getDate()):'', posterMonth=validDate?dateValue.toLocaleDateString('en',{month:'short'}).toUpperCase():'';
       return '<article class="featured-card" data-slide-index="'+index+'"><div class="featured-poster-wrap"><a class="featured-poster" href="'+eventUrl+'" aria-label="View '+CE.esc(ev.title)+'"><img src="'+CE.esc(CE.posterSrc(ev.poster_url))+'" alt="'+CE.esc(ev.title)+' poster" loading="'+(index===0?'eager':'lazy')+'" decoding="async" width="800" height="450"></a><span class="featured-poster-badge">'+CE.esc(ev.category||'College event')+'</span>'+(validDate?'<span class="poster-date-overlay carousel-poster-date"><strong>'+CE.esc(posterDay)+'</strong><span class="poster-date-side"><span>'+CE.esc(posterMonth)+'</span></span></span>':'')+'<button class="poster-share-button share-button" type="button" data-share-url="'+eventUrl+'" data-share-title="'+CE.esc(ev.title)+' – Hapn" aria-label="Share '+CE.esc(ev.title)+'">'+plane+'</button></div><div class="featured-actions"><a class="btn btn-primary btn-sm" href="'+eventUrl+'">'+(ev.registration_url?'Register Now':'View Event')+'</a></div></article>';
     });
-    const opened = await (async()=>{try{const authDb=window.sb||window.sbPublic;const {data:{session}}=await authDb.auth.getSession();if(!session?.user)return false;const {data,error}=await authDb.from('campus_members').select('sharencare_opened_at').eq('user_id',session.user.id).maybeSingle();return !error&&!!data?.sharencare_opened_at;}catch(_){return false;}})();
     let slideItems=[];
-    if(opened) slideItems=eventHtml.concat([renderShareCareCardA(preview||{college_name:collegeName,posts:[]},loading,previewError)]);
+    if(accountState.opened) slideItems=eventHtml.concat([renderShareCareCardA(preview||{college_name:collegeName,posts:[]},loading,previewError)]);
     else {
       const a=renderShareCareCardA(preview||{college_name:collegeName,posts:[]},loading,previewError);
       const b=renderShareCareCardB(preview||{college_name:collegeName,posts:[]},loading,previewError);
