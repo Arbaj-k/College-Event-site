@@ -31,9 +31,7 @@ try{
  const {data:{session}}=await sb.auth.getSession();
  if(!session){location.replace('/connect/');return;}
  user=session.user;
- const {data:m,error:me}=await sb.rpc('ensure_campus_member');
- if(me)throw me;member=Array.isArray(m)?m[0]:m;
- if(!member?.college_id)throw new Error('Your college membership could not be verified.');
+ const {data:profile}=await sb.from('profiles').select('role,college_id,is_active,full_name,email').eq('user_id',user.id).maybeSingle();if(profile?.role==='college_admin'&&profile.is_active){const {data:college,error:ce}=await sb.from('colleges').select('id,name,is_active').eq('id',profile.college_id).maybeSingle();if(ce||!college?.is_active)throw new Error('Your college admin access is inactive.');member={college_id:college.id,college_name:college.name,full_name:profile.full_name,email:profile.email,academic_year:null};}else{const {data:m,error:me}=await sb.rpc('ensure_campus_member');if(me)throw me;member=Array.isArray(m)?m[0]:m;}if(!member?.college_id)throw new Error('Your college membership could not be verified.');
  $('college-name').textContent=member.college_name;
  await load();
  channel=sb.channel('campus-board-'+member.college_id).on('postgres_changes',{event:'*',schema:'public',table:'campus_posts',filter:'college_id=eq.'+member.college_id},()=>load().catch(e=>note(e.message,true))).subscribe();
