@@ -2453,3 +2453,7 @@ body[data-page="home"] .home-calendar {
 @media(prefers-reduced-motion:reduce){#next-up .snc-live i,#next-up .snc-skeleton{animation:none}#next-up .snc-card{transition:none}}
 
 #next-up .snc-b-head{font-size:clamp(50px,10vw,132px)}
+
+#next-up .snc-b-head{font-family:Impact,"Arial Narrow",system-ui,sans-serif;font-stretch:condensed}
+#next-up .snc-post-list .snc-skeleton{min-height:0}
+@media(max-width:380px){#next-up .snc-b-head{font-size:clamp(32px,10vw,42px)}#next-up .snc-b-name{font-size:23px}#next-up .snc-chips{margin:5px 0}#next-up .snc-b-preview{min-height:60px;padding:8px}#next-up .snc-actions{margin-top:6px}#next-up .snc-open{min-height:32px;padding:6px 11px}}
