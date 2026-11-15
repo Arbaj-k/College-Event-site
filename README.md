@@ -10,6 +10,19 @@ A simple college events website. Students browse events and register through **G
 
 There are no student accounts, payments, comments or custom registration. Registration is always a Google Form that opens in a new tab.
 
+
+## Secret-safety audit (2026-11-15)
+
+- Browser configuration is generated during build from `SUPABASE_URL` and `SUPABASE_ANON_KEY`; the generated `js/config.js` is git-ignored and is no longer tracked.
+- GitHub Pages requires repository Actions **Variables** named `SUPABASE_URL` and `SUPABASE_ANON_KEY` (Settings → Secrets and variables → Actions → Variables). These are public-safe values; the publishable key is visible to browsers by design.
+- Local development: copy `.env.example` to `.env`, fill in the same two public values, then run `node build-config.js`.
+- Never add `SUPABASE_SERVICE_ROLE_KEY`, `ONESIGNAL_REST_API_KEY`, database passwords, OAuth client secrets or other private credentials to browser config, GitHub variables, or committed files. Put server-only credentials in Supabase Edge Function secrets.
+- A historical Supabase `sb_publishable_` key was found in `js/config.js`. This key is designed for public client use and is not a private secret. No service-role key, database password, private OAuth client secret, or OneSignal REST key was identified by the repository and Git-history scans performed for this audit.
+- An administrator Auth UID and email were present in `supabase/add-admin.sql`; they were replaced with placeholders. These are identifiers, not authentication credentials. Git history still retains the old values; normal commits do not erase history.
+- **Rotation warning:** if any real password, service-role key, database credential, OAuth client secret, or private third-party API token was ever committed, rotate/revoke it immediately. Remove it from Git history separately if needed; deleting it from the latest source is not enough.
+- See `SECURITY_AUDIT.md` for the findings, RLS check, remaining manual actions and scope.
+
+
 ---
 
 ## Project structure
