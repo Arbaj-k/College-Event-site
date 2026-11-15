@@ -209,7 +209,7 @@
       '<div class="snc-title">Share <em>N</em> Care</div><div class="snc-kicker">LATEST FROM YOUR CAMPUS</div>' +
       '<div class="snc-post-list" aria-live="off">' + rows + '</div>' +
       '<div class="snc-footer"><span class="snc-progress">' + posts.slice(0,4).map((p,i)=>'<i class="' + (i===0?'on':'') + '"></i>').join('') + '</span>' + (more>0?'<span class="snc-more">+'+more+' more posts today</span>':'') + '</div>' +
-      '<div class="snc-actions"><a class="btn btn-primary btn-sm snc-open" href="/connect/">Hapn Connect ↗</a></div></article>';
+      '<div class="featured-actions snc-actions"><a class="btn btn-primary snc-open" href="/connect/">Hapn Connect</a></div></article>';
   }
   function renderShareCareCardB(data, loading, error) {
     const p = data?.posts?.[0];
