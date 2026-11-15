@@ -435,7 +435,7 @@ const V = {
     return PageHead('ACCOUNT', 'Settings.', 'Your profile and contact preferences.', false) + `
     <form id="settingsForm">
       <div class="field"><label>Display name</label><input class="input" name="name" value="${esc(m.name)}" maxlength="50" required></div>
-      <div class="field"><label>College</label><input class="input" name="college" value="${esc(m.college)}" maxlength="40" required></div>
+      <div class="field"><label>College</label><input class="input" name="college" value="${esc(m.college)}" maxlength="40" required readonly></div>
       <div class="field"><label>Academic year</label>
         <select class="select" name="year">${['1st Year', '2nd Year', '3rd Year', '4th Year', 'Postgraduate'].map(y => `<option ${y === m.year ? 'selected' : ''}>${y}</option>`).join('')}</select></div>
       <div class="field"><label>WhatsApp number (private)</label><input class="input" name="phone" inputmode="tel" value="${esc(m.phone)}" placeholder="e.g. 91XXXXXXXXXX">
