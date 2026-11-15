@@ -109,7 +109,7 @@ begin
  on conflict(user_id) do update set whatsapp_phone=excluded.whatsapp_phone,updated_at=now();
 end $$;
 revoke all on function public.update_campus_member_profile(text,text,text) from public;
-grant execute on function public.update_campus_member_profile(text,text,text) to authenticated;
+revoke all on function public.update_campus_member_profile(text,text,text) from anon;\ngrant execute on function public.update_campus_member_profile(text,text,text) to authenticated;
 
 create or replace function public.respond_to_campus_connect_request(p_request_id uuid,p_approve boolean)
 returns void language plpgsql security definer set search_path=public as $$
@@ -128,7 +128,7 @@ begin
  else r.owner_name||' declined your connection request.' end,r.post_id,r.id);
 end $$;
 revoke all on function public.respond_to_campus_connect_request(uuid,boolean) from public;
-grant execute on function public.respond_to_campus_connect_request(uuid,boolean) to authenticated;
+revoke all on function public.respond_to_campus_connect_request(uuid,boolean) from anon;\ngrant execute on function public.respond_to_campus_connect_request(uuid,boolean) to authenticated;
 
 create or replace function public.campus_connect_request_notify_owner()
 returns trigger language plpgsql security definer set search_path=public as $$
