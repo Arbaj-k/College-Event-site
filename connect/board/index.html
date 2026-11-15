@@ -355,7 +355,7 @@ function Post(p, ctx) {
     <button class="icon-btn danger" data-act="delete" data-id="${p.id}">${ic('trash')}Delete</button>` : `
     <button class="icon-btn ${saved ? 'on' : ''}" data-act="save" data-id="${p.id}" aria-pressed="${saved}">${ic('bookmark')}${saved ? 'Saved' : 'Save'}</button>
     <button class="icon-btn" data-act="report" data-id="${p.id}" ${api.hasReported(p.id) ? 'disabled' : ''}>${ic('flag')}${api.hasReported(p.id) ? 'Reported' : 'Report'}</button>`;
-  return `<article class="post ${done ? 'done' : ''}">
+  return `<article id="campus-post-${p.id}" class="post ${done ? 'done' : ''}">
     <div class="phead">
       <div class="avatar" aria-hidden="true">${esc(initials(p.name))}</div>
       <div class="who">
@@ -570,9 +570,13 @@ function render(keepFocus) {
 }
 async function load() {
   S.loading = true; S.error = ''; render();
-  try { S.me = await api.me(); S.posts = await api.listPosts(); }
+  try { S.me = await api.me(); try { await DB.rpc('mark_sharencare_opened'); } catch (e) { console.warn('Could not record Share N Care open state:',e); } S.posts = await api.listPosts(); }
   catch (e) { S.error = e.message || 'Could not load posts.'; }
   S.loading = false; render();
+  const params=new URLSearchParams(location.search);
+  if(params.get('create')==='1') setTimeout(()=>PostModal(),80);
+  const target=params.get('post');
+  if(target&&/^[0-9a-f-]{36}$/i.test(target)) setTimeout(()=>{const el=document.getElementById('campus-post-'+target);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.outline='2px solid #c8f26b';}},120);
 }
 async function refreshPosts() { try { S.posts = await api.listPosts(); S.error = ''; } catch (e) { S.error = e.message; } render(); }
 function go(v) { S.view = v; S.type = 'All'; S.q = ''; if (v === 'notifs') { setTimeout(() => { api.markAllRead(); renderChrome(); }, 800); } render(); window.scrollTo(0, 0); }
