@@ -70,4 +70,4 @@ assert.ok(campusBoard.includes("from('campus_posts')"));
 assert.ok(campusBoard.includes("ensure_campus_member"));
 assert.ok(home.includes('class="campus-board-card"'));
 assert.ok(home.includes('href="/connect/"'));
-\nconsole.log('Multi-college and Campus Board smoke checks passed.');
+console.log('Multi-college and Campus Board smoke checks passed.');
