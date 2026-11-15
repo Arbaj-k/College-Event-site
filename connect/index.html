@@ -41,7 +41,9 @@ Continue with Google
 const status=(message,error)=>{const el=document.getElementById('status');el.textContent=message;el.className='status'+(error?' error':'');el.style.display='block';};
 const button=document.getElementById('google-login');
 const requestedNext=new URLSearchParams(location.search).get('next');
-const nextPath=(requestedNext&&requestedNext.startsWith('/connect/board/')&&!requestedNext.startsWith('//'))?requestedNext:'/connect/board/';
+let storedNext='';try{storedNext=sessionStorage.getItem('hapn-connect-next')||'';}catch(e){}
+const candidate=requestedNext||storedNext;
+const nextPath=(candidate&&candidate.startsWith('/connect/board/')&&!candidate.startsWith('//'))?candidate:'/connect/board/';
 async function completeGoogleLogin(){
  const url=new URL(location.href),code=url.searchParams.get('code');
  const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));
@@ -76,13 +78,14 @@ async function completeGoogleLogin(){
  if(collegeError||!college?.is_active){await sb.auth.signOut();throw new Error('Your college is not currently active on Hapn.');}
  const {data:member,error:memberError}=await sb.rpc('ensure_campus_member');
  if(memberError||!member){await sb.auth.signOut();throw new Error(memberError?.message||'Could not verify your campus membership.');}
- location.replace(nextPath);
+ try{sessionStorage.removeItem('hapn-connect-next');}catch(e){} location.replace(nextPath);
 }
 button.addEventListener('click',async()=>{
  if(!window.sb){status(window.CE?.setupProblem?.()||'Could not connect to Hapn.',true);return;}
  button.disabled=true;button.textContent='Connecting to Google…';
+ try{sessionStorage.setItem('hapn-connect-next',nextPath);}catch(e){}
  try{
-  const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/connect/?next='+encodeURIComponent(nextPath),queryParams:{prompt:'select_account'},skipBrowserRedirect:false}});
+  const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/connect/',queryParams:{prompt:'select_account'},skipBrowserRedirect:false}});
   if(error)throw error;
  }catch(error){status(error.message||'Google sign-in could not start.',true);button.disabled=false;button.textContent='Continue with Google';}
 });
