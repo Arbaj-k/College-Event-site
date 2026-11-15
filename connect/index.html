@@ -55,14 +55,17 @@ async function activeCollegeFor(email){
  return c;
 }
 async function finishLogin(){
- const url=new URL(location.href),tokenHash=url.searchParams.get('token_hash'),type=url.searchParams.get('type');
- if(!tokenHash){await sb.auth.signOut();return;}
+ const url=new URL(location.href),tokenHash=url.searchParams.get('token_hash'),type=url.searchParams.get('type'),hash=new URLSearchParams(location.hash.replace(/^#/,' '));
  if(tokenHash){
    if(!['magiclink','email'].includes(type||'')){status('This verification link is invalid or expired. Request a new link.',true);return;}
    const {error}=await sb.auth.verifyOtp({token_hash:tokenHash,type:type});
    if(error){status(error.message||'This verification link has expired. Request a new one.',true);return;}
    history.replaceState({},document.title,'/connect/');
- }
+ }else if(hash.get('access_token')&&hash.get('refresh_token')){
+   const {error}=await sb.auth.setSession({access_token:hash.get('access_token'),refresh_token:hash.get('refresh_token')});
+   if(error){status(error.message||'This verification link is invalid or expired.',true);return;}
+   history.replaceState({},document.title,'/connect/');
+ }else{await sb.auth.signOut();return;}
  const {data:{session},error}=await sb.auth.getSession();
  if(error)throw error;
  if(!session)return;
