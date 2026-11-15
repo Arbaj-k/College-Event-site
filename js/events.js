@@ -51,7 +51,7 @@
             (posterDateValid ? '<span class="poster-date-overlay"><strong>' + CE.esc(posterDay) + '</strong><span class="poster-date-side"><span>' + CE.esc(posterMonth) + '</span></span></span>' : '') +
             (status !== 'upcoming' ? '<span class="badge badge-ended">Ended</span>' : '') +
           '</a>' +
-          '<button class="poster-share-button share-button" type="button" data-share-url="' + detailUrl + '" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '">' + plane + '</button>' +
+          '<button class="poster-share-button share-button" type="button" data-share-url="' + detailUrl + '" data-share-title="' + CE.esc(ev.title) + ' – Hapn" data-share-image="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" data-share-text="' + CE.esc('Check out ' + ev.title + ' on Hapn!') + '" aria-label="Share ' + CE.esc(ev.title) + '">' + plane + '</button>' +
         '</div>' +
         '<div class="card-body">' +
           '<h3 class="card-title"><a href="' + detailUrl + '">' + CE.esc(ev.title) + '</a></h3>' +
