@@ -185,7 +185,7 @@
     const key = String(collegeId || '');
     if (!key || !publicDb) return null;
     if (shareCareCache.key === key && Date.now() - shareCareCache.at < 60000) return shareCareCache.data;
-    const { data, error } = await publicDb.rpc('get_sharencare_home_preview', { p_college_id: key });
+    const previewDb = window.sb || publicDb;\n    const { data, error } = await previewDb.rpc('get_sharencare_home_preview', { p_college_id: key });
     if (error) throw error;
     shareCareCache = { key, at: Date.now(), data: data || null };
     return shareCareCache.data;
@@ -239,7 +239,7 @@
       const validDate=dateValue&&!Number.isNaN(dateValue.getTime()), posterDay=validDate?String(dateValue.getDate()):'', posterMonth=validDate?dateValue.toLocaleDateString('en',{month:'short'}).toUpperCase():'';
       return '<article class="featured-card" data-slide-index="'+index+'"><div class="featured-poster-wrap"><a class="featured-poster" href="'+eventUrl+'" aria-label="View '+CE.esc(ev.title)+'"><img src="'+CE.esc(CE.posterSrc(ev.poster_url))+'" alt="'+CE.esc(ev.title)+' poster" loading="'+(index===0?'eager':'lazy')+'" decoding="async" width="800" height="450"></a><span class="featured-poster-badge">'+CE.esc(ev.category||'College event')+'</span>'+(validDate?'<span class="poster-date-overlay carousel-poster-date"><strong>'+CE.esc(posterDay)+'</strong><span class="poster-date-side"><span>'+CE.esc(posterMonth)+'</span></span></span>':'')+'<button class="poster-share-button share-button" type="button" data-share-url="'+eventUrl+'" data-share-title="'+CE.esc(ev.title)+' – Hapn" aria-label="Share '+CE.esc(ev.title)+'">'+plane+'</button></div><div class="featured-actions"><a class="btn btn-primary btn-sm" href="'+eventUrl+'">'+(ev.registration_url?'Register Now':'View Event')+'</a></div></article>';
     });
-    const opened = await (async()=>{try{const {data:{session}}=await (window.sbPublic||window.sb).auth.getSession();if(!session?.user)return false;const {data,error}=await (window.sbPublic||window.sb).from('campus_members').select('sharencare_opened_at').eq('user_id',session.user.id).maybeSingle();return !error&&!!data?.sharencare_opened_at;}catch(_){return false;}})();
+    const opened = await (async()=>{try{const authDb=window.sb||window.sbPublic;const {data:{session}}=await authDb.auth.getSession();if(!session?.user)return false;const {data,error}=await authDb.from('campus_members').select('sharencare_opened_at').eq('user_id',session.user.id).maybeSingle();return !error&&!!data?.sharencare_opened_at;}catch(_){return false;}})();
     let slideItems=[];
     if(opened) slideItems=eventHtml.concat([renderShareCareCardA(preview||{college_name:collegeName,posts:[]},loading,previewError)]);
     else {
