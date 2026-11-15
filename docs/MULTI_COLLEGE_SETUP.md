@@ -24,8 +24,7 @@ The owner bootstrap is intentionally tied to the verified Auth UID in the migrat
    - `APP_ORIGIN=https://hapn.info`
    - `ADMIN_INVITE_REDIRECT=https://hapn.info/admin/accept-invite.html`
 7. In Supabase Auth URL Configuration, allow `https://hapn.info/admin/accept-invite.html` as a redirect URL. Ensure email invitations are enabled and the email template includes the Supabase invite link.
-8. Enable the `pg_cron` extension. The migration schedules `public.archive_expired_events()` daily at 02:15 UTC if pg_cron is already enabled when the migration runs. If it was enabled afterward, rerun the schedule DO block from the migration or schedule the function manually.
-9. Deploy the branch to a staging site first and test the complete invite flow, College Admin RLS and public listing before merging/deploying production.
+8. Deploy the branch to a staging site first and test the complete invite flow, College Admin RLS and public listing before merging/deploying production.
 
 ## Legacy data transition
 
@@ -55,7 +54,6 @@ Never trust an email-only match to assign an account; verify the Auth UID and co
 - College Admin permissions are limited by `profiles.college_id`; event insert/update/delete policies require that exact college ID. Storage writes must be under a folder named with the assigned college UUID.
 - The old Admin Login is College Admin-only. The separate Super Admin login checks `profiles.role` and rejects College Admin accounts.
 - Invitation links are time-limited to seven days. A user must authenticate through the invite link, choose a password and complete activation before their College Admin profile is created.
-- Event archive is non-destructive. Once an event's effective end date (end date if present, otherwise start date) is at least seven days in the past, a full JSON snapshot is copied to the archive. The original event row and related records are not deleted.
 - Existing ancillary modules (fests, submissions, chat/community) were not intentionally redesigned. Their use of the legacy global `is_admin()` helper remains for compatibility; audit those modules separately before granting College Admins access to moderation or submissions.
 - College deletion is blocked in the dashboard while that college still has assigned admins or events. Reassign or remove them first.
 
@@ -67,4 +65,3 @@ Never trust an email-only match to assign an account; verify the Auth UID and co
 - An unauthenticated user cannot read the Super Admin dashboard data.
 - An invitation can be accepted only by the invited email while the invitation is pending and unexpired.
 - A revoked or expired invitation cannot activate a profile.
-- Archive runs at the scheduled time; full snapshots are readable only by Super Admins, and anonymous users receive no archive access.
