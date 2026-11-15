@@ -181,4 +181,30 @@ create policy "Owners and college admins delete campus posts"
         and p.college_id = campus_posts.college_id and p.is_active = true
     )));
 
+-- Public image reads are intentional (post images are part of the public feed).
+-- Upload, update and delete require a genuine non-anonymous campus session.
+drop policy if exists "Campus members upload own images" on storage.objects;
+create policy "Campus members upload own images"
+  on storage.objects for insert to authenticated
+  with check (public.is_real_campus_user()
+    and bucket_id = 'campus-post-images'
+    and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists "Campus members update own images" on storage.objects;
+create policy "Campus members update own images"
+  on storage.objects for update to authenticated
+  using (public.is_real_campus_user()
+    and bucket_id = 'campus-post-images'
+    and (storage.foldername(name))[1] = (select auth.uid())::text)
+  with check (public.is_real_campus_user()
+    and bucket_id = 'campus-post-images'
+    and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists "Campus members delete own images" on storage.objects;
+create policy "Campus members delete own images"
+  on storage.objects for delete to authenticated
+  using (public.is_real_campus_user()
+    and bucket_id = 'campus-post-images'
+    and (storage.foldername(name))[1] = (select auth.uid())::text);
+
 commit;
