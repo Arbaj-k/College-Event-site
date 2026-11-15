@@ -93,5 +93,5 @@ assert.ok(publicEventsJs.includes('sharencare_card_a_post_click'));
 assert.ok(publicEventsJs.includes('prefers-reduced-motion: reduce'));
 assert.ok(campusBoard.includes('mark_sharencare_opened'));
 assert.ok(campusBoard.includes('params.get(\'post\')'));
-assert.ok(home.includes('20261115sharencare1'));
+assert.ok(home.includes('20261116sharencare2'));
 console.log('Multi-college and Campus Board smoke checks passed.');
