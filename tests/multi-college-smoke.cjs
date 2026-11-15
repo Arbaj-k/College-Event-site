@@ -13,6 +13,10 @@ const superJs = read('js/super-admin.js');
 const edge = read('supabase/functions/super-admin-api/index.ts');
 const supabaseClient = read('js/supabase.js');
 const publicEventsJs = read('js/events.js');
+const campusDomains = read('supabase/migrations/20261115000000_campus_board_email_domains.sql');
+const campusPosts = read('supabase/migrations/20261115000100_campus_board_posts.sql');
+const campusLogin = read('connect/index.html');
+const campusBoard = read('connect/board/index.html');
 
 for (const table of ['colleges','profiles','admin_invitations','event_archive']) {
   assert.ok(migration.includes('create table if not exists public.' + table), 'Missing table: ' + table);
@@ -62,10 +66,12 @@ assert.ok(campusDomains.includes('public.is_super_admin()'));
 assert.ok(campusPosts.includes('create table if not exists public.campus_posts'));
 assert.ok(campusPosts.includes('Campus members read own college board'));
 assert.ok(campusPosts.includes('college_id=public.current_campus_college_id()'));
-assert.ok(campusLogin.includes("signInWithOtp"));
-assert.ok(campusLogin.includes("verifyOtp"));
-assert.ok(campusLogin.includes("emailRedirectTo:location.origin+'/connect/'"));
-assert.ok(campusLogin.includes("location.href='/connect/board/'"));
+assert.ok(campusLogin.includes("signInWithOAuth({provider:'google'"), 'Campus login must use Google OAuth');
+assert.ok(campusLogin.includes('exchangeCodeForSession(code)'), 'OAuth callback must exchange the authorization code');
+assert.ok(campusLogin.includes("session.user.app_metadata?.provider!=='google'"), 'Only Google provider sessions are accepted');
+assert.ok(campusLogin.includes("from('college_email_domains')"), 'Login must check the college domain allowlist');
+assert.ok(campusLogin.includes("rpc('ensure_campus_member')"), 'Login must verify campus membership server-side');
+assert.ok(campusLogin.includes("location.replace('/connect/board/')"));
 assert.ok(campusBoard.includes("from('campus_posts')"));
 assert.ok(campusBoard.includes("ensure_campus_member"));
 assert.ok(home.includes('class="campus-board-card"'));
