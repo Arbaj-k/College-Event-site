@@ -20,12 +20,13 @@ async function fetchAll(table,columns,orderBy,ascending,filter){
  return rows;
 }
 async function loadBase(){
- const [c,a,e]=await Promise.all([
+ const [c,a,e,d]=await Promise.all([
  fetchAll('colleges','*','name',true),
  fetchAll('profiles','user_id,email,full_name,college_id,is_active,created_at','created_at',false,q=>q.eq('role','college_admin')),
- fetchAll('events','id,title,date,end_date,is_published,college_id,created_at','created_at',false)
+ fetchAll('events','id,title,date,end_date,is_published,college_id,created_at','created_at',false),
+ fetchAll('college_email_domains','id,college_id,domain,is_active,created_at','domain',true)
  ]);
- colleges=c;admins=a;events=e;
+ colleges=c;admins=a;events=e;collegeDomains=d;
  $('metric-colleges').textContent=colleges.length;$('metric-admins').textContent=admins.filter(x=>x.is_active).length;$('metric-events').textContent=events.length;$('metric-published').textContent=events.filter(x=>x.is_published).length;
  $('a-colleges').textContent=colleges.length;$('a-admins').textContent=admins.filter(x=>x.is_active).length;$('a-events').textContent=events.length;$('a-published').textContent=events.filter(x=>x.is_published).length;
  const collegeName=id=>colleges.find(c=>c.id===id)?.name||'Unassigned';
