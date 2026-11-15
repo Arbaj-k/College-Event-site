@@ -10,7 +10,8 @@
   const publicDb = window.sbPublic || window.sb;
   const LIST_COLUMNS = 'id,title,poster_url,date,time,end_date,end_time,venue,category,short_description,registration_deadline,registration_link,is_featured,is_pinned,college_id';
   const state = { events: [], colleges: [], category: 'All', query: '', selectedDate: '', college: '' };
-  let shareCareCache = { key: '', at: 0, data: null };
+  let shareCareCache = { key: '', at: 0, data: null, error: false };
+  let shareCarePending = null;
   let shareCareAutoTimer = null;
 
   const plane = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>';
@@ -295,3 +296,175 @@
     document.addEventListener('visibilitychange',()=>{if(document.hidden)stopRows();else startRows();});
   }
 
+  function showListError(message) {
+    const grid = document.getElementById('events-grid');
+    grid.setAttribute('aria-busy', 'false');
+    grid.innerHTML = '<div class="empty"><p class="empty-title">Events could not be loaded.</p><p>' + CE.esc(message) + '</p></div>';
+  }
+
+  async function initList() {
+    renderChips();
+
+    let timer;
+    document.getElementById('search-input').addEventListener('input', (e) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => { state.query = e.target.value; renderList(); }, 120);
+    });
+
+    const problem = CE.setupProblem();
+    if (problem) return showListError(problem);
+
+    try {
+      await (window.HapnCollegeSelection?.ready || Promise.resolve());
+      const collegeSelect = document.getElementById('college-filter');
+      state.colleges = window.HapnCollegeSelection?.getColleges?.() || [];
+      state.college = window.HapnCollegeSelection?.get?.() || '';
+      if (collegeSelect) {
+        collegeSelect.innerHTML = '<option value="">Choose your college</option>' + state.colleges.map(c => '<option value="' + CE.esc(c.id) + '">' + CE.esc(c.name) + '</option>').join('');
+        collegeSelect.value = state.college;
+        collegeSelect.addEventListener('change', () => window.HapnCollegeSelection?.set?.(collegeSelect.value));
+      }
+      document.addEventListener('hapn:collegechange', (event) => {
+        state.college = event.detail?.collegeId || '';
+        if (collegeSelect) collegeSelect.value = state.college;
+        renderHomeCalendar(); renderList(); renderNextUp();
+      });
+
+      const request = publicDb.from('events')
+        .select(LIST_COLUMNS)
+        .order('date', { ascending: true })
+        .order('time', { ascending: true });
+
+      const timeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Events request timed out')), 10000)
+      );
+
+      const { data, error } = await Promise.race([request, timeout]);
+      if (error) throw error;
+
+      state.events = data || [];
+      renderHomeCalendar();
+      renderList();
+      renderNextUp();
+    } catch (error) {
+      console.error('Hapn event loading failed:', error);
+      showListError('Events could not be loaded right now. Please refresh and try again.');
+    }
+  }
+
+  /* ---------- details page ---------- */
+  function detailHtml(ev) {
+    const status = CE.eventStatus(ev);
+    const link = CE.httpsUrl(ev.registration_link);
+    const canRegister = CE.registrationOpen(ev) && link;
+    const cta = canRegister
+      ? '<a class="btn btn-primary btn-lg" href="' + CE.esc(link) + '" target="_blank" rel="noopener noreferrer">Register</a>' +
+        '<small>Opens the registration form in a new tab.</small>'
+      : '<span class="btn btn-lg btn-disabled" aria-disabled="true">' + (status !== 'upcoming' ? 'This event has ended' : 'Registration closed') + '</span>';
+
+    const rows = [
+      ['DATE', CE.formatDate(ev.date) + (ev.end_date ? ' – ' + CE.formatDate(ev.end_date) : '')],
+      ['TIME', CE.formatTime(ev.time) + (ev.end_time ? ' – ' + CE.formatTime(ev.end_time) : '')],
+      ['VENUE', ev.venue || 'Venue to be announced'],
+      ['COLLEGE', (state.colleges.find(col => col.id === ev.college_id) || {}).name || 'College event'],
+      ['ORGANIZER', ev.organizer || 'College event']
+    ];
+    if (ev.registration_deadline) rows.push(['📝 Register by', CE.formatDate(ev.registration_deadline)]);
+
+    return '' +
+      '<div class="detail">' +
+        '<div class="detail-poster detail-poster-wrap"><img class="poster-img" src="' + CE.esc(CE.posterSrc(ev.poster_url)) + '" alt="Poster for ' + CE.esc(ev.title) + '" loading="eager" decoding="async" fetchpriority="high" width="800" height="1000"><button class="poster-share-button share-button" type="button" data-share-url="/event/?id=' + encodeURIComponent(ev.id) + '" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share ' + CE.esc(ev.title) + '" title="Share event"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button></div>' +
+        '<div class="detail-info">' +
+          '<div class="detail-pills"><span class="pill">' + CE.esc(ev.category || 'College event') + '</span>' + (status !== 'upcoming' ? '<span class="pill pill-ended">Ended</span>' : (ev.date ? (function(){ const d=new Date(String(ev.date).slice(0,10)+'T00:00:00'); const t=new Date(); t.setHours(0,0,0,0); const n=Math.ceil((d-t)/86400000); return '<span class="pill pill-countdown">' + (n > 0 ? 'Starts in ' + n + (n===1?' day':' days') : (n===0?'Today':'Upcoming')) + '</span>'; })() : '')) + '</div>' +
+          '<h1>' + CE.esc(ev.title) + '</h1>' +
+          (ev.short_description ? '<p class="detail-subtitle">' + CE.esc(ev.short_description) + '</p>' : '') +
+          '<dl class="info-list">' + rows.map((r, i) => '<div><span class="info-icon" aria-hidden="true">' + ['▦','◷','⌖','♙'][i] + '</span><span class="info-copy"><dt>' + r[0] + '</dt><dd>' + CE.esc(r[1]) + '</dd></span></div>').join('') + '</dl>' +
+          '<div class="detail-quick-actions">' +
+            '<a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(ev.title) + '&dates=' + encodeURIComponent(String(ev.date || '').replace(/-/g, '') + 'T' + String(ev.time || '00:00:00').replace(/:/g, '').slice(0,6).padEnd(6,'0') + '/' + String(ev.end_date || ev.date || '').replace(/-/g, '') + 'T' + String(ev.end_time || ev.time || '23:59:00').replace(/:/g, '').slice(0,6).padEnd(6,'0')) + '&details=' + encodeURIComponent(ev.description || ev.short_description || '') + '&location=' + encodeURIComponent(ev.venue || '') + '" target="_blank" rel="noopener noreferrer" class="detail-outline-btn">▦ &nbsp; Add to calendar</a>' +
+            '<a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(ev.venue || ev.title) + '" target="_blank" rel="noopener noreferrer" class="detail-outline-btn">⌖ &nbsp; Get directions</a>' +
+          '</div>' +
+          '<h2 class="detail-text-title">About this event</h2>' +
+          '<p class="detail-text">' + CE.esc(ev.description || ev.short_description || 'More event details will be announced soon.') + '</p>' +
+          (ev.organizer ? '<section class="detail-organizers"><h2 class="detail-text-title">Who’s organizing</h2><div class="organizer-card"><span class="organizer-avatar">' + CE.esc(String(ev.organizer).trim().charAt(0).toUpperCase()) + '</span><span class="organizer-copy"><strong>' + CE.esc(ev.organizer) + '</strong><small>Event organizer</small></span></div></section>' : '') +
+          '<div class="detail-cta">' + cta + '<button class="register-share-icon share-button" type="button" data-share-url="/event/?id=' + encodeURIComponent(ev.id) + '" data-share-title="' + CE.esc(ev.title) + ' – Hapn" aria-label="Share this event" title="Share event"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button></div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  async function initDetail() {
+    const box = document.getElementById('event-detail');
+    const notFound = (msg) => { box.innerHTML = '<div class="empty"><p class="empty-title">' + CE.esc(msg) + '</p><p><a href="events.html">Browse all events</a></p></div>'; };
+
+    const pathMatch = location.pathname.match(/\/event-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.html$/i);
+    const id = new URLSearchParams(location.search).get('id') || (pathMatch ? pathMatch[1] : '');
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return notFound('Event not found.');
+
+    const problem = CE.setupProblem();
+    if (problem) return notFound(problem);
+
+    const { data: collegeRows } = await publicDb.from('colleges').select('id,name').eq('is_active', true);
+    state.colleges = collegeRows || [];
+    const { data, error } = await publicDb.from('events').select('*').eq('id', id).maybeSingle();
+    if (error) { console.error(error); return notFound('This event could not be loaded. Please try again.'); }
+    if (!data) return notFound('Event not found.');
+
+    document.title = data.title + ' – Hapn';
+
+    const canonical = document.getElementById('canonical-link');
+    if (canonical) canonical.href = location.origin + (location.pathname.match(/\/event-[0-9a-f-]+\.html$/i) ? location.pathname : '/event/?id=' + encodeURIComponent(data.id));
+
+    let description = document.querySelector('meta[name="description"]');
+    if (!description) {
+      description = document.createElement('meta');
+      description.name = 'description';
+      document.head.appendChild(description);
+    }
+    description.content = String(data.short_description || data.description || 'View college event details and registration on Hapn.').slice(0, 160);
+
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.content = data.title + ' – Hapn';
+    const ogDescription = document.querySelector('meta[property="og:description"]');
+    if (ogDescription) ogDescription.content = description.content;
+    const ogImage = document.querySelector('meta[property="og:image"]');
+    const twitterImage = document.querySelector('meta[name="twitter:image"]');
+    const sharePoster = data.poster_url ? CE.posterSrc(data.poster_url) : 'https://hapn.info/assets/images/og-image.png';
+    const absoluteSharePoster = new URL(sharePoster, location.origin).href;
+    if (ogImage) ogImage.content = absoluteSharePoster;
+    if (twitterImage) twitterImage.content = absoluteSharePoster;
+    const ogImageAlt = document.querySelector('meta[property="og:image:alt"]');
+    if (ogImageAlt) ogImageAlt.content = data.title + ' event poster';
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) ogUrl.content = canonical ? canonical.href : location.href;
+    const twitterTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twitterTitle) twitterTitle.content = data.title + ' – Hapn';
+    const twitterDescription = document.querySelector('meta[name="twitter:description"]');
+    if (twitterDescription) twitterDescription.content = description.content;
+
+    const existingLd = document.getElementById('event-jsonld');
+    if (existingLd) existingLd.remove();
+    const ld = document.createElement('script');
+    ld.id = 'event-jsonld';
+    ld.type = 'application/ld+json';
+    ld.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Event',
+      name: data.title,
+      description: String(data.description || data.short_description || '').slice(0, 500),
+      startDate: data.date + (data.time ? 'T' + data.time : ''),
+      endDate: data.end_date ? data.end_date + (data.end_time ? 'T' + data.end_time : '') : undefined,
+      location: data.venue ? { '@type': 'Place', name: data.venue } : undefined,
+      image: data.poster_url ? [CE.posterSrc(data.poster_url)] : undefined,
+      url: canonical ? canonical.href : location.href,
+      eventStatus: 'https://schema.org/EventScheduled'
+    });
+    document.head.appendChild(ld);
+
+    box.innerHTML = detailHtml(data);
+    const ctaBar = box.querySelector('.detail-cta');
+    if (ctaBar) ctaBar.setAttribute('data-registration-label', (CE.registrationOpen(data) && CE.httpsUrl(data.registration_link)) ? 'Registration open' : (CE.eventStatus(data) !== 'upcoming' ? 'Event ended' : 'Registration closed'));
+  }
+
+  const page = document.body.getAttribute('data-page');
+  if (page === 'home' || page === 'events') initList();
+  if (page === 'event') initDetail();
+})();
