@@ -254,10 +254,8 @@
     else {
       const a=renderShareCareCardA(preview||{college_name:collegeName,posts:[]},loading,previewError);
       const b=renderShareCareCardB(preview||{college_name:collegeName,posts:[]},loading,previewError);
-      if(eventHtml.length){slideItems.push(eventHtml[0],a);slideItems.push(...eventHtml.slice(1));}
-      else slideItems.push(a);
-      if(eventHtml.length>=3){const pos=Math.min(5,slideItems.length);slideItems.splice(pos,0,b);}
-      else slideItems.push(b);
+      slideItems.push(a,...eventHtml);
+      if(eventHtml.length>=2){const pos=Math.min(5,slideItems.length);slideItems.splice(pos,0,b);}
     }
     const count=slideItems.length;
     box.innerHTML='<div class="featured-head"><div class="featured-heading-copy"><span class="ticket-label">Upcoming at Hapn</span><p class="featured-subtitle">Swipe to discover what’s happening next</p></div><div class="carousel-controls"><button type="button" class="carousel-prev" aria-label="Previous slide">‹</button><button type="button" class="carousel-next" aria-label="Next slide">›</button></div></div><div class="featured-carousel" role="region" aria-label="Upcoming college events and Share N Care" tabindex="0">'+slideItems.join('')+'</div><div class="carousel-dots" role="group" aria-label="Choose a slide">'+slideItems.map((_,i)=>'<button type="button" class="carousel-dot'+(i===0?' is-active':'')+'" data-slide-to="'+i+'" aria-label="Go to slide '+(i+1)+'" aria-current="'+(i===0?'true':'false')+'"></button>').join('')+'</div>';
