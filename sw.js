@@ -1,5 +1,5 @@
 /* Hapn PWA service worker. Keep caching conservative so Supabase data stays fresh. */
-const CACHE_NAME = 'hapn-shell-v1';
+const CACHE_NAME = 'hapn-shell-v2';
 const APP_SHELL = ['/', '/offline.html', '/assets/images/logo.svg'];
 
 self.addEventListener('install', (event) => {
