@@ -209,7 +209,7 @@
       '<div class="snc-title">Share <em>N</em> Care</div><div class="snc-kicker">LATEST FROM YOUR CAMPUS</div>' +
       '<div class="snc-post-list" aria-live="off">' + rows + '</div>' +
       '<div class="snc-footer"><span class="snc-progress">' + posts.slice(0,4).map((p,i)=>'<i class="' + (i===0?'on':'') + '"></i>').join('') + '</span>' + (more>0?'<span class="snc-more">+'+more+' more posts today</span>':'') + '</div>' +
-      '<div class="featured-actions snc-actions"><a class="btn btn-primary snc-open" href="/connect/">Hapn Connect</a></div></article>';
+      '<div class="featured-actions snc-actions"><a class="btn btn-primary btn-sm" href="/connect/">Hapn Connect</a></div></article>';
   }
   function renderShareCareCardB(data, loading, error) {
     const p = data?.posts?.[0];
@@ -219,7 +219,7 @@
       '<div class="snc-top"><span class="snc-live"><i></i> LIVE AT ' + CE.esc(data?.college_name || 'YOUR CAMPUS') + '</span><button class="poster-share-button share-button snc-share-button" type="button" data-share-url="/connect/" data-share-title="Share N Care – Hapn" aria-label="Share Share N Care">↗</button></div>' +
       '<div class="snc-b-head"><span>ASK.</span><span>SHARE.</span><span>HELP.</span></div><div class="snc-b-name">Share <em>N</em> Care</div>' +
       '<div class="snc-chips"><span>Ride Share</span><span>Lost &amp; Found</span><span>Teammate</span></div>' + preview +
-      '<div class="snc-actions"><a class="btn btn-primary btn-sm snc-open" href="/connect/">Hapn Connect ↗</a></div></article>';
+      '<div class="featured-actions snc-actions"><a class="btn btn-primary btn-sm" href="/connect/">Hapn Connect</a></div></article>';
   }
   async function renderNextUp() {
     const box = document.getElementById('next-up');
