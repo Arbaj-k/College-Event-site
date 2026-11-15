@@ -102,6 +102,28 @@
       </div>
     </section>
 
+    <section class="campus-board-entry section" aria-label="Campus Board">
+  <div class="container">
+    <a class="campus-board-card" href="/connect/">
+      <span class="campus-board-icon" aria-hidden="true">▤</span>
+      <span class="campus-board-copy"><strong>Campus Board</strong><small>Rides, lost &amp; found, teammates and campus help</small><em>COLLEGE COMMUNITY</em></span>
+      <span class="campus-board-arrow" aria-hidden="true">→</span>
+    </a>
+  </div>
+</section>
+<style>
+.campus-board-entry{padding-top:16px;padding-bottom:16px}
+.campus-board-card{position:relative;display:flex;align-items:center;gap:16px;min-height:112px;padding:22px 24px;border-radius:22px;background:#090909;color:#fff;text-decoration:none;box-shadow:0 12px 32px rgba(0,0,0,.12);transition:transform .18s ease,box-shadow .18s ease}
+.campus-board-card:hover{transform:translateY(-2px);box-shadow:0 16px 38px rgba(0,0,0,.18)}
+.campus-board-icon{width:58px;height:58px;display:grid;place-items:center;flex:none;border-radius:15px;background:#c8ff65;color:#0b1600;font-size:30px}
+.campus-board-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px}
+.campus-board-copy strong{font-size:25px;line-height:1.1;letter-spacing:-.04em}
+.campus-board-copy small{font-size:15px;color:#b8b8b8}
+.campus-board-copy em{font-size:11px;font-style:normal;letter-spacing:.15em;color:#c8ff65;margin-top:4px}
+.campus-board-arrow{width:46px;height:46px;display:grid;place-items:center;border:1px solid #454545;border-radius:50%;font-size:24px}
+@media(max-width:600px){.campus-board-card{min-height:100px;padding:18px 16px;border-radius:19px;gap:13px}.campus-board-icon{width:52px;height:52px}.campus-board-copy strong{font-size:22px}.campus-board-copy small{font-size:13px}.campus-board-arrow{width:40px;height:40px}}
+</style>
+
     <section class="featured-section">
       <div class="container"><div id="next-up" hidden></div></div>
     </section>
