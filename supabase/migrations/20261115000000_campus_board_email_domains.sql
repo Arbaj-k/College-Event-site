@@ -39,7 +39,9 @@ alter table public.campus_members enable row level security;
 
 grant select on public.college_email_domains to anon, authenticated;
 grant insert, update, delete on public.college_email_domains to authenticated;
-grant select, update on public.campus_members to authenticated;
+grant select on public.campus_members to authenticated;
+revoke update on public.campus_members from authenticated;
+grant update (full_name, academic_year, updated_at) on public.campus_members to authenticated;
 
 drop policy if exists "Public can check active college email domains" on public.college_email_domains;
 create policy "Public can check active college email domains"
@@ -58,7 +60,7 @@ drop policy if exists "Campus members update own profile" on public.campus_membe
 create policy "Campus members update own profile"
   on public.campus_members for update to authenticated
   using (user_id = (select auth.uid()))
-  with check (user_id = (select auth.uid()) and college_id = (select cm.college_id from public.campus_members cm where cm.user_id = (select auth.uid())));
+  with check (user_id = (select auth.uid()));
 
 -- Atomic domain replacement: only a verified Super Admin can edit mappings.
 create or replace function public.set_college_email_domains(p_college_id uuid, p_domains text[])
