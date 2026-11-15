@@ -62,12 +62,6 @@ Deno.serve(async (req: Request) => {
     const { data: profile, error: profileErr } = await admin.from("profiles").select("role,is_active").eq("user_id", userData.user.id).maybeSingle();
     if (profileErr) return fail("admin_profile_lookup_failed");
     if (profile?.role !== "super_admin" || profile?.is_active !== true) return json({ error: "Super Admin access required" }, 403);
-
-    if (body.action === "archive_events") {
-      const { data, error } = await admin.rpc("archive_expired_events");
-      if (error) return fail("archive_events_failed");
-      return json({ ok: true, archived_count: data ?? 0 });
-    }
     if (body.action === "invite_college_admin") {
       const email = String(body.email ?? "").trim().toLowerCase(), collegeId = String(body.college_id ?? ""), fullName = String(body.full_name ?? "").trim().slice(0, 80);
       if (!/^\S+@\S+\.\S+$/.test(email) || !collegeId) return json({ error: "Valid email and college are required" }, 400);

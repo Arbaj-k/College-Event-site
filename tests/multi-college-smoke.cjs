@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const read = (p) => fs.readFileSync(path.join(__dirname, '..', p), 'utf8');
 const migration = read('supabase/migrations/20261112_multi_college_platform.sql');
+const disableArchiveMigration = read('supabase/migrations/20261115000600_disable_event_archive.sql');
 const home = read('index.html');
 const publicEvents = read('events.html');
 const adminAuth = read('js/auth.js');
@@ -25,10 +26,6 @@ assert.ok(migration.includes('Public read published events" on public.events for
 assert.ok(!migration.includes('Public read published events" on public.events for select to anon, authenticated'));
 assert.ok(migration.includes('College admins read own events'));
 assert.ok(migration.includes('college_id = public.current_college_id()'));
-assert.ok(migration.includes('current_date - 7'));
-assert.ok(migration.includes('grant execute on function public.archive_expired_events() to service_role'));
-assert.ok(!migration.includes('grant execute on function public.archive_expired_events() to authenticated'));
-assert.ok(migration.includes('event_title, college_name, event_date, event_snapshot, archived_at'));
 assert.ok(!/grant\s+select\s+on\s+public\.event_archive\s+to\s+anon/i.test(migration), 'Archive must not be readable by anon');
 assert.ok(!/create\s+policy\s+\"Public can read archived event summaries\"/i.test(migration), 'Archive must not have a public read policy');
 assert.ok(migration.includes('create policy "Super admins manage archive"'), 'Archive must be Super Admin-only');
@@ -45,17 +42,26 @@ assert.ok(adminEvents.includes('payload.college_id = CE.currentProfile.college_i
 assert.ok(supabaseClient.includes('window.sbPublic'));
 assert.ok(publicEventsJs.includes('const publicDb = window.sbPublic || window.sb'));
 assert.ok(superPage.includes('name="robots" content="noindex,nofollow"'));
-for (const section of ['overview','colleges','admins','events','analytics','archive','settings']) {
+for (const section of ['overview','colleges','admins','events','analytics','settings']) {
   assert.ok(superPage.includes('data-view="' + section + '"'), 'Missing dashboard section: ' + section);
 }
-for (const action of ['invite_college_admin','finalize_admin_activation','revoke_invitation','reassign_admin','set_admin_status','delete_college_admin','archive_events']) {
+for (const action of ['invite_college_admin','finalize_admin_activation','revoke_invitation','reassign_admin','set_admin_status','delete_college_admin']) {
   assert.ok(edge.includes(action), 'Missing Edge Function action: ' + action);
 }
 assert.ok(edge.includes('SUPABASE_SERVICE_ROLE_KEY'));
 assert.ok(superJs.includes('data-delete-event'));
 assert.ok(superJs.includes('data-delete-college'));
-assert.ok(superJs.includes('Original event records remain unchanged'));
+assert.ok(!superJs.includes('loadArchive'));
+assert.ok(!superJs.includes('run-archive'));
+assert.ok(!superPage.includes('Event Archive'));
+assert.ok(!home.includes('/archive.html'));
+assert.ok(!publicEvents.includes('/archive.html'));
+assert.ok(!edge.includes('archive_events'));
+assert.ok(disableArchiveMigration.includes('cron.unschedule'));
+assert.ok(disableArchiveMigration.includes('drop function if exists public.archive_expired_events()'));
+assert.ok(!/drop table[^;]*event_archive/i.test(disableArchiveMigration));
 assert.ok(!superJs.includes('permanently remove all events'));
+
 
 assert.ok(campusDomains.includes('create table if not exists public.college_email_domains'));
 assert.ok(campusDomains.includes('create table if not exists public.campus_members'));

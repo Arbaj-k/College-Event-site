@@ -32,3 +32,8 @@
 ## Limitations
 
 This is a repository/configuration audit, not a penetration test. Source searches may miss historical/obfuscated code. The live Cloudflare response headers and Auth rate-limit values were not readable through connected project tools. Worker and rate-limit controls are not active until owner deployment/configuration.
+
+
+## Archive feature removal
+
+The public Event Archive page, homepage/events navigation links, Super Admin archive view/shortcut/manual action, Edge Function archive action, and daily archive cron/function have been removed. Existing `event_archive` rows are retained as private legacy records; this change does not delete historical data.
