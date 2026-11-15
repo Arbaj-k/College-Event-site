@@ -2432,7 +2432,7 @@ body[data-page="home"] .home-calendar {
 #next-up .snc-progress i{width:5px;height:5px;border-radius:9px;background:#506158}
 #next-up .snc-progress i.on{width:17px;background:#c8f26b}
 #next-up .snc-more{color:#c8f26b;font:600 10px ui-monospace,monospace}
-#next-up .snc-actions{width:100%;margin-top:12px;padding:0;display:flex;justify-content:center}
+#next-up .snc-actions{width:100%;margin-top:8px;padding:0;display:flex;justify-content:center}
 #next-up .snc-actions .btn{display:flex;width:100%;min-height:42px;align-items:center;justify-content:center;border-radius:999px;background:#101d19;color:#fff;font-weight:700;text-decoration:none}
 #next-up .snc-card-b{padding-bottom:clamp(12px,3vw,20px)}
 #next-up .snc-b-head{display:flex;flex-direction:column;margin-top:clamp(12px,3vw,20px);font-size:clamp(42px,10vw,76px);font-weight:900;line-height:.78;letter-spacing:-.075em;overflow:hidden}
