@@ -1,6 +1,4 @@
 /* Generate a sitemap containing public pages and published event detail URLs. */
-const fs = require('fs');
-
 const baseUrl = 'https://hapn.info';
 const supabaseUrl = (process.env.SUPABASE_URL || '').trim().replace(/\/$/, '');
 const anonKey = (process.env.SUPABASE_ANON_KEY || '').trim();
@@ -15,21 +13,10 @@ const staticUrls = [
   { loc: baseUrl + '/fests/' }
 ];
 
-function readPublicConfig() {
-  try {
-    const config = fs.readFileSync('js/config.js', 'utf8');
-    const url = config.match(/SUPABASE_URL:\s*"([^"]+)"/)?.[1] || '';
-    const key = config.match(/SUPABASE_ANON_KEY:\s*"([^"]+)"/)?.[1] || '';
-    return { url, key };
-  } catch {
-    return { url: '', key: '' };
-  }
-}
 
 async function getPublishedEvents() {
-  const config = readPublicConfig();
-  const apiUrl = supabaseUrl || config.url;
-  const apiKey = anonKey || config.key;
+  const apiUrl = supabaseUrl;
+  const apiKey = anonKey;
 
   if (!apiUrl || !apiKey) {
     throw new Error('Supabase public configuration is missing.');

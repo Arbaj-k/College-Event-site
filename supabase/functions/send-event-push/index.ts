@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
 
   const result = await response.json().catch(() => ({}));
   if (!response.ok) {
-    console.error("OneSignal send failed:", response.status, JSON.stringify(result));
+    console.error("OneSignal send failed with HTTP status:", response.status);
     return Response.json({ error: "OneSignal could not send the notification" }, { status: 502, headers });
   }
   return Response.json({ sent: true, id: result.id || null }, { headers });

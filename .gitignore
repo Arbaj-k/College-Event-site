@@ -1,3 +1,8 @@
 .DS_Store
 node_modules/
 .env
+.env.*
+!.env.example
+
+# Generated during local/Pages builds; never commit browser config
+/js/config.js

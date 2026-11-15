@@ -1,12 +1,27 @@
 # Hapn
 
+> **Security notice:** Any real password, private API token, service-role key, database credential, or OAuth client secret ever committed to Git must be rotated immediately. The historical Supabase anon/publishable key in this repository is designed to be public and is not a secret; it must still be protected by RLS. Git history is immutable through normal file edits, so removing a value from the current tree does not erase past commits.
+
 A simple college events website. Students browse events and register through **Google Forms**. Admins sign in to add, edit and delete events.
 
 - **Frontend:** plain HTML, CSS and JavaScript (no build tools)
 - **Backend:** Supabase (PostgreSQL, Auth, Storage, Row Level Security)
-- **Hosting:** Netlify
+- **Hosting:** GitHub Pages (GitHub Actions build)
 
 There are no student accounts, payments, comments or custom registration. Registration is always a Google Form that opens in a new tab.
+
+
+## Secret-safety audit (2026-11-15)
+
+- Browser configuration is generated during build from `SUPABASE_URL` and `SUPABASE_ANON_KEY`; the generated `js/config.js` is git-ignored and is no longer tracked.
+- GitHub Pages requires repository Actions **Variables** named `SUPABASE_URL` and `SUPABASE_ANON_KEY` (Settings → Secrets and variables → Actions → Variables). These are public-safe values; the publishable key is visible to browsers by design.
+- Local development: copy `.env.example` to `.env`, fill in the same two public values, then run `node build-config.js`.
+- Never add `SUPABASE_SERVICE_ROLE_KEY`, `ONESIGNAL_REST_API_KEY`, database passwords, OAuth client secrets or other private credentials to browser config, GitHub variables, or committed files. Put server-only credentials in Supabase Edge Function secrets.
+- A historical Supabase `sb_publishable_` key was found in `js/config.js`. This key is designed for public client use and is not a private secret. No service-role key, database password, private OAuth client secret, or OneSignal REST key was identified by the repository and Git-history scans performed for this audit.
+- An administrator Auth UID and email were present in `supabase/add-admin.sql`; they were replaced with placeholders. These are identifiers, not authentication credentials. Git history still retains the old values; normal commits do not erase history.
+- **Rotation warning:** if any real password, service-role key, database credential, OAuth client secret, or private third-party API token was ever committed, rotate/revoke it immediately. Remove it from Git history separately if needed; deleting it from the latest source is not enough.
+- See `SECURITY_AUDIT.md` for the findings, RLS check, remaining manual actions and scope.
+
 
 ---
 
@@ -27,7 +42,7 @@ campus-events/
 │   ├── style.css         Public site + shared styles
 │   └── admin.css         Admin-only styles
 ├── js/
-│   ├── config.js         ← your Supabase URL + anon key go here
+│   ├── config.js         ← generated at build time; no committed credentials
 │   ├── supabase.js       Creates the Supabase client
 │   ├── common.js         Shared helpers (dates, escaping, toasts, menu)
 │   ├── events.js         Public event list, search, filters, details page
@@ -39,7 +54,7 @@ campus-events/
 │   ├── sample-data.sql   5 sample events (run once)
 │   └── add-admin.sql     Makes a user an admin
 ├── netlify.toml          Deploy settings + security headers
-└── build-config.js       Writes js/config.js from Netlify environment variables
+├── build-config.js       Writes js/config.js from environment variables\n└── .env.example          Safe local-development variable template
 ```
 
 ---
@@ -117,22 +132,13 @@ If you ever have to create it by hand: **Storage → New bucket → name `event-
 
 "Admin" means: the user's ID exists in `public.admins` with `role = 'admin'`. This is checked by the database function `public.is_admin()`. The frontend check only decides what to show; it cannot be used to get around the database.
 
-### 8. Where to put the Supabase configuration
-1. In Supabase open **Project Settings → API** (or **API Keys**).
-2. Copy the **Project URL** and the **anon / publishable key**.
-3. Paste them into `js/config.js`:
+### 8. Supabase configuration (environment variables only)
+1. In Supabase open **Project Settings → API**.
+2. Copy the **Project URL** and the **anon / publishable key** (never the service-role/secret key).
+3. For local development, copy `.env.example` to `.env`, fill in those two public values, then run `node build-config.js`. The generated `js/config.js` is git-ignored from commits by policy; do not commit it.
+4. For GitHub Pages, add repository **Variables** named `SUPABASE_URL` and `SUPABASE_ANON_KEY` under **Settings → Secrets and variables → Actions → Variables**. The Pages workflow generates the browser config during deployment.
 
-```js
-window.CE_CONFIG = {
-  SUPABASE_URL: "https://abcdxyz.supabase.co",
-  SUPABASE_ANON_KEY: "eyJhbGciOi..."
-};
-```
-
-> The anon / publishable key is designed to be public. Security comes from RLS.
-> **Never** put the `service_role` / secret key anywhere in this project. `build-config.js` refuses it if you try.
-
-On Netlify you can skip editing this file and use environment variables instead (step 10).
+The anon/publishable key is intentionally visible in browser network traffic. It is not a secret; database security depends on RLS. The service-role key, database password, OneSignal REST API key and all OAuth client secrets must remain server-side (Supabase Edge Function secrets).
 
 ### 9. Run the project locally
 Browsers block some features when a page is opened by double-clicking it, so serve the folder with any small web server. From inside the `campus-events` folder, use one of these:
@@ -149,22 +155,10 @@ npx serve .
 
 Open <http://localhost:8000>. The admin login is at <http://localhost:8000/admin/login.html>.
 
-### 10. Deploy to Netlify
+### 10. Deploy to GitHub Pages
 
-**Option A: from GitHub (recommended, uses environment variables)**
-1. Push the `campus-events` folder to a GitHub repository.
-2. In Netlify: **Add new site → Import an existing project**, choose the repository.
-3. Leave the settings as they are. `netlify.toml` sets the build command (`node build-config.js`) and publish directory (`.`).
-4. Before deploying, open **Site configuration → Environment variables** and add:
-   - `SUPABASE_URL` = your Project URL
-   - `SUPABASE_ANON_KEY` = your anon / publishable key
-5. Click **Deploy**. Every `git push` redeploys the site.
-
-**Option B: drag and drop (quickest)**
-1. Put your values in `js/config.js` (step 8).
-2. Go to <https://app.netlify.com/drop> and drag the whole `campus-events` folder in.
-
-**After deploying:** in Supabase open **Authentication → URL Configuration** and set **Site URL** to your Netlify address (for example `https://your-site.netlify.app`).
+The repository deploys through `.github/workflows/pages.yml`. Set the two GitHub Actions repository variables described in step 8, then push to `main` or run the workflow manually.
+After deploying, keep the Supabase Auth Site URL and allowed redirect URLs set to `https://hapn.info` and the exact Hapn callback routes used by sign-in.
 
 ### 11. Add, edit and delete events
 Sign in at `/admin/login.html` with the admin account.
