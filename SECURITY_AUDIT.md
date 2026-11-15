@@ -57,7 +57,7 @@ This is a repository and configuration audit, not a formal penetration test. Git
 ### Implemented in `fix/privacy-hardening-campus-board`
 
 - Added `public.is_real_campus_user()`, which rejects Supabase anonymous-auth JWTs while allowing normal authenticated college accounts.
-- Applied that guard to Campus Board membership, posts, private WhatsApp contacts, connect requests, notifications, saves and reports, plus admin-row and invitation policies.
+- Applied that guard to Campus Board membership, posts, private WhatsApp contacts, connect requests, notifications, saves, reports, admin-row and invitation policies, and Campus Board image upload/update/delete. Public image viewing remains intentionally enabled for feed images.
 - Kept anonymous chat tables and chat-matching RPC policies unchanged so the anonymous-chat experience is not disabled by Campus Board hardening.
 - Removed raw Supabase error-object logging from the admin authentication and event-submission browser flows. User-facing event-submission errors are now generic and do not echo provider/database error text.
 
