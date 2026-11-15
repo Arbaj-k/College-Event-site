@@ -197,6 +197,7 @@ const I = {
   explore:'<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/>',
   posts:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
   bookmark:'<path d="M6 3h12v18l-6-4-6 4z"/>',
+  share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.7 10.7l6.6-4.4M8.7 13.3l6.6 4.4"/>',
   bell:'<path d="M6 9a6 6 0 0112 0c0 6 2 7 2 7H4s2-1 2-7M10 20a2 2 0 004 0"/>',
   book:'<path d="M4 4h6a3 3 0 013 3v13a2 2 0 00-2-2H4zM20 4h-6a3 3 0 00-3 3v13a2 2 0 012-2h7z"/>',
   moon:'<path d="M20 14.5A8 8 0 019.5 4 8 8 0 1020 14.5z"/>',
@@ -338,6 +339,20 @@ function PageHead(eyebrow, title, sub, withActions) {
 function Chips() {
   return `<div class="chips" role="tablist">${['All', ...ALL_TYPES].map(t => `<button class="chip ${S.type === t ? 'on' : ''}" data-type="${esc(t)}">${esc(t)}</button>`).join('')}</div>`;
 }
+async function shareCampusPost(p) {
+  const url = new URL('/connect/board/?post=' + encodeURIComponent(p.id), location.origin).href;
+  const kind = p.customType || p.type || 'Campus post';
+  const text = [p.text, '', 'Posted by ' + p.name + ' · ' + p.college, kind + ' · Hapn Share N Care', '', 'View this post: ' + url].join('\n');
+  if (navigator.share) {
+    try { await navigator.share({ title: 'Hapn Share N Care · ' + kind, text, url }); return; }
+    catch (err) { if (err && err.name === 'AbortError') return; }
+  }
+  try {
+    if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(text);
+    else { const field=document.createElement('textarea'); field.value=text; field.setAttribute('readonly',''); field.style.position='fixed'; field.style.opacity='0'; document.body.appendChild(field); field.select(); const copied=document.execCommand('copy'); field.remove(); if(!copied) throw new Error('Copy unavailable'); }
+    toast('Post link and details copied. Share it anywhere!');
+  } catch (err) { toast('Could not share automatically. Post link: ' + url); }
+}
 function Post(p, ctx) {
   const mine = p.authorId === 'me', saved = api.saves().includes(p.id), done = p.status === 'completed', expired = !isLive(p);
   const until = p.expiresAt ? ` · ${expired ? 'Expired' : 'Until'} ${shortDate(p.expiresAt)}` : '';
@@ -367,7 +382,7 @@ function Post(p, ctx) {
     </div>
     <div class="body">${esc(p.text)}</div>
     ${p.image ? `<div class="img"><img src="${esc(p.image)}" alt="Post image" loading="lazy"></div>` : ''}
-    <div class="pfoot"><span class="time">${ago(p.createdAt)}${until}</span>${connect}${owner}</div>
+    <div class="pfoot"><span class="time">${ago(p.createdAt)}${until}</span><button class="icon-btn" data-act="sharePost" data-id="${p.id}" aria-label="Share this post" title="Share post">${ic('share')}Share</button>${connect}${owner}</div>
   </article>`;
 }
 function Skeleton() { return `<div class="feed" aria-busy="true">${'<div class="skel"></div>'.repeat(4)}</div>`; }
@@ -616,6 +631,7 @@ document.addEventListener('click', async (e) => {
       case 'connect': return ConnectModal(id);
       case 'report': return ReportModal(id);
       case 'save': { const on = await api.toggleSave(id); toast(on ? 'Saved' : 'Removed from saved'); return render(); }
+      case 'sharePost': { const post = (S.posts || []).find(p => p.id === id); if (!post) throw new Error('This post is no longer available.'); return shareCampusPost(post); }
       case 'complete': { const p = S.posts.find(x => x.id === id); await api.updatePost(id, { status: p.status === 'completed' ? 'active' : 'completed' }); toast(p.status === 'completed' ? 'Post reopened' : 'Marked as completed'); return refreshPosts(); }
       case 'delete': return ConfirmModal('Delete post?', 'This cannot be undone.', 'doDelete', id, 'Delete');
       case 'doDelete': await api.removePost(id); closeModal(); toast('Post deleted'); return refreshPosts();
