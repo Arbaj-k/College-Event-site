@@ -2,95 +2,78 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#090909">
-<title>Campus Board Login – Hapn</title>
-<link rel="icon" href="/assets/images/logo.svg">
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#ffffff">
+<title>Share N Care – Hapn</title><link rel="icon" href="/assets/images/logo.svg">
 <style>
-:root{color-scheme:light;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:#f1f6f2;color:#101510}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:22px;background:radial-gradient(circle at 15% 10%,#e3f4e7,transparent 35%),#f1f6f2}
-.card{width:min(100%,460px);background:#fff;border:1px solid #e2e9e3;border-radius:26px;padding:34px;box-shadow:0 24px 70px rgba(18,48,25,.09)}
-.brand{font-weight:850;font-size:28px;letter-spacing:-1.5px}.eyebrow{font-size:11px;letter-spacing:.17em;color:#67806b;font-weight:800;margin-top:28px}
-h1{font-size:34px;line-height:1.05;letter-spacing:-1.7px;margin:10px 0}.sub{color:#68736a;line-height:1.55;margin:0 0 26px}
-label{display:block;font-size:13px;font-weight:750;margin:16px 0 8px}input{width:100%;height:52px;border:1px solid #dce5dc;border-radius:13px;padding:0 15px;font:inherit;outline:none}input:focus{border-color:#548b58;box-shadow:0 0 0 3px #e5f4e5}
-button,.open{width:100%;height:52px;margin-top:14px;border:0;border-radius:14px;background:#0b0d0b;color:#fff;font:750 15px/1.1 Inter,system-ui,sans-serif;cursor:pointer;text-decoration:none;display:grid;place-items:center}
-button:disabled{opacity:.55;cursor:wait}.status{display:none;margin-top:16px;padding:13px 14px;border-radius:12px;background:#eff7ef;color:#245b2b;font-size:14px;line-height:1.5}.status.error{background:#fff0ef;color:#a02b22}.foot{font-size:12px;color:#7a847b;margin-top:24px;line-height:1.6;text-align:center}.foot a{color:inherit}.hidden{display:none!important}
+:root{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#171917;background:#fff}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:#fff}
+.card{width:min(100%,420px);text-align:center;padding:24px 12px}
+.brand{display:inline-block;font-size:34px;font-weight:850;letter-spacing:-2px;color:#111;text-decoration:none}
+.eyebrow{font-size:11px;letter-spacing:.16em;color:#718071;font-weight:800;margin-top:34px}
+h1{font-size:34px;line-height:1.08;letter-spacing:-1.6px;margin:12px 0}
+.sub{color:#687168;line-height:1.6;margin:0 auto 28px;max-width:340px;font-size:15px}
+.google{width:100%;max-width:340px;height:52px;border:1px solid #dadce0;border-radius:8px;background:#fff;color:#202124;font:600 15px Inter,system-ui,sans-serif;display:flex;align-items:center;justify-content:center;gap:12px;cursor:pointer}
+.google:hover{background:#f8faff}.google:disabled{opacity:.55;cursor:wait}
+.gicon{width:19px;height:19px}.status{display:none;margin:18px auto 0;max-width:340px;padding:12px;border-radius:10px;background:#f1f7f1;color:#285a2b;font-size:13px;line-height:1.5}.status.error{background:#fff1f0;color:#a12e25}
+.foot{font-size:12px;color:#818981;margin:30px auto 0;line-height:1.7;max-width:350px}.foot a{color:#59665b}
+.close{position:fixed;right:22px;top:18px;color:#555;text-decoration:none;font-size:26px;line-height:1}
 </style>
 </head>
 <body>
+<a class="close" href="/" aria-label="Close">×</a>
 <main class="card">
-  <a class="brand" href="/" style="color:inherit;text-decoration:none">hapn.</a>
-  <div class="eyebrow">SHARE N CARE · CAMPUS COMMUNITY</div>
-  <h1 id="heading">Your campus.<br>One community.</h1>
-  <p class="sub" id="intro">Sign in with your official college email. We’ll send a secure verification link to your inbox.</p>
-  <form id="login-form">
-    <label for="full-name">Your name</label><input id="full-name" type="text" autocomplete="name" placeholder="Your name" maxlength="60" required><label for="academic-year">Academic year</label><select id="academic-year" style="width:100%;height:52px;border:1px solid #dce5dc;border-radius:13px;padding:0 15px;background:#fff"><option value="">Select year (optional)</option><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option><option>Postgraduate</option></select><label for="email">College email address</label>
-    <input id="email" type="email" autocomplete="email" placeholder="you@college.edu.in" required maxlength="254">
-    <button id="send" type="submit">Send verification link</button>
-  </form>
-  <div id="status" class="status" role="status" aria-live="polite"></div>
-  <section id="verified" class="hidden">
-    <p class="sub" id="welcome"></p>
-    <button id="enter" type="button">Continue to Campus Board</button>
-    <button id="logout" type="button" style="background:#eef2ee;color:#182018">Sign out</button>
-  </section>
-  <p class="foot">Only domains approved by Hapn Super Admin are accepted. Your college determines which Campus Board you can access. <a href="/">Back to Hapn</a></p>
+<a class="brand" href="/">hapn.</a>
+<div class="eyebrow">SHARE N CARE · CAMPUS COMMUNITY</div>
+<h1>Your campus.<br>One community.</h1>
+<p class="sub">Continue with your official college Google account to join your campus community.</p>
+<button class="google" id="google-login" type="button">
+<svg class="gicon" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.74 7.18l7.73 6C44.43 37.98 46.98 31.91 46.98 24.55z"/><path fill="#FBBC05" d="M10.53 28.59A14.4 14.4 0 0 1 9.75 24c0-1.59.27-3.13.76-4.59l-7.98-6.19A23.9 23.9 0 0 0 0 24c0 3.87.93 7.53 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.91-5.8l-7.73-6c-2.14 1.44-4.89 2.3-8.18 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+Continue with Google
+</button>
+<div id="status" class="status" role="status" aria-live="polite"></div>
+<p class="foot">Only Google accounts from domains approved by Hapn Super Admin can enter. By continuing, you agree to our <a href="/terms/">Terms</a> and <a href="/privacy/">Privacy Policy</a>.</p>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
-<script src="/js/config.js"></script>
-<script src="/js/supabase.js"></script>
+<script src="/js/config.js"></script><script src="/js/supabase.js"></script>
 <script>
 (function(){
 'use strict';
-const $=id=>document.getElementById(id);
-const status=(message,error)=>{$('status').textContent=message;$('status').className='status'+(error?' error':'');$('status').style.display='block';};
-const cleanEmail=v=>String(v||'').trim().toLowerCase();
-async function activeCollegeFor(email){
- const domain=cleanEmail(email).split('@')[1];
- if(!domain)throw new Error('Enter a valid college email address.');
- const {data:d,error}=await sb.from('college_email_domains').select('college_id').eq('domain',domain).eq('is_active',true).maybeSingle();
- if(error)throw new Error('Campus Board access is not ready yet. Please try again later.');
- if(!d)throw new Error('This email domain has not been approved by Hapn Super Admin.');
- const {data:c,error:ce}=await sb.from('colleges').select('id,name,is_active').eq('id',d.college_id).maybeSingle();
- if(ce||!c||!c.is_active)throw new Error('This college is currently not enabled on Hapn.');
- return c;
-}
-async function finishLogin(){
- const url=new URL(location.href),tokenHash=url.searchParams.get('token_hash'),type=url.searchParams.get('type'),hash=new URLSearchParams(location.hash.replace(/^#/,''));
- if(tokenHash){
-   if(!['magiclink','email'].includes(type||'')){status('This verification link is invalid or expired. Request a new link.',true);return;}
-   const {error}=await sb.auth.verifyOtp({token_hash:tokenHash,type:type});
-   if(error){status(error.message||'This verification link has expired. Request a new one.',true);return;}
-   history.replaceState({},document.title,'/connect/');
- }else if(hash.get('access_token')&&hash.get('refresh_token')){
-   const {error}=await sb.auth.setSession({access_token:hash.get('access_token'),refresh_token:hash.get('refresh_token')});
-   if(error){status(error.message||'This verification link is invalid or expired.',true);return;}
-   history.replaceState({},document.title,'/connect/');
- }else{await sb.auth.signOut();return;}
- const {data:{session},error}=await sb.auth.getSession();
- if(error)throw error;
+const status=(message,error)=>{const el=document.getElementById('status');el.textContent=message;el.className='status'+(error?' error':'');el.style.display='block';};
+const button=document.getElementById('google-login');
+async function completeGoogleLogin(){
+ const url=new URL(location.href),code=url.searchParams.get('code');
+ if(code){
+  const {error}=await sb.auth.exchangeCodeForSession(code);
+  if(error)throw error;
+  history.replaceState({},document.title,'/connect/');
+ }
+ const {data:{session},error:sessionError}=await sb.auth.getSession();
+ if(sessionError)throw sessionError;
  if(!session)return;
- const {data:profile}=await sb.from('profiles').select('role,college_id,is_active,full_name,email').eq('user_id',session.user.id).maybeSingle();let m=null;let isCollegeAdmin=false;if(profile?.role==='college_admin'&&profile.is_active){const {data:college,error:collegeError}=await sb.from('colleges').select('id,name,is_active').eq('id',profile.college_id).maybeSingle();if(collegeError||!college?.is_active)throw new Error('Your college admin access is inactive.');m={college_id:college.id,college_name:college.name,email:profile.email,full_name:profile.full_name};isCollegeAdmin=true;}else{const {data:member,error:memberError}=await sb.rpc('ensure_campus_member');if(memberError){await sb.auth.signOut();throw new Error(memberError.message||'This account is not approved for Campus Board.');}m=Array.isArray(member)?member[0]:member;}if(!m?.college_id){await sb.auth.signOut();throw new Error('Your college membership could not be verified.');}const savedProfile=JSON.parse(localStorage.getItem('hapn-campus-profile')||'{}');const fullName=$('full-name').value.trim()||savedProfile.fullName||'';const academicYear=$('academic-year').value||savedProfile.academicYear||null;if(!isCollegeAdmin&&(fullName||academicYear)){const {error:profileError}=await sb.from('campus_members').update({full_name:fullName||null,academic_year:academicYear}).eq('user_id',session.user.id);if(profileError)throw profileError;}localStorage.removeItem('hapn-campus-profile');
- $('login-form').classList.add('hidden');$('intro').classList.add('hidden');$('heading').textContent='You’re verified.';
- $('welcome').textContent='Signed in as '+m.email+' · '+m.college_name+'. Your college membership is confirmed.';
- $('verified').classList.remove('hidden');status('Email verified. Campus Board access confirmed.');
+ const email=String(session.user.email||'').trim().toLowerCase();
+ if(!email||session.user.app_metadata?.provider!=='google'||session.user.email_confirmed_at==null){
+  await sb.auth.signOut();throw new Error('Please use a verified college Google account.');
+ }
+ const domain=email.split('@')[1];
+ const {data:allowed,error}=await sb.from('college_email_domains').select('college_id').eq('domain',domain).eq('is_active',true).maybeSingle();
+ if(error||!allowed){await sb.auth.signOut();throw new Error('This college email domain is not approved yet. Please contact your college administrator.');}
+ const {data:college,error:collegeError}=await sb.from('colleges').select('id,is_active').eq('id',allowed.college_id).maybeSingle();
+ if(collegeError||!college?.is_active){await sb.auth.signOut();throw new Error('Your college is not currently active on Hapn.');}
+ const {data:member,error:memberError}=await sb.rpc('ensure_campus_member');
+ if(memberError||!member){await sb.auth.signOut();throw new Error(memberError?.message||'Could not verify your campus membership.');}
+ location.replace('/connect/board/');
 }
-$('login-form').addEventListener('submit',async e=>{
- e.preventDefault();const email=cleanEmail($('email').value),button=$('send');
- button.disabled=true;button.textContent='Checking college…';
+button.addEventListener('click',async()=>{
+ if(!window.sb){status(window.CE?.setupProblem?.()||'Could not connect to Hapn.',true);return;}
+ button.disabled=true;button.textContent='Connecting to Google…';
  try{
-   await activeCollegeFor(email);localStorage.setItem('hapn-campus-profile',JSON.stringify({fullName:$('full-name').value.trim(),academicYear:$('academic-year').value||null}));
-   const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+'/connect/',shouldCreateUser:true,data:{full_name:$('full-name').value.trim()}}});
-   if(error)throw error;
-   status('Verification link sent to '+email+'. Open the email and click Verify & Login. The link can only be used once.');
-   button.textContent='Send link again';
- }catch(err){status(err.message||'Could not send the verification link.',true);button.textContent='Send verification link';}
- finally{button.disabled=false;}
+  const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/connect/',queryParams:{prompt:'select_account'},skipBrowserRedirect:false}});
+  if(error)throw error;
+ }catch(error){status(error.message||'Google sign-in could not start.',true);button.disabled=false;button.textContent='Continue with Google';}
 });
-$('enter').addEventListener('click',()=>{location.href='/connect/board/';});
-$('logout').addEventListener('click',async()=>{await sb.auth.signOut();location.reload();});
 document.addEventListener('DOMContentLoaded',async()=>{
- if(!window.sb){status(window.CE?.setupProblem?.()||'Could not connect to Hapn.',true);$('send').disabled=true;return;}
- try{const saved=JSON.parse(localStorage.getItem('hapn-campus-profile')||'{}');if(saved.fullName)$('full-name').value=saved.fullName;if(saved.academicYear)$('academic-year').value=saved.academicYear;await finishLogin();catch(e){status(e.message||'Could not verify your account.',true);}
+ if(!window.sb){status(window.CE?.setupProblem?.()||'Could not connect to Hapn.',true);button.disabled=true;return;}
+ try{await completeGoogleLogin();}catch(error){status(error.message||'Could not verify your account.',true);}
 });
 })();
 </script>
