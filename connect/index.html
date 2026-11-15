@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#090909">
+<title>Campus Board Login – Hapn</title>
+<link rel="icon" href="/assets/images/logo.svg">
+<style>
+:root{color-scheme:light;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:#f1f6f2;color:#101510}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:22px;background:radial-gradient(circle at 15% 10%,#e3f4e7,transparent 35%),#f1f6f2}
+.card{width:min(100%,460px);background:#fff;border:1px solid #e2e9e3;border-radius:26px;padding:34px;box-shadow:0 24px 70px rgba(18,48,25,.09)}
+.brand{font-weight:850;font-size:28px;letter-spacing:-1.5px}.eyebrow{font-size:11px;letter-spacing:.17em;color:#67806b;font-weight:800;margin-top:28px}
+h1{font-size:34px;line-height:1.05;letter-spacing:-1.7px;margin:10px 0}.sub{color:#68736a;line-height:1.55;margin:0 0 26px}
+label{display:block;font-size:13px;font-weight:750;margin:16px 0 8px}input{width:100%;height:52px;border:1px solid #dce5dc;border-radius:13px;padding:0 15px;font:inherit;outline:none}input:focus{border-color:#548b58;box-shadow:0 0 0 3px #e5f4e5}
+button,.open{width:100%;height:52px;margin-top:14px;border:0;border-radius:14px;background:#0b0d0b;color:#fff;font:750 15px inherit;cursor:pointer;text-decoration:none;display:grid;place-items:center}
+button:disabled{opacity:.55;cursor:wait}.status{display:none;margin-top:16px;padding:13px 14px;border-radius:12px;background:#eff7ef;color:#245b2b;font-size:14px;line-height:1.5}.status.error{background:#fff0ef;color:#a02b22}.foot{font-size:12px;color:#7a847b;margin-top:24px;line-height:1.6;text-align:center}.foot a{color:inherit}.hidden{display:none!important}
+</style>
+</head>
+<body>
+<main class="card">
+  <a class="brand" href="/" style="color:inherit;text-decoration:none">hapn.</a>
+  <div class="eyebrow">SHARE N CARE · CAMPUS COMMUNITY</div>
+  <h1 id="heading">Your campus.<br>One community.</h1>
+  <p class="sub" id="intro">Sign in with your official college email. We’ll send a secure verification link to your inbox.</p>
+  <form id="login-form">
+    <label for="email">College email address</label>
+    <input id="email" type="email" autocomplete="email" placeholder="you@college.edu.in" required maxlength="254">
+    <button id="send" type="submit">Send verification link</button>
+  </form>
+  <div id="status" class="status" role="status" aria-live="polite"></div>
+  <section id="verified" class="hidden">
+    <p class="sub" id="welcome"></p>
+    <button id="enter" type="button">Continue to Campus Board</button>
+    <button id="logout" type="button" style="background:#eef2ee;color:#182018">Sign out</button>
+  </section>
+  <p class="foot">Only domains approved by Hapn Super Admin are accepted. Your college determines which Campus Board you can access. <a href="/">Back to Hapn</a></p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
+<script src="/js/config.js"></script>
+<script src="/js/supabase.js"></script>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const status=(message,error)=>{$('status').textContent=message;$('status').className='status'+(error?' error':'');$('status').style.display='block';};
+const cleanEmail=v=>String(v||'').trim().toLowerCase();
+async function activeCollegeFor(email){
+ const domain=cleanEmail(email).split('@')[1];
+ if(!domain)throw new Error('Enter a valid college email address.');
+ const {data:d,error}=await sb.from('college_email_domains').select('college_id').eq('domain',domain).eq('is_active',true).maybeSingle();
+ if(error)throw new Error('Campus Board access is not ready yet. Please try again later.');
+ if(!d)throw new Error('This email domain has not been approved by Hapn Super Admin.');
+ const {data:c,error:ce}=await sb.from('colleges').select('id,name,is_active').eq('id',d.college_id).maybeSingle();
+ if(ce||!c||!c.is_active)throw new Error('This college is currently not enabled on Hapn.');
+ return c;
+}
+async function finishLogin(){
+ const url=new URL(location.href),tokenHash=url.searchParams.get('token_hash'),type=url.searchParams.get('type');
+ if(tokenHash){
+   if(!['magiclink','email'].includes(type||'')){status('This verification link is invalid or expired. Request a new link.',true);return;}
+   const {error}=await sb.auth.verifyOtp({token_hash:tokenHash,type:type});
+   if(error){status(error.message||'This verification link has expired. Request a new one.',true);return;}
+   history.replaceState({},document.title,'/connect/');
+ }
+ const {data:{session},error}=await sb.auth.getSession();
+ if(error)throw error;
+ if(!session)return;
+ const {data:member,error:memberError}=await sb.rpc('ensure_campus_member');
+ if(memberError){await sb.auth.signOut();throw new Error(memberError.message||'This account is not approved for Campus Board.');}
+ const m=Array.isArray(member)?member[0]:member;
+ if(!m?.college_id){await sb.auth.signOut();throw new Error('Your college membership could not be verified.');}
+ $('login-form').classList.add('hidden');$('intro').classList.add('hidden');$('heading').textContent='You’re verified.';
+ $('welcome').textContent='Signed in as '+m.email+' · '+m.college_name+'. Your college membership is confirmed.';
+ $('verified').classList.remove('hidden');status('Email verified. Campus Board access confirmed.');
+}
+$('login-form').addEventListener('submit',async e=>{
+ e.preventDefault();const email=cleanEmail($('email').value),button=$('send');
+ button.disabled=true;button.textContent='Checking college…';
+ try{
+   await activeCollegeFor(email);
+   const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+'/connect/',shouldCreateUser:true,data:{full_name:''}}});
+   if(error)throw error;
+   status('Verification link sent to '+email+'. Open the email and click Verify & Login. The link can only be used once.');
+   button.textContent='Send link again';
+ }catch(err){status(err.message||'Could not send the verification link.',true);button.textContent='Send verification link';}
+ finally{button.disabled=false;}
+});
+$('enter').addEventListener('click',()=>{status('Your email and college are verified. The Campus Board feed is being connected to the live community database.',false);});
+$('logout').addEventListener('click',async()=>{await sb.auth.signOut();location.reload();});
+document.addEventListener('DOMContentLoaded',async()=>{
+ if(!window.sb){status(window.CE?.setupProblem?.()||'Could not connect to Hapn.',true);$('send').disabled=true;return;}
+ try{await finishLogin();}catch(e){status(e.message||'Could not verify your account.',true);}
+});
+})();
+</script>
+</body></html>
