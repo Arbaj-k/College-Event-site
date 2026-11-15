@@ -237,7 +237,7 @@
           shareCarePending = { key: String(collegeId), promise: pending };
           pending.catch(error => console.warn('Share N Care preview unavailable:', error)).finally(() => {
             if (shareCarePending?.key === String(collegeId)) shareCarePending = null;
-            if (state.college === collegeId || window.HapnCollegeSelection?.get?.() === collegeId) renderNextUp();
+            renderNextUp();
           });
         }
       }
