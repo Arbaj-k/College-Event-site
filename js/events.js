@@ -9,7 +9,9 @@
   const CE = window.CE;
   const publicDb = window.sbPublic || window.sb;
   const LIST_COLUMNS = 'id,title,poster_url,date,time,end_date,end_time,venue,category,short_description,registration_deadline,registration_link,is_featured,is_pinned,college_id';
-  const state = { events: [], colleges: [], category: 'All', query: '', selectedDate: '', college: '' };\n  let shareCareCache = { key: '', at: 0, data: null };\n  let shareCareAutoTimer = null;
+  const state = { events: [], colleges: [], category: 'All', query: '', selectedDate: '', college: '' };
+  let shareCareCache = { key: '', at: 0, data: null };
+  let shareCareAutoTimer = null;
 
   const plane = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>';
 
@@ -185,7 +187,8 @@
     const key = String(collegeId || '');
     if (!key || !publicDb) return null;
     if (shareCareCache.key === key && Date.now() - shareCareCache.at < 60000) return shareCareCache.data;
-    const previewDb = window.sb || publicDb;\n    const { data, error } = await previewDb.rpc('get_sharencare_home_preview', { p_college_id: key });
+    const previewDb = window.sb || publicDb;
+    const { data, error } = await previewDb.rpc('get_sharencare_home_preview', { p_college_id: key });
     if (error) throw error;
     shareCareCache = { key, at: Date.now(), data: data || null };
     return shareCareCache.data;
