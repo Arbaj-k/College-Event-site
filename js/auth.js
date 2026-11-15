@@ -99,7 +99,7 @@
 
   async function signOut() {
     stopIdleTimeout();
-    try { await sb.auth.signOut(); } catch (e) { console.error(e); }
+    try { await sb.auth.signOut(); } catch (_) { /* Never log auth/session objects. */ }
   }
 
   function gateMessage(html) {
@@ -135,7 +135,7 @@
       CE.currentProfile = await getProfile(user.id);
       admin = await isAdmin(user.id);
     } catch (e) {
-      console.error(e);
+      console.warn('[auth] permission check failed:', e && e.code ? e.code : 'unknown');
       gateMessage('<div class="card"><h1>Something went wrong</h1><p>We could not check your permissions. Please refresh the page.</p></div>');
       return null;
     }
@@ -213,7 +213,7 @@
         let admin = false;
         try { admin = await isAdmin(data.user.id); }
         catch (checkError) {
-          console.error(checkError);
+          console.warn('[auth] admin verification failed:', checkError && checkError.code ? checkError.code : 'unknown');
           await signOut();
           CE.showNotice(msg, 'We could not verify your permissions. Please try again.');
           return;

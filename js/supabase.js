@@ -27,7 +27,7 @@
   /* Human-friendly explanation when the site can't talk to Supabase. */
   CE.setupProblem = function () {
     if (!CE.libraryLoaded) return 'The Supabase library could not be loaded. Check your internet connection and try again.';
-    if (!CE.configured) return 'Supabase is not configured yet. Add your Project URL and anon key to js/config.js (see the README).';
+    if (!CE.configured) return 'Supabase is not configured yet. The deployment is missing its public Supabase configuration. Ask the site administrator to check the SUPABASE_URL and SUPABASE_ANON_KEY deployment variables.';
     return '';
   };
 })();
