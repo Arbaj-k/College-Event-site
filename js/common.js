@@ -215,7 +215,9 @@
     event.preventDefault();
     const url = new URL(button.getAttribute('data-share-url') || location.href, location.href).href;
     const title = button.getAttribute('data-share-title') || document.title;
-    const text = [button.getAttribute('data-share-text') || 'Check this out on Hapn:', url].join('\n');
+    // Put the event URL directly in the share text. Some share targets drop the
+    // separate `url` field when an image file is attached.
+    const text = [button.getAttribute('data-share-text') || 'Check this out on Hapn:', 'Event link: ' + url].join('\n');
     let imageFile = null;
     const imageUrl = button.getAttribute('data-share-image');
     if (imageUrl) {
@@ -232,7 +234,7 @@
       }
     }
     if (navigator.share) {
-      const shareData = { title: title, text: text, url: url };
+      const shareData = { title: title, text: text };
       const canShareImage = imageFile && navigator.canShare && navigator.canShare({ files: [imageFile] });
       if (canShareImage) shareData.files = [imageFile];
       try {
