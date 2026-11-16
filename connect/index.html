@@ -40,7 +40,11 @@ Continue with Google
 'use strict';
 const status=(message,error)=>{const el=document.getElementById('status');el.textContent=message;el.className='status'+(error?' error':'');el.style.display='block';};
 const button=document.getElementById('google-login');
-// Drop the legacy `next` parameter: Campus Board is the only destination for this sign-in page.
+// Preserve safe Share N Care deep links across the Google OAuth round-trip.
+const isSafeBoardPath=value=>{try{const u=new URL(value,location.origin);return u.origin===location.origin&&u.pathname.startsWith('/connect/board/')&&!u.pathname.startsWith('//')?u.pathname+u.search+u.hash:'';}catch(e){return'';}};
+let storedNext='';try{storedNext=sessionStorage.getItem('hapn-connect-next')||'';}catch(e){}
+const requestedNext=new URL(location.href).searchParams.get('next');
+const nextPath=isSafeBoardPath(requestedNext)||isSafeBoardPath(storedNext)||'/connect/board/';
 const cleanUrl=new URL(location.href);
 if(cleanUrl.searchParams.has('next')){cleanUrl.searchParams.delete('next');history.replaceState(null,document.title,cleanUrl.pathname+(cleanUrl.search?'?'+cleanUrl.searchParams.toString():'')+cleanUrl.hash);}
 async function completeGoogleLogin(){
@@ -77,12 +81,14 @@ async function completeGoogleLogin(){
  if(collegeError||!college?.is_active){await sb.auth.signOut();throw new Error('Your college is not currently active on Hapn.');}
  const {data:member,error:memberError}=await sb.rpc('ensure_campus_member');
  if(memberError||!member){await sb.auth.signOut();throw new Error(memberError?.message||'Could not verify your campus membership.');}
- location.replace('/connect/board/');
+ try{sessionStorage.removeItem('hapn-connect-next');}catch(e){}
+ location.replace(nextPath);
 }
 button.addEventListener('click',async()=>{
  if(!window.sb){status(window.CE?.setupProblem?.()||'Could not connect to Hapn.',true);return;}
  button.disabled=true;button.textContent='Connecting to Google…';
  try{
+  try{sessionStorage.setItem('hapn-connect-next',nextPath);}catch(e){}
   const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/connect/',skipBrowserRedirect:false}});
   if(error)throw error;
  }catch(error){status(error.message||'Google sign-in could not start.',true);button.disabled=false;button.textContent='Continue with Google';}
