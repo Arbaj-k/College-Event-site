@@ -208,36 +208,23 @@
     });
   }
 
-  /* Share event poster + useful text with the event link where the browser supports file sharing. */
+  /* Share event details and the original poster URL; never download or attach a file. */
   document.addEventListener('click', async function (event) {
     const button = event.target.closest('.share-button');
     if (!button) return;
     event.preventDefault();
     const url = new URL(button.getAttribute('data-share-url') || location.href, location.href).href;
     const title = button.getAttribute('data-share-title') || document.title;
-    const text = [button.getAttribute('data-share-text') || 'Check this out on Hapn:', url].join('\n');
-    let imageFile = null;
-    const imageUrl = button.getAttribute('data-share-image');
-    if (imageUrl) {
-      try {
-        const response = await fetch(new URL(imageUrl, location.href).href);
-        if (!response.ok) throw new Error('Poster download failed');
-        const blob = await response.blob();
-        if (!blob.type || !blob.type.startsWith('image/')) throw new Error('Unsupported poster image');
-        const extensions = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif', 'image/avif': 'avif' };
-        const extension = extensions[blob.type.toLowerCase()] || 'jpg';
-        imageFile = new File([blob], 'hapn-event-poster.' + extension, { type: blob.type });
-      } catch (error) {
-        console.warn('Hapn event poster could not be prepared for sharing:', error);
-      }
-    }
+    const imageValue = button.getAttribute('data-share-image') || '';
+    const imageUrl = imageValue ? new URL(imageValue, location.href).href : '';
+    const text = [
+      button.getAttribute('data-share-text') || 'Check this out on Hapn:',
+      url,
+      imageUrl ? 'Poster image: ' + imageUrl : ''
+    ].filter(Boolean).join('\n');
     if (navigator.share) {
-      const shareData = { title: title, text: text, url: url };
-      const canShareImage = imageFile && navigator.canShare && navigator.canShare({ files: [imageFile] });
-      if (canShareImage) shareData.files = [imageFile];
       try {
-        await navigator.share(shareData);
-        if (imageUrl && !canShareImage) CE.toast('Event link shared. This browser cannot attach the poster; it is visible in the event link.', 'success');
+        await navigator.share({ title: title, text: text, url: url });
         return;
       } catch (error) {
         if (error && error.name === 'AbortError') return;
@@ -254,13 +241,13 @@
         const copied = document.execCommand('copy'); input.remove();
         if (!copied) throw new Error('Copy failed');
       }
-      CE.toast(imageUrl ? 'Event text and link copied. Open the link to view its poster.' : 'Event link copied! Share it with your friends.', 'success');
+      CE.toast(imageUrl ? 'Event details and poster image link copied.' : 'Event link copied! Share it with your friends.', 'success');
     } catch (error) {
       CE.toast('Could not copy the event link. Please copy the page URL from your browser.', 'error');
     }
   });
 
-  /* If a poster image fails to load, show the placeholder instead. */
+    /* If a poster image fails to load, show the placeholder instead. */
   document.addEventListener('error', function (e) {
     const el = e.target;
     if (el && el.tagName === 'IMG' && el.classList.contains('poster-img') && el.dataset.fallback !== 'done') {
