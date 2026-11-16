@@ -116,7 +116,7 @@ function eventPageHtml(event) {
 <nav class="nav" aria-label="Main"><a href="${baseUrl}/">Home</a><a href="${baseUrl}/events/" aria-current="page">Events</a><a href="${baseUrl}/about/">About</a></nav>
 </div></header>
 <main id="main"><section class="section"><div class="container">
-<a class="back-link" href="${baseUrl}/events.html">Back to all events</a>
+<a class="back-link" href="${baseUrl}/events/">Back to all events</a>
 <article class="detail">
 <div class="detail-poster detail-poster-wrap"><img class="poster-img" src="${image}" alt="Poster for ${title}" width="800" height="500"><button class="poster-share-button share-button" type="button" data-share-url="${canonical}" data-share-title="${title} – Hapn" data-share-image="${image}" data-share-text="Check out ${title} on Hapn!" aria-label="Share ${title}" title="Share event"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button></div>
 <div class="detail-info">
