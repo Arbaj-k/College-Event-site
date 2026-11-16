@@ -392,7 +392,7 @@
 
   async function initDetail() {
     const box = document.getElementById('event-detail');
-    const notFound = (msg) => { box.innerHTML = '<div class="empty"><p class="empty-title">' + CE.esc(msg) + '</p><p><a href="events.html">Browse all events</a></p></div>'; };
+    const notFound = (msg) => { box.innerHTML = '<div class="empty"><p class="empty-title">' + CE.esc(msg) + '</p><p><a href="/events/">Browse all events</a></p></div>'; };
 
     const pathMatch = location.pathname.match(/\/event-([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.html$/i);
     const id = new URLSearchParams(location.search).get('id') || (pathMatch ? pathMatch[1] : '');
