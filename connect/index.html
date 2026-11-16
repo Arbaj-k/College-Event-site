@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#ffffff">
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#ffffff"><link rel="canonical" href="https://hapn.info/connect/">
 <title>Share N Care – Hapn</title><link rel="icon" href="/assets/images/logo.svg">
 <style>
 :root{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#171917;background:#fff}
@@ -40,10 +40,9 @@ Continue with Google
 'use strict';
 const status=(message,error)=>{const el=document.getElementById('status');el.textContent=message;el.className='status'+(error?' error':'');el.style.display='block';};
 const button=document.getElementById('google-login');
-const requestedNext=new URLSearchParams(location.search).get('next');
-let storedNext='';try{storedNext=sessionStorage.getItem('hapn-connect-next')||'';}catch(e){}
-const candidate=requestedNext||storedNext;
-const nextPath=(candidate&&candidate.startsWith('/connect/board/')&&!candidate.startsWith('//'))?candidate:'/connect/board/';
+// Drop the legacy `next` parameter: Campus Board is the only destination for this sign-in page.
+const cleanUrl=new URL(location.href);
+if(cleanUrl.searchParams.has('next')){cleanUrl.searchParams.delete('next');history.replaceState(null,document.title,cleanUrl.pathname+(cleanUrl.search?'?'+cleanUrl.searchParams.toString():'')+cleanUrl.hash);}
 async function completeGoogleLogin(){
  const url=new URL(location.href),code=url.searchParams.get('code');
  const hashParams=new URLSearchParams(location.hash.replace(/^#/,''));
@@ -78,12 +77,11 @@ async function completeGoogleLogin(){
  if(collegeError||!college?.is_active){await sb.auth.signOut();throw new Error('Your college is not currently active on Hapn.');}
  const {data:member,error:memberError}=await sb.rpc('ensure_campus_member');
  if(memberError||!member){await sb.auth.signOut();throw new Error(memberError?.message||'Could not verify your campus membership.');}
- try{sessionStorage.removeItem('hapn-connect-next');}catch(e){} location.replace(nextPath);
+ location.replace('/connect/board/');
 }
 button.addEventListener('click',async()=>{
  if(!window.sb){status(window.CE?.setupProblem?.()||'Could not connect to Hapn.',true);return;}
  button.disabled=true;button.textContent='Connecting to Google…';
- try{sessionStorage.setItem('hapn-connect-next',nextPath);}catch(e){}
  try{
   const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/connect/',skipBrowserRedirect:false}});
   if(error)throw error;
