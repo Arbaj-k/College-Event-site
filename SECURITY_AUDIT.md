@@ -50,3 +50,22 @@ Supabase Security Advisor also reported:
 
 ## Limitations
 This is a repository and configuration audit, not a formal penetration test. GitHub's code search and the inspected Git history paths do not prove that every possible secret in every historical blob, fork, artifact, issue, or external deployment log has been eliminated. No secret values are reproduced in this report.
+
+
+## Personal-data and privacy hardening — 2026-11-15
+
+### Implemented in `fix/privacy-hardening-campus-board`
+
+- Added `public.is_real_campus_user()`, which rejects Supabase anonymous-auth JWTs while allowing normal authenticated college accounts.
+- Applied that guard to Campus Board membership, posts, private WhatsApp contacts, connect requests, notifications, saves, reports, admin-row and invitation policies, and Campus Board image upload/update/delete. Public image viewing remains intentionally enabled for feed images.
+- Kept anonymous chat tables and chat-matching RPC policies unchanged so the anonymous-chat experience is not disabled by Campus Board hardening.
+- Removed raw Supabase error-object logging from the admin authentication and event-submission browser flows. User-facing event-submission errors are now generic and do not echo provider/database error text.
+
+### Important remaining work / limitations
+
+- Browser Supabase sessions still use persistent browser storage for the access/refresh session. This is the standard browser-client persistence model; it is accessible to same-origin JavaScript, so preventing token access in an XSS scenario requires a server-side, HttpOnly-cookie session architecture rather than simply changing a storage flag.
+- A full self-service account-deletion workflow is not included in this change. It needs an authenticated server-side deletion endpoint, re-authentication/confirmation, and a reviewed retention policy for user-created public posts, moderation records, event submissions and uploaded files. No account or content has been deleted.
+- Supabase Auth leaked-password protection is a project Auth setting and still requires owner enablement in the dashboard if available on the current plan.
+- Google OAuth, Google Analytics, OneSignal and the hosted AI provider have their own processing and retention terms. This repository change does not change their retention settings or establish provider-side deletion.
+- IP/request logs and provider retention periods cannot be reliably inferred from frontend source. Review each provider's project dashboard and current data-processing terms before publishing a precise retention period.
+- The Campus Board data APIs still use some broad row selects; RLS restricts rows, not individual columns. Continue reducing selects to the exact fields required by each screen, especially for private profile/contact data.
