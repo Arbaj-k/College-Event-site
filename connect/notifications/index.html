@@ -487,6 +487,7 @@ const V = {
       if (n.type === 'request' && req && req.status === 'pending') acts = `<div class="acts"><button class="btn sm" data-act="approve" data-req="${req.id}">Share my contact</button><button class="btn ghost sm" data-act="decline" data-req="${req.id}">Decline</button></div>`;
       else if (n.type === 'request' && req) acts = `<div class="note">${req.status === 'approved' ? 'You shared your contact.' : 'Declined.'}</div>`;
       if (n.type === 'approved') acts = `<div class="acts"><a class="btn sm" style="text-decoration:none" target="_blank" rel="noopener noreferrer" href="${esc(api.waLink(n.postId))}">${ic('chat')} Open WhatsApp</a></div>`;
+      else if (n.postId) acts = `<div class="acts"><a class="btn ghost sm" style="text-decoration:none" href="/connect/board/?post=${encodeURIComponent(n.postId)}">View post</a></div>`;
       return `<div class="notif ${n.read ? '' : 'unread'}"><div class="t"><div>${esc(n.text)}</div><div class="meta">${ago(n.at)}</div>${acts}</div></div>`;
     }).join('');
     return PageHead('YOUR HAPN UPDATES', 'Notifications.', 'Campus posts, connection requests and activity from your college community.', false) +
