@@ -279,6 +279,7 @@
       resolveOneSignal = resolve;
       rejectOneSignal = reject;
     });
+    window.HapnOneSignalReady = oneSignalReady;
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     window.OneSignalDeferred.push(async function (OneSignal) {
       try {
