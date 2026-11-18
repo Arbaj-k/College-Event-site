@@ -133,12 +133,12 @@ async function refresh(){
    if(report.message_created_at)card.append(el('p','meta','Original message time: '+new Date(report.message_created_at).toLocaleString()));
    if(msg&&!msg.deleted_at){
     const del=el('button','danger','Hide message');
-    del.addEventListener('click',async()=>{if(!confirm('Hide this message from chat? The report evidence will be retained.'))return;del.disabled=true;const {error}=await db.from('chat_messages').update({deleted_at:new Date().toISOString()}).eq('id',msg.id);if(error){del.disabled=false;note('Could not hide message. Check admin moderation policy.');return;}note('Message hidden; report evidence retained.');await refresh();});
+    del.addEventListener('click',async()=>{if(!confirm('Hide this message from chat? The report evidence will be retained.'))return;del.disabled=true;const {data,error}=await db.from('chat_messages').update({deleted_at:new Date().toISOString()}).eq('id',msg.id).is('deleted_at',null).select('id').maybeSingle();if(error){del.disabled=false;note('Could not hide message. Check admin moderation policy.');return;}if(!data){note('This message was already changed by another moderator. Refreshing…');await refresh();return;}note('Message hidden; report evidence retained.');await refresh();});
     card.append(del);
    }
    const select=el('select');[['pending','Pending'],['reviewed','Reviewed'],['actioned','Actioned'],['dismissed','Dismissed']].forEach(([v,t])=>{const o=el('option','',t);o.value=v;select.append(o)});select.value=report.status;
    const save=el('button','secondary','Save status');
-   save.addEventListener('click',async()=>{save.disabled=true;const {error}=await db.from('chat_reports').update({status:select.value}).eq('id',report.id);save.disabled=false;if(error){note('Could not update report status.');return;}note('Report status updated.');await refresh();});
+   save.addEventListener('click',async()=>{save.disabled=true;const {data,error}=await db.from('chat_reports').update({status:select.value}).eq('id',report.id).eq('status',report.status).select('id').maybeSingle();save.disabled=false;if(error){note('Could not update report status.');return;}if(!data){note('This report was already updated by another moderator. Refreshing…');await refresh();return;}note('Report status updated.');await refresh();});
    const row=el('div','row');row.append(select,save);card.append(row);rb.append(card);
   }
   const pb=$('privateReports');pb.replaceChildren();
@@ -155,12 +155,12 @@ async function refresh(){
    if(report.message_created_at)card.append(el('p','meta','Original message time: '+new Date(report.message_created_at).toLocaleString()));
    if(msg&&!msg.deleted_at){
     const hide=el('button','danger','Hide private message');
-    hide.addEventListener('click',async()=>{if(!confirm('Hide this private message from both participants? The report evidence will be retained.'))return;hide.disabled=true;const {error}=await db.from('chat_private_messages').update({deleted_at:new Date().toISOString()}).eq('id',msg.id);if(error){hide.disabled=false;note('Could not hide private message.');return;}note('Private message hidden; evidence retained.');await refresh();});
+    hide.addEventListener('click',async()=>{if(!confirm('Hide this private message from both participants? The report evidence will be retained.'))return;hide.disabled=true;const {data,error}=await db.from('chat_private_messages').update({deleted_at:new Date().toISOString()}).eq('id',msg.id).is('deleted_at',null).select('id').maybeSingle();if(error){hide.disabled=false;note('Could not hide private message.');return;}if(!data){note('This private message was already changed by another moderator. Refreshing…');await refresh();return;}note('Private message hidden; evidence retained.');await refresh();});
     card.append(hide);
    }
    const select=el('select');[['pending','Pending'],['reviewed','Reviewed'],['actioned','Actioned'],['dismissed','Dismissed']].forEach(([v,t])=>{const o=el('option','',t);o.value=v;select.append(o)});select.value=report.status;
    const save=el('button','secondary','Save status');
-   save.addEventListener('click',async()=>{save.disabled=true;const {error}=await db.from('chat_private_reports').update({status:select.value}).eq('id',report.id);save.disabled=false;if(error){note('Could not update private report.');return;}note('Private report status updated.');await refresh();});
+   save.addEventListener('click',async()=>{save.disabled=true;const {data,error}=await db.from('chat_private_reports').update({status:select.value}).eq('id',report.id).eq('status',report.status).select('id').maybeSingle();save.disabled=false;if(error){note('Could not update private report.');return;}if(!data){note('This private report was already updated by another moderator. Refreshing…');await refresh();return;}note('Private report status updated.');await refresh();});
    const row=el('div','row');row.append(select,save);card.append(row);pb.append(card);
   }
   const mb=$('messages');mb.replaceChildren();
@@ -169,7 +169,7 @@ async function refresh(){
    const card=el('article','item');
    card.append(el('div','meta',msg.room_id+' · '+msg.nickname+' · '+new Date(msg.created_at).toLocaleString()+(msg.deleted_at?' · HIDDEN':'')));
    card.append(el('div','body',msg.body));
-   if(!msg.deleted_at){const del=el('button','danger','Hide message');del.addEventListener('click',async()=>{if(!confirm('Hide this message from chat?'))return;del.disabled=true;const {error}=await db.from('chat_messages').update({deleted_at:new Date().toISOString()}).eq('id',msg.id);if(error){note('Could not hide message.');del.disabled=false;return;}await refresh();});card.append(del);}
+   if(!msg.deleted_at){const del=el('button','danger','Hide message');del.addEventListener('click',async()=>{if(!confirm('Hide this message from chat?'))return;del.disabled=true;const {data,error}=await db.from('chat_messages').update({deleted_at:new Date().toISOString()}).eq('id',msg.id).is('deleted_at',null).select('id').maybeSingle();if(error){note('Could not hide message.');del.disabled=false;return;}if(!data){note('This message was already hidden by another moderator. Refreshing…');await refresh();return;}await refresh();});card.append(del);}
    mb.append(card);
   }
  }catch(err){note('Could not load moderation data: '+(err&&err.message?err.message:'Check report evidence migration, admin RLS policies and table permissions.'));console.error(err);}
