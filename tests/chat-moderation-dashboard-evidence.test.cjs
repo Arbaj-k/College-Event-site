@@ -5,6 +5,7 @@ const path = require('node:path');
 
 for (const file of ['admin/chat-moderation/index.html', 'admin/chat-moderation.html']) {
   const html = fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
+  assert.match(html, /first 10,000 reports per report type[\s\S]*?dashboard has no date filter yet/i);
   assert.match(html, /async function fetchAllReports\(table\)/);
   assert.match(html, /\.range\(from,to\)/);
   assert.match(html, /message_snapshot,message_created_at/);
