@@ -14,6 +14,12 @@ for (const file of ['admin/chat-moderation/index.html', 'admin/chat-moderation.h
   assert.match(html, /Preserved message evidence/);
   assert.match(html, /Preserved private-message evidence/);
   assert.match(html, /Reporter account: anonymized or unavailable/);
+  assert.match(html, /let auditPage=0/);
+  assert.match(html, /auditPageSize=200/);
+  assert.match(html, /\.range\(from,to\)/);
+  assert.match(html, /auditPrev/);
+  assert.match(html, /auditNext/);
+  assert.match(html, /order\('id',\{ascending:false\}\)/);
   assert.match(html, /actor_role/);
   assert.ok(html.includes("Role: '+(item.actor_role||'unknown')"));
   assert.doesNotMatch(html, /from\('chat_reports'\)[\s\S]{0,180}\.limit\(100\)/);
