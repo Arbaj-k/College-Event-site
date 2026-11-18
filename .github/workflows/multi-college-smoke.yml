@@ -29,3 +29,5 @@ jobs:
         run: node tests/multi-college-smoke.cjs
       - name: Run chat abuse-control smoke checks
         run: node tests/chat-community-abuse-controls.test.cjs
+      - name: Run matchmaking cleanup smoke checks
+        run: node tests/chat-match-stale-session-cleanup.test.cjs
