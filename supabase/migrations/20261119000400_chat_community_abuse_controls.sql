@@ -3,8 +3,11 @@ create or replace function public.enforce_chat_message_rate_limit()
 returns trigger
 language plpgsql
 set search_path = ''
-as $$
+as $
 begin
+  -- Never trust client-supplied timestamps for rate-limit accounting.
+  new.created_at := pg_catalog.clock_timestamp();
+
   perform pg_catalog.pg_advisory_xact_lock(
     pg_catalog.hashtextextended('chat-message:' || new.user_id::text, 0)
   );
@@ -46,6 +49,9 @@ as $$
 declare
   v_recent_count integer;
 begin
+  -- Client-supplied created_at values must not bypass per-user limits.
+  new.created_at := pg_catalog.clock_timestamp();
+
   if new.author_id is null then
     raise exception 'A chat identity is required.' using errcode = '42501';
   end if;
