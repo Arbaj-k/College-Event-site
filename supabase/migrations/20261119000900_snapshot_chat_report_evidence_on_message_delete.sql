@@ -2,6 +2,40 @@
 -- This covers account deletion cascades, room cleanup, and explicit retention cleanup.
 begin;
 
+-- Fail fast if the private-report retention prerequisite has not been deployed.
+do $preflight$
+begin
+  if not exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'chat_private_reports'
+      and column_name = 'message_snapshot'
+  ) or not exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'chat_private_reports'
+      and column_name = 'message_created_at'
+  ) then
+    raise exception 'Apply migration 20261119000350_preserve_private_chat_report_evidence.sql before this migration';
+  end if;
+
+  if not exists (
+    select 1
+    from pg_catalog.pg_constraint c
+    join pg_catalog.pg_class t on t.oid = c.conrelid
+    join pg_catalog.pg_namespace n on n.oid = t.relnamespace
+    where n.nspname = 'public'
+      and t.relname = 'chat_private_reports'
+      and c.conname = 'chat_private_reports_message_id_fkey'
+      and c.confdeltype = 'n'
+  ) then
+    raise exception 'Private report message_id must use ON DELETE SET NULL before this migration';
+  end if;
+end
+$preflight$;
+
 -- Public reports need the same evidence snapshot and nullable message reference
 -- already introduced for private reports by migration 20261119000350.
 alter table public.chat_reports
