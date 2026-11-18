@@ -107,6 +107,9 @@ assert.ok(edge.includes('A Super Admin account cannot be activated through a Col
 assert.ok(edge.includes('This account already has an admin profile. Ask a Super Admin to manage its role.'));
 assert.ok(edge.includes('.from("profiles").insert('), 'Invitation activation must use an insert, not an upsert');
 assert.ok(edge.includes('profileErr.code === "23505"'), 'Unique constraint must guard activation races');
+assert.ok(edge.includes('.select("id")'), 'Invitation consumption must confirm a pending row was actually updated');
+assert.ok(edge.includes('This invitation has already been used or is no longer pending.'), 'Concurrent invitation consumption must be rejected');
+
 
 
 console.log('Multi-college and Campus Board smoke checks passed.');
