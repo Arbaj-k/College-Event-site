@@ -39,3 +39,6 @@ jobs:
         run: node tests/chat-moderator-role-scope.test.cjs
       - name: Run chat moderation audit log checks
         run: node tests/chat-moderation-audit-log.test.cjs
+      - name: Run chat moderation audit truncate-hardening checks
+        run: node tests/chat-moderation-audit-truncate-hardening.test.cjs
+
