@@ -27,3 +27,5 @@ jobs:
           node --check js/invite-accept.js
       - name: Run multi-college security smoke checks
         run: node tests/multi-college-smoke.cjs
+      - name: Run private chat report moderation privilege checks
+        run: node tests/private-chat-report-moderation.test.cjs
