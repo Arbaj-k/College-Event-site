@@ -21,14 +21,14 @@ BEGIN
   IF v_college IS NULL THEN
     RAISE EXCEPTION 'Verified campus membership is required.' USING errcode = '42501';
   END IF;
-  IF pg_catalog.length(pg_catalog.trim(pg_catalog.coalesce(p_full_name, ''))) NOT BETWEEN 1 AND 50 THEN
+  IF pg_catalog.length(pg_catalog.trim(COALESCE(p_full_name, ''))) NOT BETWEEN 1 AND 50 THEN
     RAISE EXCEPTION 'Enter a valid display name.';
   END IF;
   IF p_academic_year IS NULL OR p_academic_year NOT IN
     ('1st Year','2nd Year','3rd Year','4th Year','Postgraduate') THEN
     RAISE EXCEPTION 'Choose a valid academic year.';
   END IF;
-  IF pg_catalog.coalesce(p_whatsapp_phone, '') <> ''
+  IF COALESCE(p_whatsapp_phone, '') <> ''
      AND p_whatsapp_phone !~ '^[+]?[0-9][0-9 -]{6,15}$' THEN
     RAISE EXCEPTION 'Enter a valid WhatsApp number.';
   END IF;
@@ -38,7 +38,7 @@ BEGIN
       updated_at = pg_catalog.now()
   WHERE user_id = v_uid;
   INSERT INTO public.campus_member_private(user_id, college_id, whatsapp_phone, updated_at)
-  VALUES (v_uid, v_college, pg_catalog.nullif(pg_catalog.trim(p_whatsapp_phone), ''), pg_catalog.now())
+  VALUES (v_uid, v_college, NULLIF(pg_catalog.trim(p_whatsapp_phone), ''), pg_catalog.now())
   ON CONFLICT (user_id) DO UPDATE
   SET whatsapp_phone = EXCLUDED.whatsapp_phone, updated_at = EXCLUDED.updated_at;
 END;
@@ -74,7 +74,7 @@ BEGIN
   IF p_approve THEN
     SELECT whatsapp_phone INTO v_phone
     FROM public.campus_member_private WHERE user_id = v_uid;
-    IF pg_catalog.coalesce(v_phone, '') = '' THEN
+    IF COALESCE(v_phone, '') = '' THEN
       RAISE EXCEPTION 'Add your WhatsApp number in Settings first.';
     END IF;
   END IF;
