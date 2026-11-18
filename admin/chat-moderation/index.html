@@ -100,7 +100,7 @@ async function refresh(){
   const pending=r.rows.filter(x=>x.status==='pending').length;
   const privatePending=pr.rows.filter(x=>x.status==='pending').length;
   $('counts').textContent=pending+' public · '+privatePending+' private pending';
-  if(!r.complete||!pr.complete)note('Showing first 10,000 reports. More records exist; narrow the date range or use database pagination.');
+  if(!r.complete||!pr.complete)note('Showing the first 10,000 reports per report type. Older reports remain stored, but this dashboard has no date filter yet; use database pagination for older records.');
   else note('Moderation data loaded. '+(r.rows.length+pr.rows.length)+' reports reviewed.');
   const rb=$('reports');rb.replaceChildren();
   if(!r.rows.length)rb.append(el('div','empty','No reports yet.'));
