@@ -14,6 +14,10 @@ for (const file of ['admin/chat-moderation/index.html', 'admin/chat-moderation.h
   assert.match(html, /Preserved message evidence/);
   assert.match(html, /Preserved private-message evidence/);
   assert.match(html, /Reporter account: anonymized or unavailable/);
+  assert.match(html, /\.eq\('status',report\.status\)\.select\('id'\)\.maybeSingle\(\)/);
+  assert.match(html, /\.is\('deleted_at',null\)\.select\('id'\)\.maybeSingle\(\)/);
+  assert.match(html, /already updated by another moderator/);
+  assert.match(html, /already changed by another moderator/);
   assert.match(html, /let auditPage=0/);
   assert.match(html, /auditPageSize=200/);
   assert.match(html, /\.range\(from,to\)/);
