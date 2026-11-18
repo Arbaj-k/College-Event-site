@@ -1,3 +1,29 @@
+-- Do not deploy stale-session cleanup until reported private-chat evidence
+-- retention is installed. Ending a conversation deletes its private messages;
+-- without this migration, the existing report FK would cascade-delete reports.
+do $guard$
+begin
+  if not exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'chat_private_reports'
+      and column_name = 'message_snapshot'
+  ) or not exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'chat_private_reports'
+      and column_name = 'message_created_at'
+  ) or not exists (
+    select 1 from pg_catalog.pg_constraint
+    where conrelid = 'public.chat_private_reports'::regclass
+      and conname = 'chat_private_reports_message_id_fkey'
+      and confdeltype = 'n'
+  ) or to_regprocedure('public.hapn_guard_private_chat_report_insert()') is null then
+    raise exception 'Apply private chat report retention migration (20261119000350) before stale-session cleanup';
+  end if;
+end
+$guard$;
+
 -- Expire abandoned anonymous matchmaking sessions without deleting report history.
 -- A waiting identity expires after 2 minutes. A matched conversation is ended
 -- after 30 minutes without messages (or 30 minutes after creation if empty).
