@@ -52,7 +52,7 @@ async function checkAdmin(){
   const {data,error}=await db.rpc('is_chat_moderator');
   if(error){await db.auth.signOut();me=null;note('Login worked, but chat-moderator verification failed: '+error.message+' (apply the chat moderator role-scope migration).');return;}
   if(data!==true){await db.auth.signOut();me=null;note('Access denied: this account is not an authorized global chat moderator. College Admin access is not sufficient.');return;}
-  $('login').classList.add('hidden');$('session').classList.remove('hidden');$('dashboard').classList.remove('hidden');$('who').textContent='Signed in as '+(me.email||'admin');note('Admin access confirmed. Loading reports…');await refresh();
+  $('login').classList.add('hidden');$('session').classList.remove('hidden');$('dashboard').classList.remove('hidden');$('who').textContent='Signed in as '+(me.email||'admin');note('Admin access confirmed. Loading reports and audit history…');await Promise.all([refresh(),refreshAudit()]);
  }catch(err){note('Admin verification error: '+(err&&err.message?err.message:'Please try again.'));}
 }
 $('refresh').addEventListener('click',refresh);$('logout').addEventListener('click',async()=>{await db.auth.signOut();me=null;$('dashboard').classList.add('hidden');$('session').classList.add('hidden');$('login').classList.remove('hidden');note('Signed out.');});
