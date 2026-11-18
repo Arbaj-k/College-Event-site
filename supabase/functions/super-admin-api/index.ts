@@ -45,6 +45,22 @@ Deno.serve(async (req: Request) => {
     if (body.action === "finalize_admin_activation") {
       const email = String(userData.user.email ?? "").trim().toLowerCase();
       const fullName = String(body.full_name ?? "").trim().slice(0, 80);
+
+      // Invitation activation is only for a new admin profile. Never let an invite
+      // overwrite an existing Super Admin (or silently demote any existing role).
+      const { data: existingProfile, error: existingProfileErr } = await admin
+        .from("profiles")
+        .select("role,is_active")
+        .eq("user_id", userData.user.id)
+        .maybeSingle();
+      if (existingProfileErr) return fail("activation_profile_lookup_failed");
+      if (existingProfile?.role === "super_admin") {
+        return json({ error: "A Super Admin account cannot be activated through a College Admin invitation." }, 403);
+      }
+      if (existingProfile) {
+        return json({ error: "This account already has an admin profile. Ask a Super Admin to manage its role." }, 409);
+      }
+
       const { data: invitation, error: inviteErr } = await admin.from("admin_invitations").select("id,email,college_id,status,expires_at")
         .eq("email", email).eq("status", "pending").gt("expires_at", new Date().toISOString()).order("created_at", { ascending: false }).limit(1).maybeSingle();
       if (inviteErr) return fail("invitation_lookup_failed");
