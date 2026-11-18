@@ -7,6 +7,11 @@ const sql = fs.readFileSync(path.join(__dirname, '..', 'supabase/migrations/2026
 const client = fs.readFileSync(path.join(__dirname, '..', 'js/anonymous-chat-v3.js'), 'utf8');
 
 assert.match(sql, /chat_match_cleanup_stale/);
+assert.match(sql, /message_snapshot/);
+assert.match(sql, /message_created_at/);
+assert.match(sql, /confdeltype = 'n'/);
+assert.match(sql, /hapn_guard_private_chat_report_insert/);
+assert.match(sql, /Apply private chat report retention migration \\(20261119000350\\)/);
 assert.match(sql, /interval '2 minutes'/);
 assert.match(sql, /interval '30 minutes'/);
 assert.match(sql, /max\(m\.created_at\)/);
