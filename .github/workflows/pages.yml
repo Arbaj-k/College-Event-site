@@ -27,6 +27,9 @@ jobs:
       - name: Run production hardening regression tests
         run: node tests/production-hardening-smoke.cjs
 
+      - name: Verify Cloudflare security Worker
+        run: node tests/cloudflare-worker-smoke.cjs
+
       - name: Generate browser config from repository variables
         env:
           SUPABASE_URL: ${{ vars.SUPABASE_URL }}
