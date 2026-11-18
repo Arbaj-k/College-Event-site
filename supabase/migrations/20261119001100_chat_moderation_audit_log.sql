@@ -110,4 +110,24 @@ create trigger hapn_audit_private_chat_message_hidden
 after update of deleted_at on public.chat_private_messages
 for each row execute function public.hapn_audit_chat_message_moderation();
 
+
+-- Prevent accidental mutation even by privileged application roles.
+-- Database owners can still override triggers; this is append-only at the app layer.
+create or replace function public.hapn_prevent_chat_moderation_audit_mutation()
+returns trigger
+language plpgsql
+set search_path = ''
+as $function$
+begin
+  raise exception 'chat_moderation_audit is append-only';
+end
+$function$;
+
+revoke all on function public.hapn_prevent_chat_moderation_audit_mutation() from public, anon, authenticated;
+
+drop trigger if exists hapn_chat_moderation_audit_no_update on public.chat_moderation_audit;
+create trigger hapn_chat_moderation_audit_no_update
+before update or delete on public.chat_moderation_audit
+for each row execute function public.hapn_prevent_chat_moderation_audit_mutation();
+
 commit;
