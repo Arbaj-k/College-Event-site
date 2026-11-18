@@ -367,7 +367,7 @@ async function shareCampusPost(p) {
     '',
     'View this post: ' + url,
     imageUrl ? 'Image link: ' + imageUrl : ''
-  ].filter(Boolean).join('\\n');
+  ].filter(Boolean).join('\n');
   if (navigator.share) {
     try {
       await navigator.share({ title, text, url });
