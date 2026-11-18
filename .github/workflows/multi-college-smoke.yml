@@ -35,3 +35,5 @@ jobs:
         run: node tests/chat-report-account-deletion-retention.test.cjs
       - name: Run chat message deletion report retention checks
         run: node tests/chat-report-message-deletion-retention.test.cjs
+      - name: Run chat moderation dashboard evidence checks
+        run: node tests/chat-moderation-dashboard-evidence.test.cjs
