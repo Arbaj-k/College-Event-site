@@ -68,10 +68,18 @@ Deno.serve(async (req: Request) => {
       const { data: college, error: collegeErr } = await admin.from("colleges").select("id,is_active").eq("id", invitation.college_id).maybeSingle();
       if (collegeErr) return fail("college_lookup_failed");
       if (!college?.is_active) return json({ error: "The assigned college is no longer active." }, 403);
-      const { error: profileErr } = await admin.from("profiles").upsert({ user_id: userData.user.id, email, full_name: fullName || null, role: "college_admin", college_id: invitation.college_id, is_active: true }, { onConflict: "user_id" });
-      if (profileErr) return fail("profile_activation_failed");
-      const { error: acceptErr } = await admin.from("admin_invitations").update({ status: "accepted", accepted_at: new Date().toISOString() }).eq("id", invitation.id);
-      if (acceptErr) return fail("invitation_accept_failed");
+      const { error: profileErr } = await admin.from("profiles").insert({ user_id: userData.user.id, email, full_name: fullName || null, role: "college_admin", college_id: invitation.college_id, is_active: true });
+      if (profileErr) {
+        // INSERT is intentionally used instead of UPSERT: the database's unique
+        // constraint is the final race-safe guard against overwriting any role.
+        if (profileErr.code === "23505") return json({ error: "This account already has an admin profile. Ask a Super Admin to manage its role." }, 409);
+        return fail("profile_activation_failed");
+      }
+      const { error: acceptErr } = await admin.from("admin_invitations").update({ status: "accepted", accepted_at: new Date().toISOString() }).eq("id", invitation.id).eq("status", "pending");
+      if (acceptErr) {
+        await admin.from("profiles").delete().eq("user_id", userData.user.id).eq("role", "college_admin");
+        return fail("invitation_accept_failed");
+      }
       return json({ ok: true, message: "College Admin account activated." });
     }
 
