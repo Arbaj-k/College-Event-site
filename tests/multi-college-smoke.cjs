@@ -95,3 +95,8 @@ assert.ok(campusBoard.includes('mark_sharencare_opened'));
 assert.ok(campusBoard.includes('params.get(\'post\')'));
 assert.ok(home.includes('20261116sharencare2'));
 console.log('Multi-college and Campus Board smoke checks passed.');
+
+const pushDeliveryHardening = read('supabase/migrations/20261119000200_lock_down_campus_push_deliveries.sql');
+assert.ok(pushDeliveryHardening.includes('revoke all privileges on table public.campus_push_deliveries from anon'));
+assert.ok(pushDeliveryHardening.includes('revoke all privileges on table public.campus_push_deliveries from authenticated'));
+assert.ok(!/grant\\s+.*on\\s+table\\s+public\\.campus_push_deliveries\\s+to\\s+(anon|authenticated)/i.test(pushDeliveryHardening));
