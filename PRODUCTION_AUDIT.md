@@ -71,3 +71,12 @@ The public Event Archive page, homepage/events navigation links, Super Admin arc
   - `supabase/migrations/20261119_add_missing_foreign_key_indexes.sql`
   - `supabase/migrations/20261119_optimize_rls_auth_initplans.sql`
 - Live database migration versions: `20261118220258` and `20261118220320`.
+ 
+## SECURITY DEFINER review — 2026-11-19 (follow-up)
+
+- Reviewed the 13 SECURITY DEFINER RPCs flagged for authenticated execution, plus the public Share N Care preview RPC.
+- The matchmaking start RPC requires a non-null auth UID and an explicit anonymous JWT claim; Campus Board and admin RPCs perform email verification, membership, owner, or super-admin checks; helper functions are read-only role/college lookups; profile and notification RPCs write only the caller's own row; request-response RPC checks that the caller owns the pending request.
+- Found and fixed a claim-validation edge case in `chat_match_leave()`: SQL three-valued logic meant a missing `is_anonymous` claim could pass the previous `<> 'true'` check. The function now treats a missing claim as false and rejects non-anonymous identities. Live migration: `20261119000100`.
+- Matching repository migration added: `supabase/migrations/20261119_harden_chat_match_leave_identity_check.sql`.
+- Kept the intended grants: anonymous Supabase Auth users are represented by the `authenticated` database role, and public Share N Care preview is intentionally callable by `anon`. No broad EXECUTE revokes were applied.
+- Remaining: validate these RPCs with real anonymous, ordinary authenticated, Campus Board member, college-admin, and super-admin sessions; review cron schema policies and Auth dashboard settings. Advisor warnings about intentional anonymous-role policies are not automatically vulnerabilities.
