@@ -37,3 +37,26 @@ This is a repository/configuration audit, not a penetration test. Source searche
 ## Archive feature removal
 
 The public Event Archive page, homepage/events navigation links, Super Admin archive view/shortcut/manual action, Edge Function archive action, and daily archive cron/function have been removed. Existing `event_archive` rows are retained as private legacy records; this change does not delete historical data.
+
+## Follow-up verification — 2026-11-19
+
+### Repository state
+- The Cloudflare Worker smoke test and production-hardening smoke test are wired into the Pages build workflow.
+- The Worker source and Wrangler route configuration are present on `main`. The custom-domain route is still not active until the Cloudflare zone is available to the deploying account and the Worker is attached successfully.
+- Event and Campus Board sharing now pass URL-only payloads: neither handler downloads an image or adds a `File` attachment. Native share and clipboard fallback remain available.
+- PR #80 is stale relative to `main`: its Edge Function hardening, browser error redaction, and Worker work are represented by newer main-branch content. Do not merge it blindly; reconcile/close it after confirming its remaining documentation changes are covered.
+
+### Supabase production checks
+- The live project is reachable and healthy. The `privacy_hardening_campus_board` migration is present in the live migration history (version `20261115082820`).
+- Security Advisor currently reports:
+  - `campus_push_deliveries` has RLS enabled with no policies. This is expected only if access is intentionally service-role-only; keep it that way unless a client-side access use case is explicitly approved.
+  - `get_sharencare_home_preview(uuid)` is executable by `anon` and `authenticated`. Its current return payload is limited to public/college-visible post preview fields (post ID, initials, body, type and creation time); anonymous execution is part of the public homepage preview. Re-review this function whenever its return fields or visibility rules change.
+  - Other flagged SECURITY DEFINER RPCs are granted to authenticated users and include caller/ownership or role checks in their bodies. Do not remove these grants indiscriminately; doing so can break chat, Campus Board and admin workflows.
+  - Anonymous-role policy warnings are expected in part because the product intentionally enables anonymous chat. The Campus Board policies use `is_real_campus_user()`; preserve the distinction between anonymous chat and verified Campus Board access.
+  - Leaked-password protection is still reported disabled. Enable it in Supabase Authentication settings if the current project plan exposes the control.
+- Performance Advisor currently reports 21 foreign keys without covering indexes and 13 RLS policies that may re-evaluate auth functions per row. It also reports multiple permissive policies and several unused indexes. These are performance recommendations, not proof of a security bypass. Index additions and policy rewrites should be planned against actual query patterns and regression-tested before applying.
+- Auth rate limits, GitHub repository variables, Edge Function secrets, database SSL/network restrictions and post-deploy user flows still require dashboard/live verification. No provider setting is claimed changed by this repository work.
+
+### Verification limits
+- GitHub connector currently returned no workflow runs or commit status entries for the latest share commits. This is not evidence that CI passed.
+- This review is a source/configuration and live-advisor check, not a penetration test or complete browser end-to-end run.
