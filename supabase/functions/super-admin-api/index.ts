@@ -75,10 +75,19 @@ Deno.serve(async (req: Request) => {
         if (profileErr.code === "23505") return json({ error: "This account already has an admin profile. Ask a Super Admin to manage its role." }, 409);
         return fail("profile_activation_failed");
       }
-      const { error: acceptErr } = await admin.from("admin_invitations").update({ status: "accepted", accepted_at: new Date().toISOString() }).eq("id", invitation.id).eq("status", "pending");
-      if (acceptErr) {
+      const { data: acceptedInvitation, error: acceptErr } = await admin
+        .from("admin_invitations")
+        .update({ status: "accepted", accepted_at: new Date().toISOString() })
+        .eq("id", invitation.id)
+        .eq("status", "pending")
+        .select("id")
+        .maybeSingle();
+      if (acceptErr || !acceptedInvitation) {
+        // Roll back the profile created by this activation attempt if the
+        // invitation was consumed or changed concurrently.
         await admin.from("profiles").delete().eq("user_id", userData.user.id).eq("role", "college_admin");
-        return fail("invitation_accept_failed");
+        if (acceptErr) return fail("invitation_accept_failed");
+        return json({ error: "This invitation has already been used or is no longer pending." }, 409);
       }
       return json({ ok: true, message: "College Admin account activated." });
     }
