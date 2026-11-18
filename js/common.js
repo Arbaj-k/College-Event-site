@@ -221,7 +221,7 @@
       button.getAttribute('data-share-text') || 'Check this out on Hapn:',
       url,
       imageUrl ? 'Poster image: ' + imageUrl : ''
-    ].filter(Boolean).join('\\n');
+    ].filter(Boolean).join('\n');
     if (navigator.share) {
       try {
         await navigator.share({ title: title, text: text, url: url });
