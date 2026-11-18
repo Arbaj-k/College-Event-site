@@ -7,7 +7,7 @@
 <main class="wrap"><section class="card"><h1>Admin moderation</h1><p>This moderation dashboard is restricted to existing global Hapn administrators or active platform Super Admins. Chat users do not need an account. Never share this page as a public chat link.</p><div class="notice" id="notice" role="status">Sign in with your existing Hapn admin account to load reports.</div>
 <form id="login"><label for="email">Admin email</label><input id="email" type="email" autocomplete="username" required><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required><div style="margin-top:12px" class="row"><button type="submit">Sign in</button></div></form><div id="session" class="hidden row" style="margin-top:12px"><span id="who"></span><button class="secondary" id="refresh">Refresh moderation data</button><button class="danger" id="logout">Sign out</button></div></section>
 <section id="dashboard" class="hidden"><section class="card"><div class="row"><div><h2 style="margin:0">Pending reports</h2><p>Reports are visible only if the signed-in account passes the database's public.is_chat_moderator() check.</p></div><span id="counts"></span></div><div id="reports"><div class="empty">Loading…</div></div></section>
-<section class="card"><h2>Private Campus Lounge reports</h2><p>Reports from one-to-one random chats. Only authorized admins can review or update these reports.</p><div id="privateReports"><div class="empty">Loading…</div></div></section><section class="card"><div class="row"><div><h2>Moderation audit history</h2><p>Append-only record of report status changes and message hides. Message content is not copied into this log.</p></div><button class="secondary" id="refreshAudit">Refresh audit history</button></div><div id="auditLog"><div class="empty">Load audit history after signing in.</div></div></section><section class="card"><h2>Recent chat messages</h2><p>Soft-delete hides a message from normal chat queries while retaining its report history.</p><div id="messages"><div class="empty">Loading…</div></div></section></section></main>
+<section class="card"><h2>Private Campus Lounge reports</h2><p>Reports from one-to-one random chats. Only authorized admins can review or update these reports.</p><div id="privateReports"><div class="empty">Loading…</div></div></section><section class="card"><div class="row"><div><h2>Moderation audit history</h2><p>Append-only record of report status changes and message hides. Message content is not copied into this log.</p></div><div class="row"><button class="secondary" id="auditPrev" disabled>Previous</button><span id="auditPageLabel" class="meta">Page 1</span><button class="secondary" id="auditNext" disabled>Next</button></div><button class="secondary" id="refreshAudit">Refresh audit history</button></div><div id="auditLog"><div class="empty">Load audit history after signing in.</div></div></section><section class="card"><h2>Recent chat messages</h2><p>Soft-delete hides a message from normal chat queries while retaining its report history.</p><div id="messages"><div class="empty">Loading…</div></div></section></section></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script><script src="../js/config.js"></script><script>
 const cfg=window.CE_CONFIG;
 const $=id=>document.getElementById(id);
@@ -27,14 +27,28 @@ $('login').addEventListener('submit',async e=>{
  }catch(err){note('Login error: '+(err&&err.message?err.message:'Please refresh and try again.'));}
  finally{button.disabled=false;button.textContent='Sign in';}
 });
-async function refreshAudit(){
+let auditPage=0;
+const auditPageSize=200;
+let auditHasNext=false;
+function updateAuditPager(){
+ const prev=$('auditPrev'),next=$('auditNext'),label=$('auditPageLabel');
+ if(prev)prev.disabled=auditPage===0;
+ if(next)next.disabled=!auditHasNext;
+ if(label)label.textContent='Page '+(auditPage+1)+' · '+auditPageSize+' records per page';
+}
+async function refreshAudit(reset=false){
  if(!me)return;
+ if(reset)auditPage=0;
  const box=$('auditLog');box.replaceChildren(el('div','empty','Loading audit history…'));
- const {data,error}=await db.from('chat_moderation_audit').select('id,actor_id,actor_role,event_type,report_id,message_id,old_status,new_status,old_deleted_at,new_deleted_at,occurred_at').order('occurred_at',{ascending:false}).limit(200);
- if(error){box.replaceChildren(el('div','empty','Could not load audit history: '+error.message+' (check audit migration and moderator policy).'));return;}
+ const from=auditPage*auditPageSize,to=from+auditPageSize;
+ const {data,error}=await db.from('chat_moderation_audit').select('id,actor_id,actor_role,event_type,report_id,message_id,old_status,new_status,old_deleted_at,new_deleted_at,occurred_at').order('occurred_at',{ascending:false}).order('id',{ascending:false}).range(from,to);
+ if(error){box.replaceChildren(el('div','empty','Could not load audit history: '+error.message+' (check audit migration and moderator policy).'));auditHasNext=false;updateAuditPager();return;}
+ const rows=data||[];
+ auditHasNext=rows.length>auditPageSize;
+ const pageRows=rows.slice(0,auditPageSize);
  box.replaceChildren();
- if(!data||!data.length){box.append(el('div','empty','No moderation actions recorded yet.'));return;}
- for(const item of data){
+ if(!pageRows.length){box.append(el('div','empty',auditPage===0?'No moderation actions recorded yet.':'No more audit records.'));updateAuditPager();return;}
+ for(const item of pageRows){
   const card=el('article','item');
   const labels={public_report_status_changed:'Public report status changed',private_report_status_changed:'Private report status changed',public_message_hidden:'Public chat message hidden',private_message_hidden:'Private chat message hidden'};
   card.append(el('div','meta',(labels[item.event_type]||item.event_type)+' · '+new Date(item.occurred_at).toLocaleString()));
@@ -45,8 +59,11 @@ async function refreshAudit(){
   if(item.new_deleted_at)card.append(el('p','meta','Hidden at: '+new Date(item.new_deleted_at).toLocaleString()));
   box.append(card);
  }
+ updateAuditPager();
 }
-$('refreshAudit').addEventListener('click',refreshAudit);
+$('auditPrev').addEventListener('click',()=>{if(auditPage>0){auditPage--;refreshAudit();}});
+$('auditNext').addEventListener('click',()=>{if(auditHasNext){auditPage++;refreshAudit();}});
+$('refreshAudit').addEventListener('click',()=>refreshAudit(true));
 async function checkAdmin(){
  try{
   const {data,error}=await db.rpc('is_chat_moderator');
