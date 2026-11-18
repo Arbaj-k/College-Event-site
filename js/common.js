@@ -247,7 +247,7 @@
     }
   });
 
-  /* If a poster image fails to load, show the placeholder instead. */
+    /* If a poster image fails to load, show the placeholder instead. */
   document.addEventListener('error', function (e) {
     const el = e.target;
     if (el && el.tagName === 'IMG' && el.classList.contains('poster-img') && el.dataset.fallback !== 'done') {
