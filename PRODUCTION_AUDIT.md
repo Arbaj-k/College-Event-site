@@ -60,3 +60,14 @@ The public Event Archive page, homepage/events navigation links, Super Admin arc
 ### Verification limits
 - GitHub connector currently returned no workflow runs or commit status entries for the latest share commits. This is not evidence that CI passed.
 - This review is a source/configuration and live-advisor check, not a penetration test or complete browser end-to-end run.
+
+## Performance remediation — 2026-11-19
+
+- Applied live Supabase migration `add_missing_foreign_key_indexes`: added 21 indexes covering the previously flagged foreign-key columns. No row data or RLS grants were changed.
+- Applied live Supabase migration `optimize_rls_auth_initplans`: rewrote the 13 flagged RLS policies to wrap stable `auth.uid()`, `auth.jwt()`, and admin helper calls in scalar subqueries. The role scope and authorization predicates were preserved.
+- Re-ran Supabase Performance Advisor. The `auth_rls_initplan` warning is no longer present. The 21 missing-FK-index warning is no longer present. Remaining performance notices are unused-index INFO findings and multiple-permissive-policy WARN findings; unused indexes are not being dropped without workload evidence, and permissive policies are retained pending semantic review.
+- Re-ran Security Advisor. Existing findings remain: intentional anonymous-auth/chat configuration, SECURITY DEFINER RPC grants requiring product-flow review, service-only RLS table with no client policies, and leaked-password protection disabled. No permissions were revoked as part of this performance task.
+- Added matching migration files to GitHub main:
+  - `supabase/migrations/20261119_add_missing_foreign_key_indexes.sql`
+  - `supabase/migrations/20261119_optimize_rls_auth_initplans.sql`
+- Live database migration versions: `20261118220258` and `20261118220320`.
