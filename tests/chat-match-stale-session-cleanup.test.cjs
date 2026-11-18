@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const sql = fs.readFileSync(path.join(__dirname, '..', 'supabase/migrations/20261119000500_chat_match_stale_session_cleanup.sql'), 'utf8');
+const client = fs.readFileSync(path.join(__dirname, '..', 'js/anonymous-chat-v3.js'), 'utf8');
 
 assert.match(sql, /chat_match_cleanup_stale/);
 assert.match(sql, /interval '2 minutes'/);
@@ -18,4 +19,10 @@ assert.match(sql, /grant execute on function public\.chat_match_start\(text\) to
 assert.match(sql, /set search_path = ''/);
 assert.doesNotMatch(sql, /delete from public\.chat_private_messages/i);
 assert.doesNotMatch(sql, /delete from public\.chat_private_reports/i);
-console.log('Chat matchmaking stale-session cleanup smoke checks passed.');
+
+// Reload recovery reads only the current anonymous user's own queue row.
+assert.match(client, /from\('chat_match_queue'\)\.select\('status,nickname'\)\.eq\('user_id',currentUser\.id\)/);
+assert.match(client, /queue\.status==='waiting'\|\|queue\.status==='matched'/);
+// Initialization must preserve a restored match instead of replacing its status.
+assert.match(client, /status\.textContent=privateConversation\?'Matched privately':\(isSearching\?'Waiting for a student…':'Ready to match'\)/);
+console.log('Chat matchmaking stale-session cleanup and reload recovery smoke checks passed.');
