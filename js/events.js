@@ -239,7 +239,7 @@
         if (!shareCarePending || shareCarePending.key !== String(collegeId)) {
           const pending = loadShareCarePreview(collegeId);
           shareCarePending = { key: String(collegeId), promise: pending };
-          pending.catch(error => console.warn('Share N Care preview unavailable:', error)).finally(() => {
+          pending.catch(error => console.warn('Share N Care preview unavailable:', error && (error.code || error.name) || 'unknown')).finally(() => {
             if (shareCarePending?.key === String(collegeId)) shareCarePending = null;
             renderNextUp();
           });
@@ -346,7 +346,7 @@
       renderList();
       renderNextUp();
     } catch (error) {
-      console.error('Hapn event loading failed:', error);
+      console.warn('Hapn event loading failed:', error && (error.code || error.name) || 'unknown');
       showListError('Events could not be loaded right now. Please refresh and try again.');
     }
   }
@@ -404,7 +404,7 @@
     const { data: collegeRows } = await publicDb.from('colleges').select('id,name').eq('is_active', true);
     state.colleges = collegeRows || [];
     const { data, error } = await publicDb.from('events').select('*').eq('id', id).maybeSingle();
-    if (error) { console.error(error); return notFound('This event could not be loaded. Please try again.'); }
+    if (error) { console.warn('Hapn event detail unavailable:', error.code || 'unknown'); return notFound('This event could not be loaded. Please try again.'); }
     if (!data) return notFound('Event not found.');
 
     document.title = data.title + ' – Hapn';

@@ -230,7 +230,7 @@
         const extension = extensions[blob.type.toLowerCase()] || 'jpg';
         imageFile = new File([blob], 'hapn-event-poster.' + extension, { type: blob.type });
       } catch (error) {
-        console.warn('Hapn event poster could not be prepared for sharing:', error);
+        console.warn('Hapn event poster could not be prepared for sharing:', error && (error.name || error.code) || 'unknown');
       }
     }
     if (navigator.share) {
@@ -243,7 +243,7 @@
         return;
       } catch (error) {
         if (error && error.name === 'AbortError') return;
-        console.warn('Native event sharing failed:', error);
+        console.warn('Native event sharing failed:', error && (error.name || error.code) || 'unknown');
       }
     }
     try {

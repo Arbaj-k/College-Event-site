@@ -38,11 +38,22 @@ function escapeHtml(value) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
+function safeHttpsUrl(value) {
+  try {
+    const url = new URL(String(value || '').trim());
+    if (url.protocol !== 'https:' || !url.hostname || url.username || url.password) return null;
+    return url.href;
+  } catch (_) {
+    return null;
+  }
+}
+
 function eventPageHtml(event) {
   const title = escapeHtml(event.title || 'College Event');
   const description = escapeHtml(event.description || event.short_description || 'College event details and registration.');
   const canonical = baseUrl + '/event/?id=' + encodeURIComponent(event.id);
-  const image = event.poster_url ? escapeHtml(event.poster_url) : baseUrl + '/assets/images/og-image.png';
+  const posterUrl = safeHttpsUrl(event.poster_url);
+  const image = posterUrl ? escapeHtml(posterUrl) : baseUrl + '/assets/images/og-image.png';
   const date = escapeHtml(event.date || '');
   const endDate = escapeHtml(event.end_date || event.date || '');
   const time = escapeHtml(event.time || '');
@@ -50,7 +61,8 @@ function eventPageHtml(event) {
   const venue = escapeHtml(event.venue || '');
   const organizer = escapeHtml(event.organizer || '');
   const category = escapeHtml(event.category || '');
-  const registration = event.registration_link ? escapeHtml(event.registration_link) : '';
+  const registrationUrl = safeHttpsUrl(event.registration_link);
+  const registration = registrationUrl ? escapeHtml(registrationUrl) : '';
   const dateText = date + (event.end_date ? ' – ' + endDate : '');
   const timeText = time + (event.end_time ? ' – ' + endTime : '');
 
@@ -204,4 +216,6 @@ async function main() {
   console.log('[sitemap] Event URLs: ' + eventUrls.length);
 }
 
-main();
+if (require.main === module) main();
+
+module.exports = { safeHttpsUrl, eventPageHtml };

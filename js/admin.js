@@ -16,7 +16,7 @@
 
   /* ---------- helpers ---------- */
   function friendlyError(err) {
-    console.error(err);
+    console.warn('[admin] operation failed:', err && (err.code || err.status) || 'unknown');
     const text = (err && err.message) || '';
     if ((err && err.code === '42501') || /row-level security|permission denied/i.test(text)) return 'You do not have permission to do that.';
     if (err && (err.status === 401 || /jwt|token/i.test(text))) return 'Your session has expired. Please log in again.';
@@ -36,7 +36,7 @@
     const path = posterPath(url);
     if (!path) return;
     const { error } = await sb.storage.from(CE.BUCKET).remove([path]);
-    if (error) console.warn('Could not remove old poster:', error.message);
+    if (error) console.warn('Could not remove old poster:', error.code || 'unknown');
   }
 
   function statusOf(ev) {
@@ -254,9 +254,9 @@
                 body: { eventId: insertedEvent.id },
                 headers: { Authorization: 'Bearer ' + accessToken }
               });
-              if (pushError) console.warn('Event was published, but push notification failed:', pushError);
+              if (pushError) console.warn('Event was published, but push notification failed:', pushError && (pushError.code || pushError.status) || 'unknown');
               else if (pushResult && pushResult.sent) CE.toast('Push notification sent to subscribers!', 'success');
-              else if (pushResult && pushResult.error) console.warn('Event was published, but push notification was not sent:', pushResult.error);
+              else if (pushResult && pushResult.error) console.warn('Event was published, but push notification was not sent:', pushResult.code || 'unknown');
             }
           } catch (pushError) {
             console.warn('Event was published, but push notification could not be triggered:', pushError);

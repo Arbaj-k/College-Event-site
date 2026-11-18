@@ -24,6 +24,9 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
+      - name: Run production hardening regression tests
+        run: node tests/production-hardening-smoke.cjs
+
       - name: Generate browser config from repository variables
         env:
           SUPABASE_URL: ${{ vars.SUPABASE_URL }}
