@@ -16,6 +16,7 @@ const supabaseClient = read('js/supabase.js');
 const publicEventsJs = read('js/events.js');
 const campusDomains = read('supabase/migrations/20261115000000_campus_board_email_domains.sql');
 const campusPosts = read('supabase/migrations/20261115000100_campus_board_posts.sql');
+const campusAdminRbac = read('supabase/migrations/20261119000100_campus_board_admin_rbac_hardening.sql');
 const campusLogin = read('connect/index.html');
 const campusBoard = read('connect/board/index.html');
 
@@ -94,4 +95,21 @@ assert.ok(publicEventsJs.includes('prefers-reduced-motion: reduce'));
 assert.ok(campusBoard.includes('mark_sharencare_opened'));
 assert.ok(campusBoard.includes('params.get(\'post\')'));
 assert.ok(home.includes('20261116sharencare2'));
+assert.ok(campusAdminRbac.includes('campus_posts_identity_immutable'));
+assert.ok(campusAdminRbac.includes('new.user_id is distinct from old.user_id'));
+assert.ok(campusAdminRbac.includes('new.college_id is distinct from old.college_id'));
+assert.ok(campusAdminRbac.includes('Super admins read all campus posts'));
+assert.ok(campusAdminRbac.includes('Super admins update all campus posts'));
+assert.ok(campusAdminRbac.includes('Super admins delete all campus posts'));
+assert.ok(campusAdminRbac.includes('Super admins review all campus reports'));
+assert.ok(edge.includes('activation_profile_lookup_failed'));
+assert.ok(edge.includes('A Super Admin account cannot be activated through a College Admin invitation.'));
+assert.ok(edge.includes('This account already has an admin profile. Ask a Super Admin to manage its role.'));
+assert.ok(edge.includes('.from("profiles").insert('), 'Invitation activation must use an insert, not an upsert');
+assert.ok(edge.includes('profileErr.code === "23505"'), 'Unique constraint must guard activation races');
+assert.ok(edge.includes('.select("id")'), 'Invitation consumption must confirm a pending row was actually updated');
+assert.ok(edge.includes('This invitation has already been used or is no longer pending.'), 'Concurrent invitation consumption must be rejected');
+
+
+
 console.log('Multi-college and Campus Board smoke checks passed.');

@@ -45,6 +45,22 @@ Deno.serve(async (req: Request) => {
     if (body.action === "finalize_admin_activation") {
       const email = String(userData.user.email ?? "").trim().toLowerCase();
       const fullName = String(body.full_name ?? "").trim().slice(0, 80);
+
+      // Invitation activation is only for a new admin profile. Never let an invite
+      // overwrite an existing Super Admin (or silently demote any existing role).
+      const { data: existingProfile, error: existingProfileErr } = await admin
+        .from("profiles")
+        .select("role,is_active")
+        .eq("user_id", userData.user.id)
+        .maybeSingle();
+      if (existingProfileErr) return fail("activation_profile_lookup_failed");
+      if (existingProfile?.role === "super_admin") {
+        return json({ error: "A Super Admin account cannot be activated through a College Admin invitation." }, 403);
+      }
+      if (existingProfile) {
+        return json({ error: "This account already has an admin profile. Ask a Super Admin to manage its role." }, 409);
+      }
+
       const { data: invitation, error: inviteErr } = await admin.from("admin_invitations").select("id,email,college_id,status,expires_at")
         .eq("email", email).eq("status", "pending").gt("expires_at", new Date().toISOString()).order("created_at", { ascending: false }).limit(1).maybeSingle();
       if (inviteErr) return fail("invitation_lookup_failed");
@@ -52,10 +68,27 @@ Deno.serve(async (req: Request) => {
       const { data: college, error: collegeErr } = await admin.from("colleges").select("id,is_active").eq("id", invitation.college_id).maybeSingle();
       if (collegeErr) return fail("college_lookup_failed");
       if (!college?.is_active) return json({ error: "The assigned college is no longer active." }, 403);
-      const { error: profileErr } = await admin.from("profiles").upsert({ user_id: userData.user.id, email, full_name: fullName || null, role: "college_admin", college_id: invitation.college_id, is_active: true }, { onConflict: "user_id" });
-      if (profileErr) return fail("profile_activation_failed");
-      const { error: acceptErr } = await admin.from("admin_invitations").update({ status: "accepted", accepted_at: new Date().toISOString() }).eq("id", invitation.id);
-      if (acceptErr) return fail("invitation_accept_failed");
+      const { error: profileErr } = await admin.from("profiles").insert({ user_id: userData.user.id, email, full_name: fullName || null, role: "college_admin", college_id: invitation.college_id, is_active: true });
+      if (profileErr) {
+        // INSERT is intentionally used instead of UPSERT: the database's unique
+        // constraint is the final race-safe guard against overwriting any role.
+        if (profileErr.code === "23505") return json({ error: "This account already has an admin profile. Ask a Super Admin to manage its role." }, 409);
+        return fail("profile_activation_failed");
+      }
+      const { data: acceptedInvitation, error: acceptErr } = await admin
+        .from("admin_invitations")
+        .update({ status: "accepted", accepted_at: new Date().toISOString() })
+        .eq("id", invitation.id)
+        .eq("status", "pending")
+        .select("id")
+        .maybeSingle();
+      if (acceptErr || !acceptedInvitation) {
+        // Roll back the profile created by this activation attempt if the
+        // invitation was consumed or changed concurrently.
+        await admin.from("profiles").delete().eq("user_id", userData.user.id).eq("role", "college_admin");
+        if (acceptErr) return fail("invitation_accept_failed");
+        return json({ error: "This invitation has already been used or is no longer pending." }, 409);
+      }
       return json({ ok: true, message: "College Admin account activated." });
     }
 
