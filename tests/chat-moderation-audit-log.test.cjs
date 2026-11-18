@@ -15,5 +15,7 @@ for(const name of ['chat_reports','chat_private_reports','chat_messages','chat_p
 }
 assert.match(sql,/old\.status is distinct from new\.status/i);
 assert.match(sql,/old\.deleted_at is distinct from new\.deleted_at/i);
+assert.match(sql,/before update or delete on public\.chat_moderation_audit/i);
+assert.match(sql,/chat_moderation_audit is append-only/i);
 assert.doesNotMatch(sql,/message body|message_snapshot|reporter email/i);
 console.log('Chat moderation audit log migration checks passed.');
