@@ -48,6 +48,17 @@ async function fetchAllReports(table){
  }
  return {rows,complete:false};
 }
+async function fetchMessagesByIds(table,ids,columns){
+ const unique=[...new Set(ids)];
+ const rows=[];
+ for(let i=0;i<unique.length;i+=100){
+  const batch=unique.slice(i,i+100);
+  const {data,error}=await db.from(table).select(columns).in('id',batch);
+  if(error)throw error;
+  rows.push(...(data||[]));
+ }
+ return rows;
+}
 async function refresh(){
  if(!me)return;
  note('Loading all reports and linked evidence…');
@@ -61,12 +72,11 @@ async function refresh(){
   const publicIds=r.rows.map(x=>x.message_id).filter(Boolean);
   const privateIds=pr.rows.map(x=>x.message_id).filter(Boolean);
   const [linkedPublic,linkedPrivate]=await Promise.all([
-   publicIds.length?db.from('chat_messages').select('id,room_id,user_id,nickname,body,created_at,deleted_at').in('id',publicIds):Promise.resolve({data:[],error:null}),
-   privateIds.length?db.from('chat_private_messages').select('id,conversation_id,sender_id,nickname,body,created_at,deleted_at').in('id',privateIds):Promise.resolve({data:[],error:null})
+   fetchMessagesByIds('chat_messages',publicIds,'id,room_id,user_id,nickname,body,created_at,deleted_at'),
+   fetchMessagesByIds('chat_private_messages',privateIds,'id,conversation_id,sender_id,nickname,body,created_at,deleted_at')
   ]);
-  if(linkedPublic.error||linkedPrivate.error)throw linkedPublic.error||linkedPrivate.error;
-  const publicMap=new Map((linkedPublic.data||[]).map(x=>[x.id,x]));
-  const privateMap=new Map((linkedPrivate.data||[]).map(x=>[x.id,x]));
+  const publicMap=new Map(linkedPublic.map(x=>[x.id,x]));
+  const privateMap=new Map(linkedPrivate.map(x=>[x.id,x]));
   const pending=r.rows.filter(x=>x.status==='pending').length;
   const privatePending=pr.rows.filter(x=>x.status==='pending').length;
   $('counts').textContent=pending+' public · '+privatePending+' private pending';
