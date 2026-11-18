@@ -18,6 +18,8 @@ for (const [table, messageTable, functionName] of [
   assert.match(migration, new RegExp('execute function public\\.' + functionName + '\\(\\)', 'i'));
   assert.match(migration, new RegExp('revoke all on function public\\.' + functionName + '\\(\\) from public, anon, authenticated', 'i'));
 }
-assert.match(migration, /Apply migration 20261119000350_preserve_private_chat_report_evidence\.sql/i);\nassert.match(migration, /c\.confdeltype = 'n'/i);\nassert.match(migration, /on delete set null/i);
+assert.match(migration, /Apply migration 20261119000350_preserve_private_chat_report_evidence\.sql/i);
+assert.match(migration, /c\.confdeltype = 'n'/i);
+assert.match(migration, /on delete set null/i);
 assert.match(migration, /set search_path = ''/i);
 console.log('Chat message deletion report-evidence snapshot checks passed.');
