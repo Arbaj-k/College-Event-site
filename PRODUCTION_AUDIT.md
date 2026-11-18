@@ -87,3 +87,4 @@ The public Event Archive page, homepage/events navigation links, Super Admin arc
 - Added explicit NULL validation for academic year, request ID, and approval decision. This closes SQL three-valued-logic bypasses while retaining the existing authenticated grant and caller/owner checks.
 - Applied live Supabase migration `20261119000200` and added matching repository migration `supabase/migrations/20261119_harden_campus_profile_and_request_rpcs.sql`.
 - Still requires regression tests using real campus-member sessions for profile save, request approval/decline, notification delivery, and WhatsApp contact gating.
+- Follow-up SQL syntax correction applied to the repository migration and live database: use native `COALESCE`/`NULLIF` SQL expressions under the empty search path. Live correction migration recorded as `20261119000300`.
