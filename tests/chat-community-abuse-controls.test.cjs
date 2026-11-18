@@ -13,6 +13,7 @@ assert.match(migration, /interval '2 seconds'/);
 assert.match(migration, /interval '1 minute'[\s\S]*>= 20/);
 assert.match(migration, /chat_community_posts_rate_limit/);
 assert.match(migration, /chat_community_comments_rate_limit/);
+assert.match(migration, /new\\.created_at := pg_catalog\\.clock_timestamp\\(\\)/i);
 assert.match(migration, /interval '30 seconds'/);
 assert.match(migration, /interval '1 hour'[\s\S]*>= 5/);
 assert.match(migration, /interval '2 seconds'[\s\S]*>= 40/);
