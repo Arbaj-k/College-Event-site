@@ -24,5 +24,5 @@ assert.match(migration, /update public\.chat_private_reports r[\s\S]*?set messag
 assert.match(migration, /message_created_at = m\.created_at/i);
 assert.match(migration, /where m\.conversation_id = new\.id[\s\S]*?and r\.message_id = m\.id/i);
 assert.match(migration, /delete from public\.chat_private_messages[\s\S]*?where conversation_id = new\.id/i);
-assert.match(migration, /set search_path to ''/i);
+assert.match(migration, /set search_path = ''/i);
 console.log('Private chat report retention and serialization smoke checks passed.');
