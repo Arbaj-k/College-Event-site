@@ -37,7 +37,95 @@ async function checkAdmin(){
 }
 $('refresh').addEventListener('click',refresh);$('logout').addEventListener('click',async()=>{await db.auth.signOut();me=null;$('dashboard').classList.add('hidden');$('session').classList.add('hidden');$('login').classList.remove('hidden');note('Signed out.');});
 function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;}
-async function refresh(){if(!me)return;const [r,m,pr,pm]=await Promise.all([db.from('chat_reports').select('id,reporter_id,message_id,reason,details,status,created_at').order('created_at',{ascending:false}).limit(100),db.from('chat_messages').select('id,room_id,user_id,nickname,body,created_at,deleted_at').order('created_at',{ascending:false}).limit(100),db.from('chat_private_reports').select('id,reporter_id,message_id,reason,details,status,created_at').order('created_at',{ascending:false}).limit(100),db.from('chat_private_messages').select('id,conversation_id,sender_id,nickname,body,created_at,deleted_at').order('created_at',{ascending:false}).limit(200)]);if(r.error||m.error||pr.error||pm.error){note('Could not load moderation data. Check admin RLS policies and table permissions.');return;}const pending=r.data.filter(x=>x.status==='pending');$('counts').textContent=pending.length+' pending';const rb=$('reports');rb.replaceChildren();if(!r.data.length)rb.append(el('div','empty','No reports yet.'));for(const report of r.data){const card=el('article','item');card.append(el('div','meta',report.reason+' · '+new Date(report.created_at).toLocaleString()+' · '+report.status));card.append(el('p','meta','Message ID: '+report.message_id));if(report.details)card.append(el('p','meta','Reporter note: '+report.details));const select=el('select');[['pending','Pending'],['reviewed','Reviewed'],['actioned','Actioned'],['dismissed','Dismissed']].forEach(([v,t])=>{const o=el('option','',t);o.value=v;select.append(o)});select.value=report.status;const save=el('button','secondary','Save status');save.addEventListener('click',async()=>{save.disabled=true;const {error}=await db.from('chat_reports').update({status:select.value}).eq('id',report.id);save.disabled=false;if(error){note('Could not update report status.');return;}note('Report status updated.');await refresh();});const row=el('div','row');row.append(select,save);card.append(row);const msg=m.data.find(x=>x.id===report.message_id);if(msg){const body=el('div','body',msg.nickname+': '+msg.body);card.append(body);const del=el('button','danger',msg.deleted_at?'Already hidden':'Hide message');del.disabled=!!msg.deleted_at;del.addEventListener('click',async()=>{if(!confirm('Hide this message from chat? This does not permanently erase the report history.'))return;del.disabled=true;const {error}=await db.from('chat_messages').update({deleted_at:new Date().toISOString()}).eq('id',msg.id);if(error){del.disabled=false;note('Could not hide message. Check admin moderation policy.');return;}note('Message hidden from normal chat queries.');await refresh();});card.append(del);}rb.append(card);}
-const pb=$('privateReports');pb.replaceChildren();if(!pr.data.length)pb.append(el('div','empty','No private-chat reports yet.'));const privatePending=pr.data.filter(x=>x.status==='pending').length;$('counts').textContent=pending.length+' public · '+privatePending+' private pending';for(const report of pr.data){const card=el('article','item');card.append(el('div','meta',report.reason+' · '+new Date(report.created_at).toLocaleString()+' · '+report.status));card.append(el('p','meta','Private message ID: '+report.message_id));if(report.details)card.append(el('p','meta','Reporter note: '+report.details));const msg=pm.data.find(x=>x.id===report.message_id);if(msg){card.append(el('div','body',msg.nickname+': '+msg.body));if(!msg.deleted_at){const hide=el('button','danger','Hide private message');hide.addEventListener('click',async()=>{if(!confirm('Hide this private message from both participants?'))return;hide.disabled=true;const {error}=await db.from('chat_private_messages').update({deleted_at:new Date().toISOString()}).eq('id',msg.id);if(error){hide.disabled=false;note('Could not hide private message.');return;}note('Private message hidden.');await refresh();});card.append(hide);}}const select=el('select');[['pending','Pending'],['reviewed','Reviewed'],['actioned','Actioned'],['dismissed','Dismissed']].forEach(([v,t])=>{const o=el('option','',t);o.value=v;select.append(o)});select.value=report.status;const save=el('button','secondary','Save status');save.addEventListener('click',async()=>{save.disabled=true;const {error}=await db.from('chat_private_reports').update({status:select.value}).eq('id',report.id);save.disabled=false;if(error){note('Could not update private report.');return;}note('Private report status updated.');await refresh();});const row=el('div','row');row.append(select,save);card.append(row);pb.append(card);}const mb=$('messages');mb.replaceChildren();if(!m.data.length)mb.append(el('div','empty','No messages yet.'));for(const msg of m.data){const card=el('article','item');card.append(el('div','meta',msg.room_id+' · '+msg.nickname+' · '+new Date(msg.created_at).toLocaleString()+(msg.deleted_at?' · HIDDEN':'')));card.append(el('div','body',msg.body));if(!msg.deleted_at){const del=el('button','danger','Hide message');del.addEventListener('click',async()=>{if(!confirm('Hide this message from chat?'))return;del.disabled=true;const {error}=await db.from('chat_messages').update({deleted_at:new Date().toISOString()}).eq('id',msg.id);if(error){note('Could not hide message.');del.disabled=false;return;}await refresh();});card.append(del);}mb.append(card);}}
+async function fetchAllReports(table){
+ const pageSize=500, maxPages=20, rows=[];
+ for(let page=0;page<maxPages;page++){
+  const from=page*pageSize,to=from+pageSize-1;
+  const {data,error}=await db.from(table).select('id,reporter_id,message_id,message_snapshot,message_created_at,reason,details,status,created_at').order('created_at',{ascending:false}).range(from,to);
+  if(error)throw error;
+  rows.push(...(data||[]));
+  if(!data||data.length<pageSize)return {rows,complete:true};
+ }
+ return {rows,complete:false};
+}
+async function refresh(){
+ if(!me)return;
+ note('Loading all reports and linked evidence…');
+ try{
+  const [r,pr,m]=await Promise.all([
+   fetchAllReports('chat_reports'),
+   fetchAllReports('chat_private_reports'),
+   db.from('chat_messages').select('id,room_id,user_id,nickname,body,created_at,deleted_at').order('created_at',{ascending:false}).limit(200)
+  ]);
+  if(m.error)throw m.error;
+  const publicIds=r.rows.map(x=>x.message_id).filter(Boolean);
+  const privateIds=pr.rows.map(x=>x.message_id).filter(Boolean);
+  const [linkedPublic,linkedPrivate]=await Promise.all([
+   publicIds.length?db.from('chat_messages').select('id,room_id,user_id,nickname,body,created_at,deleted_at').in('id',publicIds):Promise.resolve({data:[],error:null}),
+   privateIds.length?db.from('chat_private_messages').select('id,conversation_id,sender_id,nickname,body,created_at,deleted_at').in('id',privateIds):Promise.resolve({data:[],error:null})
+  ]);
+  if(linkedPublic.error||linkedPrivate.error)throw linkedPublic.error||linkedPrivate.error;
+  const publicMap=new Map((linkedPublic.data||[]).map(x=>[x.id,x]));
+  const privateMap=new Map((linkedPrivate.data||[]).map(x=>[x.id,x]));
+  const pending=r.rows.filter(x=>x.status==='pending').length;
+  const privatePending=pr.rows.filter(x=>x.status==='pending').length;
+  $('counts').textContent=pending+' public · '+privatePending+' private pending';
+  if(!r.complete||!pr.complete)note('Showing first 10,000 reports. More records exist; narrow the date range or use database pagination.');
+  else note('Moderation data loaded. '+(r.rows.length+pr.rows.length)+' reports reviewed.');
+  const rb=$('reports');rb.replaceChildren();
+  if(!r.rows.length)rb.append(el('div','empty','No reports yet.'));
+  for(const report of r.rows){
+   const card=el('article','item');
+   card.append(el('div','meta',report.reason+' · '+new Date(report.created_at).toLocaleString()+' · '+report.status));
+   card.append(el('p','meta',report.reporter_id?'Reporter account: '+report.reporter_id:'Reporter account: anonymized or unavailable'));
+   if(report.details)card.append(el('p','meta','Reporter note: '+report.details));
+   const msg=report.message_id?publicMap.get(report.message_id):null;
+   const evidence=msg?(msg.nickname+': '+msg.body):report.message_snapshot;
+   if(evidence)card.append(el('div','body',(msg?'Reported message':'Preserved message evidence')+': '+evidence));
+   else card.append(el('p','meta','Message evidence unavailable (message may predate evidence-retention migration).'));
+   if(report.message_created_at)card.append(el('p','meta','Original message time: '+new Date(report.message_created_at).toLocaleString()));
+   if(msg&&!msg.deleted_at){
+    const del=el('button','danger','Hide message');
+    del.addEventListener('click',async()=>{if(!confirm('Hide this message from chat? The report evidence will be retained.'))return;del.disabled=true;const {error}=await db.from('chat_messages').update({deleted_at:new Date().toISOString()}).eq('id',msg.id);if(error){del.disabled=false;note('Could not hide message. Check admin moderation policy.');return;}note('Message hidden; report evidence retained.');await refresh();});
+    card.append(del);
+   }
+   const select=el('select');[['pending','Pending'],['reviewed','Reviewed'],['actioned','Actioned'],['dismissed','Dismissed']].forEach(([v,t])=>{const o=el('option','',t);o.value=v;select.append(o)});select.value=report.status;
+   const save=el('button','secondary','Save status');
+   save.addEventListener('click',async()=>{save.disabled=true;const {error}=await db.from('chat_reports').update({status:select.value}).eq('id',report.id);save.disabled=false;if(error){note('Could not update report status.');return;}note('Report status updated.');await refresh();});
+   const row=el('div','row');row.append(select,save);card.append(row);rb.append(card);
+  }
+  const pb=$('privateReports');pb.replaceChildren();
+  if(!pr.rows.length)pb.append(el('div','empty','No private-chat reports yet.'));
+  for(const report of pr.rows){
+   const card=el('article','item');
+   card.append(el('div','meta',report.reason+' · '+new Date(report.created_at).toLocaleString()+' · '+report.status));
+   card.append(el('p','meta',report.reporter_id?'Reporter account: '+report.reporter_id:'Reporter account: anonymized or unavailable'));
+   if(report.details)card.append(el('p','meta','Reporter note: '+report.details));
+   const msg=report.message_id?privateMap.get(report.message_id):null;
+   const evidence=msg?(msg.nickname+': '+msg.body):report.message_snapshot;
+   if(evidence)card.append(el('div','body',(msg?'Reported private message':'Preserved private-message evidence')+': '+evidence));
+   else card.append(el('p','meta','Message evidence unavailable (message may predate evidence-retention migration).'));
+   if(report.message_created_at)card.append(el('p','meta','Original message time: '+new Date(report.message_created_at).toLocaleString()));
+   if(msg&&!msg.deleted_at){
+    const hide=el('button','danger','Hide private message');
+    hide.addEventListener('click',async()=>{if(!confirm('Hide this private message from both participants? The report evidence will be retained.'))return;hide.disabled=true;const {error}=await db.from('chat_private_messages').update({deleted_at:new Date().toISOString()}).eq('id',msg.id);if(error){hide.disabled=false;note('Could not hide private message.');return;}note('Private message hidden; evidence retained.');await refresh();});
+    card.append(hide);
+   }
+   const select=el('select');[['pending','Pending'],['reviewed','Reviewed'],['actioned','Actioned'],['dismissed','Dismissed']].forEach(([v,t])=>{const o=el('option','',t);o.value=v;select.append(o)});select.value=report.status;
+   const save=el('button','secondary','Save status');
+   save.addEventListener('click',async()=>{save.disabled=true;const {error}=await db.from('chat_private_reports').update({status:select.value}).eq('id',report.id);save.disabled=false;if(error){note('Could not update private report.');return;}note('Private report status updated.');await refresh();});
+   const row=el('div','row');row.append(select,save);card.append(row);pb.append(card);
+  }
+  const mb=$('messages');mb.replaceChildren();
+  if(!m.data||!m.data.length)mb.append(el('div','empty','No recent messages.'));
+  for(const msg of m.data||[]){
+   const card=el('article','item');
+   card.append(el('div','meta',msg.room_id+' · '+msg.nickname+' · '+new Date(msg.created_at).toLocaleString()+(msg.deleted_at?' · HIDDEN':'')));
+   card.append(el('div','body',msg.body));
+   if(!msg.deleted_at){const del=el('button','danger','Hide message');del.addEventListener('click',async()=>{if(!confirm('Hide this message from chat?'))return;del.disabled=true;const {error}=await db.from('chat_messages').update({deleted_at:new Date().toISOString()}).eq('id',msg.id);if(error){note('Could not hide message.');del.disabled=false;return;}await refresh();});card.append(del);}
+   mb.append(card);
+  }
+ }catch(err){note('Could not load moderation data: '+(err&&err.message?err.message:'Check report evidence migration, admin RLS policies and table permissions.'));console.error(err);}
+}
 (async()=>{const {data}=await db.auth.getSession();if(data.session){me=data.session.user;await checkAdmin();}})();
 </script></body></html>
