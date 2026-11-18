@@ -80,3 +80,10 @@ The public Event Archive page, homepage/events navigation links, Super Admin arc
 - Matching repository migration added: `supabase/migrations/20261119_harden_chat_match_leave_identity_check.sql`.
 - Kept the intended grants: anonymous Supabase Auth users are represented by the `authenticated` database role, and public Share N Care preview is intentionally callable by `anon`. No broad EXECUTE revokes were applied.
 - Remaining: validate these RPCs with real anonymous, ordinary authenticated, Campus Board member, college-admin, and super-admin sessions; review cron schema policies and Auth dashboard settings. Advisor warnings about intentional anonymous-role policies are not automatically vulnerabilities.
+ 
+## Campus Board RPC hardening — 2026-11-19
+
+- Hardened `update_campus_member_profile(text,text,text)` and `respond_to_campus_connect_request(uuid,boolean)` with an empty SECURITY DEFINER search path and fully qualified object references.
+- Added explicit NULL validation for academic year, request ID, and approval decision. This closes SQL three-valued-logic bypasses while retaining the existing authenticated grant and caller/owner checks.
+- Applied live Supabase migration `20261119000200` and added matching repository migration `supabase/migrations/20261119_harden_campus_profile_and_request_rpcs.sql`.
+- Still requires regression tests using real campus-member sessions for profile save, request approval/decline, notification delivery, and WhatsApp contact gating.
