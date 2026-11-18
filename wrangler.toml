@@ -1,0 +1,9 @@
+name = "college-event-site"
+main = "cloudflare/production-headers-worker.js"
+compatibility_date = "2026-11-18"
+workers_dev = false
+
+routes = [
+  { pattern = "hapn.info/*", zone_name = "hapn.info" },
+  { pattern = "www.hapn.info/*", zone_name = "hapn.info" }
+]

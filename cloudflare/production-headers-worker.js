@@ -5,16 +5,17 @@
  */
 const CSP = [
   "default-src 'self'",
+  "worker-src 'self' blob:",
   "base-uri 'self'",
   "object-src 'none'",
   "frame-ancestors 'none'",
-  "form-action 'self'",
+  "form-action 'self' https:",
   "upgrade-insecure-requests",
-  "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com https://cdn.onesignal.com https://onesignal.com",
+  "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com https://static.cloudflareinsights.com https://cdn.onesignal.com https://api.onesignal.com https://onesignal.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   "img-src 'self' data: blob: https:",
-  "connect-src 'self' https://xeablvxtlxdwuiiawsgq.supabase.co wss://xeablvxtlxdwuiiawsgq.supabase.co https://www.google-analytics.com https://region1.google-analytics.com https://onesignal.com https://*.onesignal.com",
+  "connect-src 'self' https://xeablvxtlxdwuiiawsgq.supabase.co wss://xeablvxtlxdwuiiawsgq.supabase.co https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://onesignal.com https://*.onesignal.com https://*.onesignal.net https://*.os.tc",
   "frame-src https://accounts.google.com"
 ].join("; ");
 

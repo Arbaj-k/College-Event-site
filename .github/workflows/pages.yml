@@ -3,6 +3,8 @@ name: Deploy Hapn to GitHub Pages
 on:
   push:
     branches: ["main"]
+  pull_request:
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -26,6 +28,9 @@ jobs:
 
       - name: Run production hardening regression tests
         run: node tests/production-hardening-smoke.cjs
+
+      - name: Verify Cloudflare security Worker
+        run: node tests/cloudflare-worker-smoke.cjs
 
       - name: Generate browser config from repository variables
         env:
@@ -71,6 +76,7 @@ jobs:
           path: _site
 
   deploy:
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
