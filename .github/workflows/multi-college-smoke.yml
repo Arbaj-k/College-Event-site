@@ -31,3 +31,5 @@ jobs:
         run: node tests/private-chat-report-moderation.test.cjs
       - name: Run chat report moderation privilege checks
         run: node tests/private-chat-report-moderation.test.cjs
+      - name: Run account-deletion report retention checks
+        run: node tests/chat-report-account-deletion-retention.test.cjs
