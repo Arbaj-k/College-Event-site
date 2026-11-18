@@ -7,7 +7,7 @@
 <main class="wrap"><section class="card"><h1>Admin moderation</h1><p>This moderation dashboard is restricted to existing global Hapn administrators or active platform Super Admins. Chat users do not need an account. Never share this page as a public chat link.</p><div class="notice" id="notice" role="status">Sign in with your existing Hapn admin account to load reports.</div>
 <form id="login"><label for="email">Admin email</label><input id="email" type="email" autocomplete="username" required><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required><div style="margin-top:12px" class="row"><button type="submit">Sign in</button></div></form><div id="session" class="hidden row" style="margin-top:12px"><span id="who"></span><button class="secondary" id="refresh">Refresh moderation data</button><button class="danger" id="logout">Sign out</button></div></section>
 <section id="dashboard" class="hidden"><section class="card"><div class="row"><div><h2 style="margin:0">Pending reports</h2><p>Reports are visible only if the signed-in account passes the database's public.is_chat_moderator() check.</p></div><span id="counts"></span></div><div id="reports"><div class="empty">Loading…</div></div></section>
-<section class="card"><h2>Private Campus Lounge reports</h2><p>Reports from one-to-one random chats. Only authorized admins can review or update these reports.</p><div id="privateReports"><div class="empty">Loading…</div></div></section><section class="card"><h2>Recent chat messages</h2><p>Soft-delete hides a message from normal chat queries while retaining its report history.</p><div id="messages"><div class="empty">Loading…</div></div></section></section></main>
+<section class="card"><h2>Private Campus Lounge reports</h2><p>Reports from one-to-one random chats. Only authorized admins can review or update these reports.</p><div id="privateReports"><div class="empty">Loading…</div></div></section><section class="card"><div class="row"><div><h2>Moderation audit history</h2><p>Append-only record of report status changes and message hides. Message content is not copied into this log.</p></div><button class="secondary" id="refreshAudit">Refresh audit history</button></div><div id="auditLog"><div class="empty">Load audit history after signing in.</div></div></section><section class="card"><h2>Recent chat messages</h2><p>Soft-delete hides a message from normal chat queries while retaining its report history.</p><div id="messages"><div class="empty">Loading…</div></div></section></section></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script><script src="../../js/config.js"></script><script>
 const cfg=window.CE_CONFIG;
 const $=id=>document.getElementById(id);
@@ -27,6 +27,26 @@ $('login').addEventListener('submit',async e=>{
  }catch(err){note('Login error: '+(err&&err.message?err.message:'Please refresh and try again.'));}
  finally{button.disabled=false;button.textContent='Sign in';}
 });
+async function refreshAudit(){
+ if(!me)return;
+ const box=$('auditLog');box.replaceChildren(el('div','empty','Loading audit history…'));
+ const {data,error}=await db.from('chat_moderation_audit').select('id,actor_id,event_type,report_id,message_id,old_status,new_status,old_deleted_at,new_deleted_at,occurred_at').order('occurred_at',{ascending:false}).limit(200);
+ if(error){box.replaceChildren(el('div','empty','Could not load audit history: '+error.message+' (check audit migration and moderator policy).'));return;}
+ box.replaceChildren();
+ if(!data||!data.length){box.append(el('div','empty','No moderation actions recorded yet.'));return;}
+ for(const item of data){
+  const card=el('article','item');
+  const labels={public_report_status_changed:'Public report status changed',private_report_status_changed:'Private report status changed',public_message_hidden:'Public chat message hidden',private_message_hidden:'Private chat message hidden'};
+  card.append(el('div','meta',(labels[item.event_type]||item.event_type)+' · '+new Date(item.occurred_at).toLocaleString()));
+  card.append(el('p','meta','Actor: '+(item.actor_id||'System / unavailable')));
+  if(item.report_id)card.append(el('p','meta','Report ID: '+item.report_id));
+  if(item.message_id)card.append(el('p','meta','Message ID: '+item.message_id));
+  if(item.old_status!==null||item.new_status!==null)card.append(el('p','meta','Status: '+(item.old_status||'—')+' → '+(item.new_status||'—')));
+  if(item.new_deleted_at)card.append(el('p','meta','Hidden at: '+new Date(item.new_deleted_at).toLocaleString()));
+  box.append(card);
+ }
+}
+$('refreshAudit').addEventListener('click',refreshAudit);
 async function checkAdmin(){
  try{
   const {data,error}=await db.rpc('is_chat_moderator');
