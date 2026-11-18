@@ -12,7 +12,7 @@ for (const file of ['admin/chat-moderation/index.html', 'admin/chat-moderation.h
   assert.match(html, /i\+=100/);
   assert.match(html, /Preserved message evidence/);
   assert.match(html, /Preserved private-message evidence/);
-  assert.match(html, /Reporter account: anonymized or unavailable/);
+  assert.match(html, /Reporter account: anonymized or unavailable/);\n  assert.match(html, /actor_role/);\n  assert.match(html, /Role: '\\+\\(item\\.actor_role/);
   assert.doesNotMatch(html, /from\('chat_reports'\)[\s\S]{0,180}\.limit\(100\)/);
   assert.doesNotMatch(html, /from\('chat_private_reports'\)[\s\S]{0,180}\.limit\(100\)/);
 }
