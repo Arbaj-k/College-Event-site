@@ -14,7 +14,7 @@ for (const file of ['admin/chat-moderation/index.html', 'admin/chat-moderation.h
   assert.match(html, /Preserved private-message evidence/);
   assert.match(html, /Reporter account: anonymized or unavailable/);
   assert.match(html, /actor_role/);
-  assert.match(html, /Role: '\\s*\\+\\s*\\(item\\.actor_role/);
+  assert.ok(html.includes("Role: '+(item.actor_role||'unknown')"));
   assert.doesNotMatch(html, /from\('chat_reports'\)[\s\S]{0,180}\.limit\(100\)/);
   assert.doesNotMatch(html, /from\('chat_private_reports'\)[\s\S]{0,180}\.limit\(100\)/);
 }
