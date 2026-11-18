@@ -8,6 +8,16 @@ on table public.chat_private_reports,
          public.chat_private_conversations
 from public, anon, authenticated;
 
+-- Moderators may only soft-hide private messages, not rewrite their content,
+-- sender, conversation, or timestamps.
+revoke update
+on table public.chat_private_messages
+from public, anon, authenticated;
+
+grant update (deleted_at)
+on table public.chat_private_messages
+to authenticated;
+
 -- The moderation UI only changes status. Column-level grants prevent admins
 -- from rewriting reporter identity, message linkage, reason, details, or evidence.
 revoke update
