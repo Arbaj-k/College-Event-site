@@ -5,7 +5,7 @@
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
       navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function (error) {
-        console.warn('Hapn offline support could not be registered.', error);
+        console.warn('Hapn offline support could not be registered:', error && (error.name || error.code) || 'unknown');
       });
     });
   }
