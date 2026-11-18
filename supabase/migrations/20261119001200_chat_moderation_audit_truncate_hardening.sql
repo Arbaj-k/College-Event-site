@@ -64,7 +64,12 @@ begin
       (actor_id,actor_role,event_type,message_id,conversation_id,old_deleted_at,new_deleted_at)
     values
       (auth.uid(),
-       coalesce(pg_catalog.current_setting('request.jwt.claim.role', true), 'unknown'),
+       case
+         when auth.uid() is null then coalesce(pg_catalog.current_setting('request.jwt.claim.role', true), 'system')
+         when exists (select 1 from public.profiles p where p.user_id = auth.uid() and p.role = 'super_admin' and p.is_active = true) then 'super_admin'
+         when exists (select 1 from public.admins a where a.user_id = auth.uid() and a.role = 'admin') then 'global_admin'
+         else 'authenticated_user'
+       end,
        case when tg_table_name = 'chat_messages'
          then 'public_message_hidden'
          else 'private_message_hidden' end,
