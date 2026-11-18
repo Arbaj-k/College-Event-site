@@ -12,6 +12,12 @@ $preflight$;
 alter table public.chat_moderation_audit
   add column if not exists actor_role text not null default 'unknown';
 
+-- Keep actor_id as an immutable historical identifier. A foreign key with
+-- ON DELETE SET NULL would issue an UPDATE during auth-user deletion, which
+-- the append-only audit trigger correctly rejects and would block account deletion.
+alter table public.chat_moderation_audit
+  drop constraint if exists chat_moderation_audit_actor_id_fkey;
+
 -- Browser and service roles never need to truncate/delete the audit log.
 revoke truncate, delete, update, insert, references, trigger
   on table public.chat_moderation_audit
