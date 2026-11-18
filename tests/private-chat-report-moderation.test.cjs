@@ -8,8 +8,10 @@ const migration = fs.readFileSync(
   'utf8'
 );
 
-assert.match(migration, /revoke delete, truncate[\s\S]*?chat_private_reports[\s\S]*?chat_private_messages[\s\S]*?chat_private_conversations[\s\S]*?from public, anon, authenticated/i);
-assert.match(migration, /revoke update[\s\S]*?on table public\.chat_private_reports[\s\S]*?from public, anon, authenticated/i);
-assert.match(migration, /grant update \(status\)[\s\S]*?on table public\.chat_private_reports[\s\S]*?to authenticated/i);
+assert.match(migration, /revoke delete, truncate[\s\S]*?chat_reports[\s\S]*?chat_messages[\s\S]*?chat_private_reports[\s\S]*?chat_private_messages[\s\S]*?chat_private_conversations[\s\S]*?from public, anon, authenticated/i);
+assert.match(migration, /revoke update[\s\S]*?on table public\.chat_messages, public\.chat_private_messages[\s\S]*?from public, anon, authenticated/i);
+assert.match(migration, /grant update \(deleted_at\)[\s\S]*?on table public\.chat_messages, public\.chat_private_messages[\s\S]*?to authenticated/i);
+assert.match(migration, /revoke update[\s\S]*?on table public\.chat_reports, public\.chat_private_reports[\s\S]*?from public, anon, authenticated/i);
+assert.match(migration, /grant update \(status\)[\s\S]*?on table public\.chat_reports, public\.chat_private_reports[\s\S]*?to authenticated/i);
 assert.doesNotMatch(migration, /grant\s+(?:all|delete|truncate)\b/i);
-console.log('Private chat report moderation privilege checks passed.');
+console.log('Chat report moderation privilege checks passed.');
