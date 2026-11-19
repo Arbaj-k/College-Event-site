@@ -53,6 +53,10 @@ export default {
     if (contentType.toLowerCase().includes("text/html") && upstream.body) {
       const nonce = createNonce();
       headers.set("Content-Security-Policy", buildCsp(nonce));
+      headers.delete("content-length");
+      headers.delete("content-encoding");
+      headers.delete("content-md5");
+      headers.delete("etag");
       const html = await upstream.text();
       const securedHtml = html.replace(/<script\b([^>]*)>/gi, (tag, attributes) => {
         if (/(?:^|\s)nonce\s*=/.test(attributes)) return tag;
