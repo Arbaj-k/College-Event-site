@@ -167,7 +167,7 @@ document.addEventListener('click', async function (event) {
         const extension = (blob.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg').replace(/[^a-z0-9]/gi, '');
         const file = new File([blob], 'hapn-event-poster.' + extension, { type: blob.type });
         if (navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title, text: description + '\\n' + url });
+          await navigator.share({ files: [file], title, text: description + '\n' + url });
           return;
         }
       }
