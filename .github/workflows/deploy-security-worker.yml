@@ -53,6 +53,33 @@ jobs:
             exit 1
           fi
 
+      - name: Diagnose Cloudflare zone before deployment
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(curl --silent --show-error --fail-with-body \
+            --get "https://api.cloudflare.com/client/v4/zones" \
+            --header "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            --data-urlencode "name=hapn.info" \
+            --data-urlencode "account.id=$CLOUDFLARE_ACCOUNT_ID")" || {
+              echo "::error::Cloudflare API could not list hapn.info. Check token Zone:Read permission and account ID."
+              exit 1
+            }
+          success="$(jq -r '.success' <<< "$response")"
+          if [[ "$success" != "true" ]]; then
+            jq -r '.errors[]? | "Cloudflare API error: " + (.message // "unknown")' <<< "$response"
+            exit 1
+          fi
+          count="$(jq '.result | length' <<< "$response")"
+          if [[ "$count" == "0" ]]; then
+            echo "::error::No hapn.info zone is available in the configured Cloudflare account. Add/activate the zone in this account and complete nameserver delegation before deploying routes."
+            exit 1
+          fi
+          jq -r '.result[] | "Zone: " + .name + " | status: " + .status + " | nameservers: " + (.name_servers | join(", "))' <<< "$response"
+
       - name: Deploy Worker to Cloudflare
         uses: cloudflare/wrangler-action@v3
         with:
