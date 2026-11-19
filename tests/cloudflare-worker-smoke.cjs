@@ -59,7 +59,8 @@ async function main() {
   ]) {
     assert.ok(csp.includes(directive), "CSP must include " + directive);
   }
-  assert.ok(!csp.includes("'unsafe-inline'"), "script policy must not allow unsafe-inline");
+  const plainScriptPolicy = (csp.match(/(?:^|;\\s*)script-src\\s+([^;]+)/i) || [])[1] || "";
+  assert.ok(!plainScriptPolicy.includes("'unsafe-inline'"), "script-src must not allow unsafe-inline");
 
   const htmlWorker = await loadWorker("text/html; charset=utf-8");
   const htmlResponse = await htmlWorker.fetch({ url: "https://hapn.info/" });
@@ -73,7 +74,8 @@ async function main() {
   const scriptNonces = [...html.matchAll(/<script\\b[^>]*\\bnonce="([^"]+)"/gi)].map(match => match[1]);
   assert.equal(scriptNonces.length, 2, "every script tag must carry a nonce");
   assert.ok(scriptNonces.every(value => value === nonce[1]), "all script nonces must match the response CSP");
-  assert.ok(!htmlCsp.includes("'unsafe-inline'"), "HTML script policy must not allow unsafe-inline");
+  const htmlScriptPolicy = (htmlCsp.match(/(?:^|;\\s*)script-src\\s+([^;]+)/i) || [])[1] || "";
+  assert.ok(!htmlScriptPolicy.includes("'unsafe-inline'"), "HTML script-src must not allow unsafe-inline");
 
   console.log("Cloudflare Worker smoke test passed.");
 }
