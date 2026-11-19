@@ -10,7 +10,7 @@ async function loadWorker(contentType) {
   const sandbox = {
     module: { exports: {} },
     fetch: async () => new Response(contentType === "text/html"
-      ? '<!doctype html><script>window.inlineAllowed = true;</script><script src="/app.js"></script>'
+      ? '<!doctype html><script nonce="origin-stale-nonce">window.inlineAllowed = true;</script><script src="/app.js"></script>'
       : "origin-body", {
         status: 202,
         headers: {
@@ -69,6 +69,10 @@ async function main() {
   assert.ok(nonce, "HTML CSP must include a fresh nonce");
   assert.ok(html.includes('nonce="' + nonce[1] + '"'), "inline and external scripts must receive the CSP nonce");
   assert.ok(html.includes("<script nonce="), "script tags must be nonce-rewritten");
+  assert.ok(!html.includes('nonce="origin-stale-nonce"'), "origin-provided nonce must be replaced");
+  const scriptNonces = [...html.matchAll(/<script\\b[^>]*\\bnonce="([^"]+)"/gi)].map(match => match[1]);
+  assert.equal(scriptNonces.length, 2, "every script tag must carry a nonce");
+  assert.ok(scriptNonces.every(value => value === nonce[1]), "all script nonces must match the response CSP");
   assert.ok(!htmlCsp.includes("'unsafe-inline'"), "HTML script policy must not allow unsafe-inline");
 
   console.log("Cloudflare Worker smoke test passed.");
