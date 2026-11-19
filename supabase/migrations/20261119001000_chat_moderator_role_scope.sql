@@ -1,6 +1,6 @@
--- Give the platform Super Admin explicit chat moderation access.
--- College Admins are intentionally excluded: private one-to-one chat evidence
--- is platform-wide sensitive data, not college-scoped moderation material.
+-- Only active platform Super Admins may moderate global chat.
+-- Legacy admins rows map to College Admins in the multi-college model and are
+-- deliberately not treated as platform-wide moderators.
 begin;
 
 create or replace function public.is_chat_moderator()
@@ -10,19 +10,14 @@ stable
 security definer
 set search_path = ''
 as $function$
-  select exists (
-    select 1
-    from public.admins a
-    where a.user_id = (select auth.uid())
-      and a.role = 'admin'
-  )
-  or exists (
-    select 1
-    from public.profiles p
-    where p.user_id = (select auth.uid())
-      and p.role = 'super_admin'
-      and p.is_active = true
-  );
+  select public.is_real_campus_user()
+    and exists (
+      select 1
+      from public.profiles p
+      where p.user_id = (select auth.uid())
+        and p.role = 'super_admin'
+        and p.is_active = true
+    );
 $function$;
 
 revoke all on function public.is_chat_moderator() from public, anon;
@@ -52,7 +47,7 @@ on public.chat_reports for update to authenticated
 using ((select public.is_chat_moderator()))
 with check ((select public.is_chat_moderator()));
 
--- Private conversation and evidence access is limited to platform admins.
+-- Private conversation and evidence access is limited to platform Super Admins.
 drop policy if exists "chat_private_participant_read" on public.chat_private_conversations;
 create policy "Private participants and chat moderators read conversations"
 on public.chat_private_conversations for select to authenticated
