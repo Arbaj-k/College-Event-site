@@ -37,5 +37,10 @@ const safeHtml = eventPageHtml({
 assert.ok(safeHtml.includes('href="https://forms.gle/register"'));
 assert.ok(safeHtml.includes('src="https://images.example.org/poster.webp"'));
 assert.ok(safeHtml.includes('Register Now'));
+assert.ok(safeHtml.includes('data-share-image="https://images.example.org/poster.webp"'));
+assert.ok(safeHtml.includes('navigator.canShare({ files: [file] })'));
+assert.ok(safeHtml.includes('files: [file]'));
+assert.ok(safeHtml.includes('await navigator.share({ title, text: description, url })'));
+assert.ok(!safeHtml.includes('Poster image: '), 'Poster URL must not be appended as message text');
 
 console.log('Production hardening smoke checks passed.');
