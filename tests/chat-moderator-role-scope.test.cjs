@@ -9,11 +9,12 @@ const migration = fs.readFileSync(
 );
 
 assert.match(migration, /create or replace function public\.is_chat_moderator\(\)/i);
-assert.match(migration, /a\.role = 'admin'/i);
+assert.match(migration, /public\.is_real_campus_user\(\)/i);
 assert.match(migration, /p\.role = 'super_admin'[\s\S]*?p\.is_active = true/i);
+assert.doesNotMatch(migration, /from public\.admins|a\.role = 'admin'|public\.is_admin\(\)/i,
+  'Legacy admins-table membership must not grant global chat moderation');
 assert.match(migration, /revoke all on function public\.is_chat_moderator\(\) from public, anon/i);
 assert.match(migration, /grant execute on function public\.is_chat_moderator\(\) to authenticated/i);
-assert.doesNotMatch(migration, /college_admin/i);
 for (const policy of [
   'Chat moderators review reports',
   'Chat moderators update reports',
