@@ -41,4 +41,6 @@ jobs:
         run: node tests/chat-moderation-audit-log.test.cjs
       - name: Run chat moderation audit truncate-hardening checks
         run: node tests/chat-moderation-audit-truncate-hardening.test.cjs
+      - name: Run SECURITY DEFINER trigger search-path checks
+        run: node tests/security-definer-trigger-search-path.test.cjs
 
