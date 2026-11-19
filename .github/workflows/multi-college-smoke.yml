@@ -45,4 +45,6 @@ jobs:
         run: node tests/security-definer-trigger-search-path.test.cjs
       - name: Run chat match queue TRUNCATE hardening checks
         run: node tests/chat-match-queue-truncate-hardening.test.cjs
+      - name: Run chat match queue conversation cascade checks
+        run: node tests/chat-match-queue-conversation-cascade.test.cjs
 
