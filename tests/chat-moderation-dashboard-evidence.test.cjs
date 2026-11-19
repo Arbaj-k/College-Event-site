@@ -20,7 +20,11 @@ for (const file of ['admin/chat-moderation/index.html', 'admin/chat-moderation.h
   assert.match(html, /already changed by another moderator/);
   assert.match(html, /let auditPage=0/);
   assert.match(html, /auditPageSize=200/);
-  assert.match(html, /\.range\(from,to\)/);
+  assert.match(html, /auditCursors=\[null\]/);
+  assert.match(html, /\.limit\(auditPageSize\+1\)/);
+  assert.match(html, /occurred_at\.lt\.'\+stamp/);
+  assert.match(html, /id\.lt\.'\+cursor\.id/);
+  assert.match(html, /auditCursors\[auditPage\+1\]/);
   assert.match(html, /auditPrev/);
   assert.match(html, /auditNext/);
   assert.match(html, /order\('id',\{ascending:false\}\)/);
