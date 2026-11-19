@@ -27,9 +27,8 @@ $('login').addEventListener('submit',async e=>{
  }catch(err){note('Login error: '+(err&&err.message?err.message:'Please refresh and try again.'));}
  finally{button.disabled=false;button.textContent='Sign in';}
 });
-let auditPage=0;
 const auditPageSize=200;
-let auditHasNext=false;
+let auditPage=0,auditHasNext=false,auditCursors=[null],auditLastRows=[];
 function updateAuditPager(){
  const prev=$('auditPrev'),next=$('auditNext'),label=$('auditPageLabel');
  if(prev)prev.disabled=auditPage===0;
@@ -38,14 +37,20 @@ function updateAuditPager(){
 }
 async function refreshAudit(reset=false){
  if(!me)return;
- if(reset)auditPage=0;
+ if(reset){auditPage=0;auditCursors=[null];}
  const box=$('auditLog');box.replaceChildren(el('div','empty','Loading audit history…'));
- const from=auditPage*auditPageSize,to=from+auditPageSize;
- const {data,error}=await db.from('chat_moderation_audit').select('id,actor_id,actor_role,event_type,report_id,message_id,old_status,new_status,old_deleted_at,new_deleted_at,occurred_at').order('occurred_at',{ascending:false}).order('id',{ascending:false}).range(from,to);
+ let query=db.from('chat_moderation_audit').select('id,actor_id,actor_role,event_type,report_id,message_id,old_status,new_status,old_deleted_at,new_deleted_at,occurred_at').order('occurred_at',{ascending:false}).order('id',{ascending:false}).limit(auditPageSize+1);
+ const cursor=auditCursors[auditPage];
+ if(cursor){
+  const stamp=cursor.occurred_at;
+  query=query.or('occurred_at.lt.'+stamp+',and(occurred_at.eq.'+stamp+',id.lt.'+cursor.id+')');
+ }
+ const {data,error}=await query;
  if(error){box.replaceChildren(el('div','empty','Could not load audit history: '+error.message+' (check audit migration and moderator policy).'));auditHasNext=false;updateAuditPager();return;}
  const rows=data||[];
  auditHasNext=rows.length>auditPageSize;
  const pageRows=rows.slice(0,auditPageSize);
+ auditLastRows=pageRows;
  box.replaceChildren();
  if(!pageRows.length){box.append(el('div','empty',auditPage===0?'No moderation actions recorded yet.':'No more audit records.'));updateAuditPager();return;}
  for(const item of pageRows){
@@ -62,7 +67,7 @@ async function refreshAudit(reset=false){
  updateAuditPager();
 }
 $('auditPrev').addEventListener('click',()=>{if(auditPage>0){auditPage--;refreshAudit();}});
-$('auditNext').addEventListener('click',()=>{if(auditHasNext){auditPage++;refreshAudit();}});
+$('auditNext').addEventListener('click',()=>{if(auditHasNext&&auditLastRows.length){const last=auditLastRows[auditLastRows.length-1];auditCursors[auditPage+1]={occurred_at:last.occurred_at,id:last.id};auditPage++;refreshAudit();}});
 $('refreshAudit').addEventListener('click',()=>refreshAudit(true));
 async function checkAdmin(){
  try{
