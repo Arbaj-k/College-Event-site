@@ -27,6 +27,8 @@ jobs:
           node --check js/invite-accept.js
       - name: Run multi-college security smoke checks
         run: node tests/multi-college-smoke.cjs
+      - name: Run event-submission moderator role-scope checks
+        run: node tests/event-submission-moderator-role-scope.test.cjs
       - name: Run chat report moderation privilege checks
         run: node tests/private-chat-report-moderation.test.cjs
       - name: Run account-deletion report retention checks
