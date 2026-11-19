@@ -142,7 +142,7 @@ ${organizer ? '<div><dt>👥 Organizer</dt><dd>' + organizer + '</dd></div>' : '
 </dl>
 <h2 class="detail-text-title">About this event</h2>
 <p class="detail-text">${description}</p>
-${'<div class="detail-cta">' + (registration ? '<a class="btn btn-primary btn-lg" href="' + registration + '" target="_blank" rel="noopener noreferrer">Register Now</a>' : '') + '<button class="btn btn-outline share-button" type="button" data-share-url="' + canonical + '" data-share-title="' + title + ' – Hapn" aria-label="Share this event"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4M8.7 13.3l6.6 4.4"/></svg> Share event</button></div>'}
+${'<div class="detail-cta">' + (registration ? '<a class="btn btn-primary btn-lg" href="' + registration + '" target="_blank" rel="noopener noreferrer">Register Now</a>' : '') + '<button class="btn btn-outline share-button" type="button" data-share-url="' + canonical + '" data-share-title="' + title + ' – Hapn" data-share-image="' + image + '" data-share-text="Check out ' + title + ' on Hapn!" aria-label="Share this event"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4M8.7 13.3l6.6 4.4"/></svg> Share event</button></div>'}
 </div>
 </article>
 </div></section></main>
