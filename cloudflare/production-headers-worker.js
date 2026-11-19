@@ -58,9 +58,10 @@ export default {
       headers.delete("content-md5");
       headers.delete("etag");
       const html = await upstream.text();
-      const securedHtml = html.replace(/<script\b([^>]*)>/gi, (tag, attributes) => {
-        if (/(?:^|\s)nonce\s*=/.test(attributes)) return tag;
-        return "<script nonce=\"" + nonce + "\"" + attributes + ">";
+      const securedHtml = html.replace(/<script\\b([^>]*)>/gi, (_tag, attributes) => {
+        // Replace origin-provided nonces so every script matches this response's CSP.
+        const cleanAttributes = attributes.replace(/\\snonce\\s*=\\s*(?:"[^"]*"|'[^']*'|[^\\s>]+)/i, "");
+        return "<script nonce=\"" + nonce + "\"" + cleanAttributes + ">";
       });
       return new Response(securedHtml, {
         status: upstream.status,
