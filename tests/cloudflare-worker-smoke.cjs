@@ -9,7 +9,7 @@ async function loadWorker(contentType) {
   const source = fs.readFileSync(workerPath, "utf8");
   const sandbox = {
     module: { exports: {} },
-    fetch: async () => new Response(contentType === "text/html"
+    fetch: async () => new Response(contentType.toLowerCase().startsWith("text/html")
       ? '<!doctype html><script nonce="origin-stale-nonce">window.inlineAllowed = true;</script><script src="/app.js"></script>'
       : "origin-body", {
         status: 202,
