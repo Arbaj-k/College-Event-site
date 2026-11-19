@@ -208,40 +208,63 @@
     });
   }
 
-  /* Share event details and the original poster URL; never download or attach a file. */
+  /* Share the poster as an actual image attachment when the browser supports it. */
   document.addEventListener('click', async function (event) {
     const button = event.target.closest('.share-button');
     if (!button) return;
     event.preventDefault();
+
     const url = new URL(button.getAttribute('data-share-url') || location.href, location.href).href;
     const title = button.getAttribute('data-share-title') || document.title;
     const imageValue = button.getAttribute('data-share-image') || '';
     const imageUrl = imageValue ? new URL(imageValue, location.href).href : '';
-    const text = [
-      button.getAttribute('data-share-text') || 'Check this out on Hapn:',
-      url,
-      imageUrl ? 'Poster image: ' + imageUrl : ''
-    ].filter(Boolean).join('\n');
+    const description = button.getAttribute('data-share-text') || 'Check this out on Hapn:';
+    const shareText = description + '\n' + url;
+
     if (navigator.share) {
       try {
-        await navigator.share({ title: title, text: text, url: url });
+        // WhatsApp and other targets receive a real image attachment, not a poster URL.
+        if (imageUrl && navigator.canShare && typeof File !== 'undefined') {
+          const response = await fetch(imageUrl, { mode: 'cors', credentials: 'omit' });
+          if (!response.ok) throw new Error('Poster download failed: ' + response.status);
+          const blob = await response.blob();
+          if (!blob.type || !blob.type.startsWith('image/')) throw new Error('Poster is not an image');
+          const extension = (blob.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg').replace(/[^a-z0-9]/gi, '');
+          const file = new File([blob], 'hapn-event-poster.' + extension, { type: blob.type });
+          const payload = { files: [file], title: title, text: shareText };
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share(payload);
+            return;
+          }
+        }
+        // Link-only fallback lets WhatsApp render the event page's og:image preview.
+        await navigator.share({ title: title, text: description, url: url });
         return;
       } catch (error) {
         if (error && error.name === 'AbortError') return;
-        console.warn('Native event sharing failed:', error && (error.name || error.code) || 'unknown');
+        console.warn('Native event sharing failed:', error);
+        // If the file attachment failed, make one link-only attempt.
+        try {
+          await navigator.share({ title: title, text: description, url: url });
+          return;
+        } catch (fallbackError) {
+          if (fallbackError && fallbackError.name === 'AbortError') return;
+          console.warn('Event link sharing failed:', fallbackError);
+        }
       }
     }
+
     try {
-      if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(text);
+      if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(url);
       else {
         const input = document.createElement('textarea');
-        input.value = text; input.setAttribute('readonly', '');
+        input.value = url; input.setAttribute('readonly', '');
         input.style.position = 'fixed'; input.style.opacity = '0';
         document.body.appendChild(input); input.select();
         const copied = document.execCommand('copy'); input.remove();
         if (!copied) throw new Error('Copy failed');
       }
-      CE.toast(imageUrl ? 'Event details and poster image link copied.' : 'Event link copied! Share it with your friends.', 'success');
+      CE.toast('Event link copied. Its page preview includes the poster.', 'success');
     } catch (error) {
       CE.toast('Could not copy the event link. Please copy the page URL from your browser.', 'error');
     }
