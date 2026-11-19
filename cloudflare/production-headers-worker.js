@@ -58,9 +58,9 @@ export default {
       headers.delete("content-md5");
       headers.delete("etag");
       const html = await upstream.text();
-      const securedHtml = html.replace(/<script\\b([^>]*)>/gi, (_tag, attributes) => {
+      const securedHtml = html.replace(/<script\b([^>]*)>/gi, (_tag, attributes) => {
         // Replace origin-provided nonces so every script matches this response's CSP.
-        const cleanAttributes = attributes.replace(/\\snonce\\s*=\\s*(?:"[^"]*"|'[^']*'|[^\\s>]+)/i, "");
+        const cleanAttributes = attributes.replace(/\snonce\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/i, "");
         return "<script nonce=\"" + nonce + "\"" + cleanAttributes + ">";
       });
       return new Response(securedHtml, {
