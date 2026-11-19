@@ -59,7 +59,7 @@ async function main() {
   ]) {
     assert.ok(csp.includes(directive), "CSP must include " + directive);
   }
-  const plainScriptPolicy = (csp.match(/(?:^|;\\s*)script-src\\s+([^;]+)/i) || [])[1] || "";
+  const plainScriptPolicy = (csp.match(/(?:^|;\s*)script-src\s+([^;]+)/i) || [])[1] || "";
   assert.ok(!plainScriptPolicy.includes("'unsafe-inline'"), "script-src must not allow unsafe-inline");
 
   const htmlWorker = await loadWorker("text/html; charset=utf-8");
@@ -71,10 +71,10 @@ async function main() {
   assert.ok(html.includes('nonce="' + nonce[1] + '"'), "inline and external scripts must receive the CSP nonce");
   assert.ok(html.includes("<script nonce="), "script tags must be nonce-rewritten");
   assert.ok(!html.includes('nonce="origin-stale-nonce"'), "origin-provided nonce must be replaced");
-  const scriptNonces = [...html.matchAll(/<script\\b[^>]*\\bnonce="([^"]+)"/gi)].map(match => match[1]);
+  const scriptNonces = [...html.matchAll(/<script\b[^>]*\bnonce="([^"]+)"/gi)].map(match => match[1]);
   assert.equal(scriptNonces.length, 2, "every script tag must carry a nonce");
   assert.ok(scriptNonces.every(value => value === nonce[1]), "all script nonces must match the response CSP");
-  const htmlScriptPolicy = (htmlCsp.match(/(?:^|;\\s*)script-src\\s+([^;]+)/i) || [])[1] || "";
+  const htmlScriptPolicy = (htmlCsp.match(/(?:^|;\s*)script-src\s+([^;]+)/i) || [])[1] || "";
   assert.ok(!htmlScriptPolicy.includes("'unsafe-inline'"), "HTML script-src must not allow unsafe-inline");
 
   console.log("Cloudflare Worker smoke test passed.");
