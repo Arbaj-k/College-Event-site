@@ -2,28 +2,36 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const crypto = require("node:crypto").webcrypto;
 
-async function main() {
+async function loadWorker(contentType) {
   const workerPath = path.join(__dirname, "..", "cloudflare", "production-headers-worker.js");
   const source = fs.readFileSync(workerPath, "utf8");
   const sandbox = {
     module: { exports: {} },
-    fetch: async () => new Response("origin-body", {
-      status: 202,
-      headers: {
-        "content-type": "text/plain",
-        "x-powered-by": "origin"
-      }
-    }),
+    fetch: async () => new Response(contentType === "text/html"
+      ? '<!doctype html><script>window.inlineAllowed = true;</script><script src="/app.js"></script>'
+      : "origin-body", {
+        status: 202,
+        headers: {
+          "content-type": contentType,
+          "x-powered-by": "origin"
+        }
+      }),
     Headers,
-    Response
+    Response,
+    Uint8Array,
+    crypto
   };
 
   vm.runInNewContext(source.replace("export default", "module.exports ="), sandbox, {
     filename: workerPath
   });
+  return sandbox.module.exports;
+}
 
-  const worker = sandbox.module.exports;
+async function main() {
+  const worker = await loadWorker("text/plain");
   assert.equal(typeof worker.fetch, "function", "Worker must export fetch()");
   const response = await worker.fetch({ url: "https://hapn.info/" });
 
@@ -51,6 +59,17 @@ async function main() {
   ]) {
     assert.ok(csp.includes(directive), "CSP must include " + directive);
   }
+  assert.ok(!csp.includes("'unsafe-inline'"), "script policy must not allow unsafe-inline");
+
+  const htmlWorker = await loadWorker("text/html; charset=utf-8");
+  const htmlResponse = await htmlWorker.fetch({ url: "https://hapn.info/" });
+  const htmlCsp = htmlResponse.headers.get("content-security-policy") || "";
+  const html = await htmlResponse.text();
+  const nonce = htmlCsp.match(/'nonce-([^']+)'/);
+  assert.ok(nonce, "HTML CSP must include a fresh nonce");
+  assert.ok(html.includes('nonce="' + nonce[1] + '"'), "inline and external scripts must receive the CSP nonce");
+  assert.ok(html.includes("<script nonce="), "script tags must be nonce-rewritten");
+  assert.ok(!htmlCsp.includes("'unsafe-inline'"), "HTML script policy must not allow unsafe-inline");
 
   console.log("Cloudflare Worker smoke test passed.");
 }
