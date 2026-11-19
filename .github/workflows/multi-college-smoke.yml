@@ -27,3 +27,24 @@ jobs:
           node --check js/invite-accept.js
       - name: Run multi-college security smoke checks
         run: node tests/multi-college-smoke.cjs
+      - name: Run chat report moderation privilege checks
+        run: node tests/private-chat-report-moderation.test.cjs
+      - name: Run account-deletion report retention checks
+        run: node tests/chat-report-account-deletion-retention.test.cjs
+      - name: Run chat message deletion report retention checks
+        run: node tests/chat-report-message-deletion-retention.test.cjs
+      - name: Run chat moderation dashboard evidence checks
+        run: node tests/chat-moderation-dashboard-evidence.test.cjs
+      - name: Run chat moderator role-scope checks
+        run: node tests/chat-moderator-role-scope.test.cjs
+      - name: Run chat moderation audit log checks
+        run: node tests/chat-moderation-audit-log.test.cjs
+      - name: Run chat moderation audit truncate-hardening checks
+        run: node tests/chat-moderation-audit-truncate-hardening.test.cjs
+      - name: Run SECURITY DEFINER trigger search-path checks
+        run: node tests/security-definer-trigger-search-path.test.cjs
+      - name: Run chat match queue TRUNCATE hardening checks
+        run: node tests/chat-match-queue-truncate-hardening.test.cjs
+      - name: Run chat match queue conversation cascade checks
+        run: node tests/chat-match-queue-conversation-cascade.test.cjs
+

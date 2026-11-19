@@ -1,0 +1,16 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const sql=fs.readFileSync(path.join(__dirname,'..','supabase/migrations/20261119001200_chat_moderation_audit_truncate_hardening.sql'),'utf8');
+assert.match(sql,/Apply migration 20261119001100_chat_moderation_audit_log\.sql/i);
+assert.match(sql,/add column if not exists actor_role text/i);
+assert.match(sql,/revoke truncate, delete, update, insert, references, trigger[\s\S]*?from public, anon, authenticated, service_role/i);
+assert.match(sql,/revoke truncate on table public\.chat_reports, public\.chat_private_reports,[\s\S]*?public\.chat_private_conversations[\s\S]*?from public, anon, authenticated, service_role/i);
+assert.match(sql,/current_setting\('request\.jwt\.claim\.role', true\)/i);
+assert.equal((sql.match(/nullif\(pg_catalog\.current_setting\('request\.jwt\.claim\.role', true\), ''\)/gi)||[]).length,2);
+
+assert.match(sql,/new\.conversation_id/i);
+assert.match(sql,/drop constraint if exists chat_moderation_audit_actor_id_fkey/i);
+assert.match(sql,/append-only audit trigger correctly rejects/i);
+console.log('Chat moderation audit truncate-hardening checks passed.');
