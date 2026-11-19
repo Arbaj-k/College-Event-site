@@ -149,14 +149,45 @@ ${'<div class="detail-cta">' + (registration ? '<a class="btn btn-primary btn-lg
 <footer class="site-footer"><div class="container"><p class="footer-bottom">© 2026 Hapn</p></div></footer>
 <script>
 document.addEventListener('click', async function (event) {
-  const button = event.target.closest('.share-button'); if (!button) return;
+  const button = event.target.closest('.share-button');
+  if (!button) return;
+  event.preventDefault();
   const url = new URL(button.getAttribute('data-share-url') || location.href, location.href).href;
   const title = button.getAttribute('data-share-title') || document.title;
-  if (navigator.share) { try { await navigator.share({ title, text: 'Check this out on Hapn:', url }); return; } catch (error) { if (error && error.name === 'AbortError') return; } }
+  const imageValue = button.getAttribute('data-share-image') || '';
+  const imageUrl = imageValue ? new URL(imageValue, location.href).href : '';
+  const description = button.getAttribute('data-share-text') || 'Check this out on Hapn:';
+  if (navigator.share) {
+    try {
+      if (imageUrl && navigator.canShare && typeof File !== 'undefined') {
+        const response = await fetch(imageUrl, { mode: 'cors', credentials: 'omit' });
+        if (!response.ok) throw new Error('Poster download failed: ' + response.status);
+        const blob = await response.blob();
+        if (!blob.type || !blob.type.startsWith('image/')) throw new Error('Poster is not an image');
+        const extension = (blob.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg').replace(/[^a-z0-9]/gi, '');
+        const file = new File([blob], 'hapn-event-poster.' + extension, { type: blob.type });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title, text: description + '\\n' + url });
+          return;
+        }
+      }
+      await navigator.share({ title, text: description, url });
+      return;
+    } catch (error) {
+      if (error && error.name === 'AbortError') return;
+      console.warn('Event poster sharing failed; falling back to link:', error);
+      try { await navigator.share({ title, text: description, url }); return; }
+      catch (fallbackError) { if (fallbackError && fallbackError.name === 'AbortError') return; }
+    }
+  }
   try {
     if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(url);
-    else { const input=document.createElement('textarea'); input.value=url; input.setAttribute('readonly',''); input.style.position='fixed'; input.style.opacity='0'; document.body.appendChild(input); input.select(); const copied=document.execCommand('copy'); input.remove(); if(!copied) throw new Error('Copy failed'); }
-    window.alert('Event link copied! Share it with your friends.');
+    else {
+      const input=document.createElement('textarea'); input.value=url; input.setAttribute('readonly','');
+      input.style.position='fixed'; input.style.opacity='0'; document.body.appendChild(input); input.select();
+      const copied=document.execCommand('copy'); input.remove(); if(!copied) throw new Error('Copy failed');
+    }
+    window.alert('Event link copied. Its page preview includes the poster.');
   } catch (error) { window.prompt('Copy this event link:', url); }
 });
 </script>
