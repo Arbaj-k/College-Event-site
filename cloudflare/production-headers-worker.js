@@ -50,12 +50,12 @@ export default {
     headers.delete("X-Powered-By");
 
     const contentType = headers.get("content-type") || "";
-    if (/text\\/html/i.test(contentType) && upstream.body) {
+    if (contentType.toLowerCase().includes("text/html") && upstream.body) {
       const nonce = createNonce();
       headers.set("Content-Security-Policy", buildCsp(nonce));
       const html = await upstream.text();
-      const securedHtml = html.replace(/<script\\b([^>]*)>/gi, (tag, attributes) => {
-        if (/\\bnonce\\s*=/.test(attributes)) return tag;
+      const securedHtml = html.replace(/<script\b([^>]*)>/gi, (tag, attributes) => {
+        if (/(?:^|\s)nonce\s*=/.test(attributes)) return tag;
         return "<script nonce=\"" + nonce + "\"" + attributes + ">";
       });
       return new Response(securedHtml, {
